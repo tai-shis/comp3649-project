@@ -2,6 +2,11 @@
 
 ## Developing and Contributing
 ### Pull Requests
+- Before doing any changes, make sure we pull newest changes from main
+```sh
+git checkout main
+git pull origin main
+```
 - For any new feature/change, we create a new branch:
 - We name the branch in the following format:
   - **category/name**
