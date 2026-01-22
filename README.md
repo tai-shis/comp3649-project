@@ -20,7 +20,7 @@
 ### Group Policies
 >If any issues in implementation arises, civil discussion to resolve any conflicts should be done; escalating early on if problems persist. 
 
->Code should be created by the writer, clearly citing any outside resources whe used; being added alonside the documentation.
+>Code should be created by the writer, clearly citing any outside resources when used; being added alongside the documentation.
 
 > Code should be self-documenting, only detailing comments when code is complicated/overwhelming
 
@@ -28,23 +28,50 @@
 
 > Development environment should be easily reproducible and documented.
 
-> Logic should be abstracted into classes and functions into seperate files/functions; avoiding duplicate code or long blocks
+> Logic should be abstracted into classes and functions into separate files/functions; avoiding duplicate code or long blocks
 >> Breaking functions into smaller chunks, related functions into their own files, related files into their own folders, etc.
 
 <small>Last Updated: 1/21/2026</small>
 
 **Meetings and Communication**
 
-> Group communication should be held regularily through a discord chat with all members included. Additional meetings can also be discussed and held when members are available through the discord. Decisions and actions should be mutually agreeed upon, finding workarounds or compromises. Responses should generally be returned in at least a day or two.
+> Group communication should be held regularly through a discord chat with all members included. Additional meetings can also be discussed and held when members are available through the discord. Decisions and actions should be mutually agreed upon, finding workarounds or compromises. Responses should generally be returned in at least a day or two.
 
 **Tools**
 
-> Python is the main language of development, using python's built-in environment (.venv) to handle reproducible environments (also nix for OS-specific environments; don't worry about it). Packages should be listed in the requirements.txt file, adding/contributing to it as the documentation below states. Testing should be provided in its own file in a seperate folder to easily re-run tests (subject to move to github actions). Github to handle version control and collaborative development.
+> Python is the main language of development, using python's built-in environment (.venv) to handle reproducible environments (also nix for OS-specific environments; don't worry about it). Packages should be listed in the requirements.txt file, adding/contributing to it as the documentation below states. Testing should be provided in its own file in a separate folder to easily re-run tests (subject to move to GitHub actions). Github to handle version control and collaborative development.
 
-**Development Methology**
+**Development Methodology**
 
-> Readable, maintainable code. Proper documentation where needed. Docstrings on function headers as well as type hinting where applicable. As stated above, Logic should be abstracted into classes and functions into seperate files/functions; avoiding duplicate code or long blocks; breaking functions into smaller chunks, related functions into their own files, related files into their own folders, etc.
+> Readable, maintainable code. Proper documentation where needed. Docstrings on function headers as well as type hinting where applicable. As stated above, Logic should be abstracted into classes and functions into separate files/functions; avoiding duplicate code or long blocks; breaking functions into smaller chunks, related functions into their own files, related files into their own folders, etc.
 
+**Division of Labour**
+
+> Work will be divided by logic/features that need to be added. Group members will select a feature that needs to be added or one they are comfortable with, and begin working and implementing it. In order to prevent two members from working on the same feature accidentally we will be incorporating some form of project management (e.g., Trello). Group members working on feature that require completion from a different feature that has yet to be implemented will simply create fake data in order to test their logic in the meantime. There will be frequent meetings and check-ins to ensure everyone is on the same page and project development is proceeding smoothly.
+
+**Code and Documentation Standards**
+
+> Currently, PEP 8 will be used as the existing coding standard in Python for this project. For classes, functions docstrings will be created explaining the behaviour, arguments, what is returned, and any other important information. Detailed comments will be done throughout the code to explain why certain things are done. In addition, if outside resources are used citations will be explicitly stated in the comments.
+
+**Quality Assurance and Review**
+
+> There will be a test folder which will hold all the unit tests as well as hold sample data to use against the logic/features before integration to ensure they are working as intended. After a feature is created and tested it will be submitted through GitHub (pull requests), so that it requires the approval of at least one other group member (with them testing it and reviewing it as well)
+
+**Development Logs**
+
+> GitHub Issues will be the primary development log for known issues, bugs and/or limitations that are present within the program. When a bug is discovered, it will be documented by creating an issue within Github. After steps are taken to fix the bug, a description of the steps were taken to fix said bug will be noted and the issue will be marked as resolved.
+
+**Team Member Responsibilities**
+
+> Group members are expected to attend group meetings. If unable to, the member must notify the group. 
+
+> Group members are expected to check Discord regularly and provide a reply within 48 hours.
+
+> Group members must complete their work before deadlines. If unable to, the member must notify the group.
+
+> Group members are expected to check GitHub regularly for any issues, Pull Requests, etc.
+
+> Group members are expected to attend the group presentations with the instructor.
 
 ## Developing and Contributing
 ### Pull Requests
