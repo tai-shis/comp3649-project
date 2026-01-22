@@ -19,3 +19,10 @@ Code Rep: I -> 3AS LL
 
 **Note:** Add support routines (constructors, destructors, getters, setters, parsers) for querying data structures 1 and 2.
  - Routine(s) to print (1) and (2) in human-readable format will be helpful.
+
+
+File object -> Scanner -> tokens (operator, variable, literal, equal, live, colon, comma) -> parser -> int code
+
+each token should be its own class with its own 
+
+parse calls scanner method for next token, scanner should read the next file object
