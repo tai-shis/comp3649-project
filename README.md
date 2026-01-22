@@ -73,6 +73,38 @@
 
 > Group members are expected to attend the group presentations with the instructor.
 
+## Plan Approvals
+### Week 3
+<small>Last Updated: 22/01/2026</small>
+
+- [x] Finalize project governance document
+- [ ] Finalize project management document
+- [ ] Develop data structures for input files and instructions
+- [ ] Develop file reading and validation
+- [ ] Create test functions for file reading, parsing, and scanning
+
+### Week 4
+<small>Last Updated: 22/01/2026</small>
+
+- [ ] Develop interference graph for live variables
+
+### Week 5
+<small>Last Updated: 22/01/2026</small>
+
+- [ ] Develop and execute a graph colouring algorithm to assign registers to live variables
+
+### Week 6
+<small>Last Updated: 22/01/2026</small>
+
+- [ ] Complete initial test runs of assembly code generation
+
+### Week 7
+<small>Last Updated: 22/01/2026</small>
+
+- [ ] Ensure code generation is fully functional by this point
+- [ ] Begin planning Haskell solution
+
+
 ## Developing and Contributing
 ### Pull Requests
 - Before doing any changes, make sure we pull newest changes from main
