@@ -20,7 +20,8 @@ class Token:
             4: "equals",       # '=' occurs once
             5: "live",         # 'live:' occurs once
             6: "live_symbol",  # 'a:', 'c:', 'd:', etc...
-            7: "newline"       # '\n', terminating character   
+            7: "newline",      # '\n', terminating character   
+            -1: "EOF"          # End of File
         }
 
         return types[self.type]
@@ -68,7 +69,8 @@ class Scanner:
             'equals': 4,       # '=' occurs once
             'live': 5,         # 'live:' occurs once
             'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc...
-            'newline': 7       # '\n', terminating character
+            'newline': 7,      # '\n', terminating character
+            'EOF': -1          # End of File
         }
 
         # List of allowed operators
@@ -119,17 +121,23 @@ class Scanner:
 
         return Token(symbol, type)
 
-    def readline(self) -> None:
+    def readline(self) -> bool:
         """
             Tokenizes a line of the input into a list of tokens in the internal buffer.
             Error checking for valid order of tokens is not done. However, valid characters
             should be checked when obtaining the type.
 
+            Returns:
+                bool: True if EOF, False otherwise.
+
             This method should be called in a try/catch block.
         """
         
         # get leading whitespace out so we can assume we are reading destination immediately
-        line = self.file.readline().lstrip() 
+        line = self.file.readline().lstrip()
+
+        if line == '':
+            return True
 
         # Tokenize the line
         tokens: list[Token] = []
@@ -169,9 +177,12 @@ class Scanner:
         self.buffer = tokens
         self.index = 0
 
-    def next_token(self) -> Token:
+        return False
+
+    def next_tokens(self) -> Token:
         if len(self.buffer) == self.index:
-            self.readline()
+            if (self.readline()):
+                return Token("", -1) # EOF token
         else:
             self.index += 1
 
