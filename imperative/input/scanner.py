@@ -44,6 +44,13 @@ class Scanner:
         self.index: int = 0 # to avoid shifting and quicker checks
         self.buffer: list[Token] = [] # maxmimum length O(1) (max 6)
 
+    def __str__(self):
+        return f"index: {self.index}, buffer: {[str(token) for token in self.buffer]}"
+
+    def reset(self):
+        self.index = 0
+        self.buffer = []
+
     def identify(self, symbol: str):
         """
             Identifies the given object/string into its tokenized 'type'.

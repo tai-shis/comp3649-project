@@ -8,24 +8,17 @@ def test_scanner():
         print(f"Test Case 1")
         print(f"a = a + 1")
         print('-'*50)
-        token = scanner.next_token()
-        print(token, end=" ")
-        print(" => destination")
-        token = scanner.next_token()
-        print(token, end=" ")
-        print(" => destination")
-        token = scanner.next_token()
-        print(token, end=" ")
-        print(" => destination")
-        token = scanner.next_token()
-        print(token, end=" ")
-        print(" => destination")
-        token = scanner.next_token()
-        print(token, end=" ")
-        print(" => destination")
-        token = scanner.next_token()
-        print(token, end=" ")
-        print(" => destination")
+
+        expected = [ "destination", "equals", "variable", "operator", "variable", "newline"]
+        print(scanner)
+        for e in expected:
+            token = scanner.next_token()
+            print(token, end=" ")
+            print(f"=> {e}")
+        print(scanner)
+        scanner.reset()
+        print(scanner)
+        print('-'*50)
 
 
 if __name__ == "__main__":
