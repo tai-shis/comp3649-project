@@ -1,12 +1,11 @@
 from typing import TextIO
-import re
 
 class Token:
     def __init__(self, value: str, type: int):
         self.value: str = value
         self.type: int = type
 
-    def type(self):
+    def type_string(self):
         """
             Returns the human-readable representation of the
             token's type.
@@ -25,6 +24,8 @@ class Token:
 
         return types[self.type]
 
+    def __str__(self):
+        return f"{repr(self.value)}: {self.type_string()}"
 
 class Scanner:
     # Invalid Characters
@@ -98,8 +99,8 @@ class Scanner:
         if symbol[0].isdigit():
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
-        # Otherwise, its a valid variable
-        return types["variable"]
+        # Otherwise, its a valid variable/destination
+        return types["destination"] if len(self.buffer) == 0 else types["variable"] 
 
     def tokenize(self, symbol: str) -> Token:
         try: 
@@ -168,12 +169,3 @@ class Scanner:
         return self.buffer[self.index]
 
         
-if __name__ == "__main__":
-    l = []
-    
-    with open("imperative/tests/input1.txt") as file:
-        l = file.readline()
-        for c in l:
-            print(repr(c))
-
-    print('+' in '+t')
