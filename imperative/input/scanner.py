@@ -16,10 +16,11 @@ class Token:
             0: "destination",  # 'd', 't3', 'z', destination (variable)
             1: "variable",     # 'a', 't1', 'b', variables
             2: "literal",      # '1', '23', '415', any integer literal
-            3: "equals",       # '=' occurs once
-            4: "live",         # 'live:' occurs once
-            5: "live_symbol",  # 'a:', 'c:', 'd:', etc...
-            6: "newline"       # '\n', terminating character   
+            3: "operator",     # '+', '-', '*', '/' operators
+            4: "equals",       # '=' occurs once
+            5: "live",         # 'live:' occurs once
+            6: "live_symbol",  # 'a:', 'c:', 'd:', etc...
+            7: "newline"       # '\n', terminating character   
         }
 
         return types[self.type]
@@ -63,10 +64,11 @@ class Scanner:
             'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
             'variable': 1,     # ex. 'a', 't1', 'b', variables
             'literal': 2,      # ex. '1', '23', '415', any integer literal
-            'equals': 3,       # '=' occurs once
-            'live': 4,         # 'live:' occurs once
-            'live_symbol': 5,  # ex. 'a,', 'c,', 'd,', etc...
-            'newline': 6       # '\n', terminating character
+            'operator': 3,     # '+', '-', '*', '/' operators
+            'equals': 4,       # '=' occurs once
+            'live': 5,         # 'live:' occurs once
+            'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc...
+            'newline': 7       # '\n', terminating character
         }
 
         # List of allowed operators
@@ -75,7 +77,7 @@ class Scanner:
         # List of invalid characters (can change)
         invalid = [
             '$', '`', '"', '\'', '\\', '&', '^', '%', '#', '@', '!', '~', 
-            '_', '[', ']', '{', '}', '|', '/', ';', '<', '>', '?'
+            '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
         ]
 
         if symbol == '=':
@@ -88,7 +90,7 @@ class Scanner:
         # If symbol is in the list of operators, it returns true.
         # If its just "symbol in operators", it returns true for something like "+" in "+t"
         if any(op == symbol for op in operators):
-            return types["variable"]
+            return types["operator"]
 
         if symbol == 'live:':
             return types["live"]
