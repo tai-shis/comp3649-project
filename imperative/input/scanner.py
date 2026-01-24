@@ -53,9 +53,10 @@ class Scanner:
         self.index = 0
         self.buffer = []
 
-    def identify(self, symbol: str):
+    def identify(self, symbol: str, token_counter: int):
         """
             Identifies the given object/string into its tokenized 'type'.
+            Identifies the token position.
 
             This method should be called in a try/catch block.
         """
@@ -81,6 +82,9 @@ class Scanner:
             '$', '`', '"', '\'', '\\', '&', '^', '%', '#', '@', '!', '~', 
             '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
         ]
+
+        if symbol == '\n':
+            return types["newline"]
 
         if symbol == '=':
             return types["equals"]
@@ -111,11 +115,11 @@ class Scanner:
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
         # Otherwise, its a valid variable/destination
-        return types["destination"] if len(self.buffer) == 0 else types["variable"] 
+        return types["destination"] if token_counter == 0 else types["variable"] 
 
-    def tokenize(self, symbol: str) -> Token:
+    def tokenize(self, symbol: str, token_counter: int) -> Token:
         try: 
-            type: int = self.identify(symbol)
+            type: int = self.identify(symbol, token_counter)
         except ValueError as ve:
             raise 
 
@@ -147,20 +151,20 @@ class Scanner:
 
         for char in line:
             if char == '\n':
-                # Tokenize what we have, if it exists
+                # Tokenize (with token counter) what we have, if it exists
                 try:
                     if symbol:
-                        tokens.append(self.tokenize(symbol))
+                        tokens.append(self.tokenize(symbol, len(tokens))) 
 
-                    # Then, we tokenize the newline
-                    tokens.append(self.tokenize(char))
+                    # Then, we tokenize the newline (with token counter)
+                    tokens.append(self.tokenize(char, len(tokens)))
                 except ValueError as ve:
                     raise
 
             elif not read_cur:
-                if char == ' ': # Once we read a full symbol, tokenize it
+                if char == ' ': # Once we read a full symbol, tokenize it (with token counter)
                     try:
-                        tokens.append(self.tokenize(symbol))
+                        tokens.append(self.tokenize(symbol, len(tokens)))
                     except ValueError as ve:
                         raise
 
