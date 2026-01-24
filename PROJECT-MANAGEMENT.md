@@ -64,3 +64,15 @@ If at any point the Parser identifies (a) an *invalid symbol*, or (b) invalid or
 With the current state of the project, our testing framework is to develop test cases as we go.
 
 A future implementation possibility could be module-based unit testing and using Git Issues to assign debugging/fix jobs to certain members. This alongside our current approach of opening pull requests that are *not* approved by the same person who opened it. This will ensure consistent testing/code quality assessment throughout the project's timeline.
+
+When running test cases:
+1. Ensure you are in ```comp3649-project/imperative``` directory
+2. Run the following to test your code
+``` sh
+python -m unittest -v tests.<test_module>
+```
+``` sh
+# Example
+python -m unittest -v tests.scanner-test
+```
+The ```-v``` flag will print the ```unittest``` results in *verbose* form so you can see exactly which test cases passed and failed.
