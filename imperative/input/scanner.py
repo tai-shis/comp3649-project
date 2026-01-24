@@ -180,7 +180,7 @@ class Scanner:
         return False
 
     def next_tokens(self) -> Token:
-        if len(self.buffer) == self.index:
+        if len(self.buffer) - 1 == self.index:
             if (self.readline()):
                 return Token("", -1) # EOF token
         else:
