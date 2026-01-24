@@ -20,6 +20,36 @@ class Parser:
                     1 if unary operator,
                     2 if assignment
         """
+        match len(instruction):
+            case 6: # binary operator check
+                if (instruction[0].type == 0 and  # identifier
+                    instruction[1].type == 4 and  # equals sign
+                    instruction[2].type in [0, 1] and  # identifier or number
+                    instruction[3].type == 3 and  # operator
+                    instruction[4].type in [0, 1] and  # identifier or number
+                    instruction[5].type == 7):  # newline
+                    return 0
+                else:
+                    return -1
+            case 5: # unary operator check
+                if (instruction[0].type == 0 and  # identifier
+                    instruction[1].type == 4 and  # equals sign
+                    instruction[2].type == 3 and  # operator
+                    instruction[3].type in [0, 1] and  # identifier or number
+                    instruction[4].type == 7):  # newline
+                    return 1
+                else:
+                    return -1
+            case 4: # assignment check
+                if (instruction[0].type == 0 and  # identifier
+                    instruction[1].type == 4 and  # equals sign
+                    instruction[2].type in [0, 1] and  # identifier or number
+                    instruction[3].type == 7):  # newline
+                    return 2
+                else:
+                    return -1
+            case _: # invalid instruction length
+                return -1
        
 
     def parse(self) -> InstructionBuffer:
@@ -42,6 +72,7 @@ class Parser:
             if token.type != 7: # newline (this isnt magic numbers i promise, its just how i would do it in haskell)
                 line.append(token)
             else: 
+                line.append(token)
                 type: int = self.validate_instruction(line)
 
                 match type:

@@ -75,7 +75,7 @@ class TestScanner(unittest.TestCase):
             Only tests for valid input cases.
         """
         
-        input = "t1 = a * 4\n"
+        input = "t1 = a* 4\n"
         file = io.StringIO(input)
         scanner = Scanner(file)
 
