@@ -69,6 +69,16 @@ class Parser:
        
 
     def parse_instructions(self, instruction_buffer: InstructionBuffer) -> bool:
+        """
+            Parses through tokens representing instructions, validating
+            and adding them to the instruction buffer.
+        
+            :param instruction_buffer: The instruction buffer to which instructions will be added.
+            :type instruction_buffer: InstructionBuffer
+            :return: True if EOF is reached, False if 'live:' is encountered.
+            :rtype: bool
+            :raises ValueError: If an invalid instruction format is encountered.
+        """
         token: Token = self.scanner.next_token()
         line: list[Token] = [] # Could change into a different implementation
 
@@ -126,7 +136,7 @@ class Parser:
 
             :param instruction_buffer: The instruction buffer to which live objects will be added.
             :type instruction_buffer: InstructionBuffer
-            :raises ValueError: If a live object has not been declared in previous.
+            :raises ValueError: If a live object has not been declared in previous instructions.
         """
         # Here, "live:" has already been read
         token = self.scanner.next_token()
@@ -153,10 +163,9 @@ class Parser:
             Parses through tokens provided by the input buffer and constructs
             a list of valid instructions.
         
-            Returns:
-                InstructionBuffer: The parsed instructions.
-
-            Should be wrapped in a try/catch block.
+            :return: An InstructionBuffer containing all valid instructions and live objects.
+            :rtype: InstructionBuffer
+            :raises ValueError: If an invalid instruction or live object format is encountered.
         """
         instruction_buffer: InstructionBuffer = InstructionBuffer()
 
