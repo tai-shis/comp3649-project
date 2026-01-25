@@ -57,10 +57,9 @@ class Scanner:
         self.index = 0
         self.buffer = []
 
-    def identify(self, symbol: str, token_counter: int):
+    def identify(self, symbol: str):
         """
             Identifies the given object/string into its tokenized 'type'.
-            Identifies the token position.
 
             This method should be called in a try/catch block.
         """
@@ -77,9 +76,6 @@ class Scanner:
             'newline': 7,      # '\n', terminating character
             'EOF': -1          # End of File
         }
-
-        if symbol == '\n':
-            return types["newline"]
 
         if symbol == '\n':
             return types["newline"]
@@ -113,11 +109,11 @@ class Scanner:
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
         # Otherwise, its a valid variable/destination
-        return types["destination"] if token_counter == 0 else types["variable"] 
+        return types["destination"] if len(self.buffer) == 0 else types["variable"] 
 
-    def tokenize(self, symbol: str, token_counter: int) -> Token:
+    def tokenize(self, symbol: str) -> Token:
         try: 
-            type: int = self.identify(symbol, token_counter)
+            type: int = self.identify(symbol)
         except ValueError as ve:
             raise 
 
@@ -146,41 +142,25 @@ class Scanner:
         self.index: int = 0
 
         symbol: str = ""
-        read_cur: bool = False # If we have read in the first character of a symbol
+        read_cur: bool = False # If we have not read in the first character of a symbol
 
-        for char in line:
-            if char == '\n':
-                # Tokenize (with token counter) what we have, if it exists
-                try:
-                    if symbol:
-                        tokens.append(self.tokenize(symbol, len(tokens))) 
-
-                    # Then, we tokenize the newline (with token counter)
-                    tokens.append(self.tokenize(char, len(tokens)))
-                except ValueError as ve:
-                    raise
-
-            elif not read_cur:
-                if char == ' ': # Once we read a full symbol, tokenize it (with token counter)
-                    try:
-                        tokens.append(self.tokenize(symbol, len(tokens)))
+        for char in line:            
             if char in self.operators or char == '\n' or char == '=':  # Catch weird cases (newline or operator/equals)
                 # Tokenize what we have, if it exists
                 try:
                     if symbol:
-                        self.buffer.append(self.tokenize(symbol), len(tokens))
+                        self.buffer.append(self.tokenize(symbol))
                         symbol = ""
 
                     # Then, we tokenize the newline
-                    self.buffer.append(self.tokenize(char), len(tokens))
+                    self.buffer.append(self.tokenize(char))
                     read_cur = True
                 except ValueError as ve:
                     raise
-
             elif not read_cur: # Currently reading a new symbol
                 if char == ' ': # Symbol is ended by a space, so tokenize
                     try:
-                        self.buffer.append(self.tokenize(symbol), len(tokens))
+                        self.buffer.append(self.tokenize(symbol))
                     except ValueError as ve:
                         raise
 
