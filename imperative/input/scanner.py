@@ -175,7 +175,7 @@ class Scanner:
 
         return False
 
-    def next_tokens(self) -> Token:
+    def next_token(self) -> Token:
         if len(self.buffer) - 1 == self.index:
             if (self.readline()):
                 return Token("", -1) # EOF token
