@@ -39,12 +39,24 @@ class Scanner:
         '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
     ]
 
+    # I know its duplicated, but its so there are no magic numbers
+    types = {
+        'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
+        'variable': 1,     # ex. 'a', 't1', 'b', variables
+        'literal': 2,      # ex. '1', '23', '415', any integer literal
+        'operator': 3,     # '+', '-', '*', '/' operators
+        'equals': 4,       # '=' occurs once
+        'live': 5,         # 'live:' occurs once
+        'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc...
+        'newline': 7,      # '\n', terminating character
+        'EOF': -1          # End of File
+    }
+
     def __init__(self, file: TextIO):  
         self.file: TextIO = file
 
-        # # What the scanner is reading (instruction):
-        # # 0: instructions, 1: live objects  
-        # self.state: int = 0 
+        # State on what we are reading
+        self.reading: str = "instructions"  # instructions or live
 
         # Scanner should hold the read line and which token it is passing
         self.index: int = 0 # to avoid shifting and quicker checks
@@ -54,49 +66,42 @@ class Scanner:
         return f"index: {self.index}, buffer: {[str(token) for token in self.buffer]}"
 
     def reset(self):
+        """
+            Reset the scanner's internal state, excluding the input stream
+        """
         self.index = 0
         self.buffer = []
 
-    def identify(self, symbol: str):
+    def identify(self, symbol: str) -> int:
         """
             Identifies the given object/string into its tokenized 'type'.
 
-            This method should be called in a try/catch block.
+            :return: Identified type as an integer.
+            :rtype: int
+            :raises ValueError: If the symbol contains invalid characters.
         """
-        
-        # I know its duplicated, but its so there are no magic numbers
-        types = {
-            'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
-            'variable': 1,     # ex. 'a', 't1', 'b', variables
-            'literal': 2,      # ex. '1', '23', '415', any integer literal
-            'operator': 3,     # '+', '-', '*', '/' operators
-            'equals': 4,       # '=' occurs once
-            'live': 5,         # 'live:' occurs once
-            'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc...
-            'newline': 7,      # '\n', terminating character
-            'EOF': -1          # End of File
-        }
 
         if symbol == '\n':
-            return types["newline"]
+            return self.types["newline"]
 
         if symbol == '=':
-            return types["equals"]
+            return self.types["equals"]
 
         # If our symbol is just numbers, its a literal
         if symbol.isdigit():
-            return types["literal"]
-
+            return self.types["literal"]
         # If symbol is in the list of operators, it returns true.
         # If its just "symbol in operators", it returns true for something like "+" in "+t"
         if any(op == symbol for op in self.operators):
-            return types["operator"]
+            return self.types["operator"]
 
         if symbol == 'live:':
-            return types["live"]
+            # we have read in a live, switch state
+            self.reading = "live"
+            return self.types["live"]
 
-        if symbol.endswith(','):
-            return types["live_symbol"]
+        if self.reading == "live":
+            return self.types["live_symbol"]
         
         # If the symbol is not any of the above, its probably a variable; first check for invalid characters
         # if theres an invalid character, reject; if theres an operator with other stuff; also reject 
@@ -109,9 +114,20 @@ class Scanner:
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
         # Otherwise, its a valid variable/destination
-        return types["destination"] if len(self.buffer) == 0 else types["variable"] 
+        return self.types["destination"] if len(self.buffer) == 0 else self.types["variable"] 
 
     def tokenize(self, symbol: str) -> Token:
+        """
+            Tokenizes the given symbol into a Token object if valid.
+
+            
+            :param symbol: Read in symbol to be tokenized
+            :type symbol: str
+            :return: Identified symbol as a Token, if valid
+            :rtype: Token
+            :raises ValueError: If the symbol contains invalid characters.
+
+        """
         try: 
             type: int = self.identify(symbol)
         except ValueError as ve:
@@ -125,10 +141,10 @@ class Scanner:
             Error checking for valid order of tokens is not done. However, valid characters
             should be checked when obtaining the type.
 
-            Returns:
-                bool: True if EOF, False otherwise.
+            :return: True if EOF, False otherwise.
+            :rtype: bool
 
-            This method should be called in a try/catch block.
+            :raises ValueError: If the read line contains invalid characters.
         """
         
         # get leading whitespace out so we can assume we are reading destination immediately
@@ -145,15 +161,16 @@ class Scanner:
         read_cur: bool = False # If we have not read in the first character of a symbol
 
         for char in line:            
-            if char in self.operators or char == '\n' or char == '=':  # Catch weird cases (newline or operator/equals)
+            if char in self.operators or char in ['\n', '=', ',']:  # Catch weird cases (newline or operator/equals)
                 # Tokenize what we have, if it exists
                 try:
                     if symbol:
                         self.buffer.append(self.tokenize(symbol))
                         symbol = ""
 
-                    # Then, we tokenize the newline
-                    self.buffer.append(self.tokenize(char))
+                    # Then, we tokenize the operator (as long as its not a comma)
+                    if char != ',':
+                        self.buffer.append(self.tokenize(char))
                     read_cur = True
                 except ValueError as ve:
                     raise
@@ -173,12 +190,29 @@ class Scanner:
                     symbol += char
                     read_cur = False
 
+        # Make sure to tokenize anything left over at the end of the file
+        try:
+            if symbol:
+                self.buffer.append(self.tokenize(symbol))
+        except ValueError as ve:
+            raise
+
         return False
 
     def next_token(self) -> Token:
-        if len(self.buffer) - 1 == self.index:
-            if (self.readline()):
-                return Token("", -1) # EOF token
+        """
+            Get the next token from the input stream, until all characters are read
+ 
+            :return: Next token from the input stream. EOF token when input stream is exhausted.
+            :rtype: Token
+            :raises ValueError: If the input stream contains invalid characters.
+        """
+        if len(self.buffer) - 1 == self.index or len(self.buffer) == 0:
+            try:
+                if (self.readline()): # EOF reached
+                    return Token("", -1) # return EOF token
+            except ValueError as ve:
+                raise
         else:
             self.index += 1
 
