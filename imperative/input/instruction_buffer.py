@@ -6,16 +6,41 @@ class InstructionBuffer:
         self.instructions: dllist[Instruction] = dllist()
         self.live_objects: dllist[str] = dllist()
 
-    def add_instruction(self, instruction: Instruction):
+    def add_instruction(self, instruction: Instruction) -> None:
+        """
+        Adds an instruction to the instruction buffer.
+        
+        :param instruction: The instruction to add.
+        :type instruction: Instruction
+        """
         self.instructions.append(instruction)
 
-    def add_live_object(self, live_object: str):
+    def add_live_object(self, live_object: str) -> None:
+        """
+        Adds a live object to the instruction buffer.
+
+        :param live_object: The live object to add.
+        :type live_object: str
+        """
         self.live_objects.append(live_object)
 
-    def list_instructions(self):
+    def list_instructions(self) -> list[str]:
+        """
+            Lists all instructions in the instruction buffer.
+
+            :return: A list of string representations of all instructions.
+            :rtype: list[str]
+        """
         return [str(node.value) for node in self.instructions.iternodes()]
 
-    def list_live_objects(self):
+    def list_live_objects(self) -> list[str]:
+        """
+            Lists all live objects in the instruction buffer.
+            
+            :return: A list of all live objects.
+            :rtype: list[str]
+        """
+
         return [str(node.value) for node in self.live_objects.iternodes()]
 
     def __str__(self):
