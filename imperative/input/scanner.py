@@ -39,7 +39,7 @@ class Scanner:
         '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
     ]
 
-    # I know it's duplicated, but it's so there are no magic numbers
+    # I know it's duplicated, but its so there are no magic numbers
     types = {
         'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
         'variable': 1,     # ex. 'a', 't1', 'b', variables
@@ -75,7 +75,7 @@ class Scanner:
 
     def identify(self, symbol: str) -> int:
         """
-            Identifies the given object/string into it's tokenized 'type'.
+            Identifies the given object/string into its tokenized 'type'.
 
             :return: Identified type as an integer.
             :rtype: int
@@ -88,11 +88,11 @@ class Scanner:
         if symbol == '=':
             return self.types["equals"]
 
-        # If our symbol is just numbers, it's a literal
+        # If our symbol is just numbers, its a literal
         if symbol.isdigit():
             return self.types["literal"]
         # If symbol is in the list of operators, it returns true.
-        # If it's just "symbol in operators", it returns true for something like "+" in "+t"
+        # If its just "symbol in operators", it returns true for something like "+" in "+t"
         if any(op == symbol for op in self.operators):
             return self.types["operator"]
 
