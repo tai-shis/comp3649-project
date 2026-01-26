@@ -9,7 +9,7 @@ class Token:
         3: "operator",     # '+', '-', '*', '/' operators
         4: "equals",       # '=' occurs once
         5: "live",         # 'live:' occurs once
-        6: "live_symbol",  # 'a:', 'c:', 'd:', etc...
+        6: "live_symbol",  # 'a,', 'c,', 'd,', etc... (excluding commas in tokens)
         7: "newline",      # '\n', terminating character   
         -1: "EOF"          # End of File
     }
@@ -47,7 +47,7 @@ class Scanner:
         'operator': 3,     # '+', '-', '*', '/' operators
         'equals': 4,       # '=' occurs once
         'live': 5,         # 'live:' occurs once
-        'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc...
+        'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc... (excluding commas in tokens)
         'newline': 7,      # '\n', terminating character
         'EOF': -1          # End of File
     }
