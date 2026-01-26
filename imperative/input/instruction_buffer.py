@@ -19,8 +19,8 @@ class Instruction:
 
 class InstructionBuffer:
     def __init__(self):
-        self.instructions: dllist[Instruction] = dllist()
-        self.live_objects: dllist[str] = dllist()
+        self.instructions: dllist = dllist() # Instruction objects
+        self.live_objects: dllist = dllist() # Strings representing live objects
 
     def add_instruction(self, instruction: Instruction) -> None:
         """
