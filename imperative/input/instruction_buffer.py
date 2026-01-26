@@ -73,18 +73,18 @@ class InstructionBuffer:
 
         return string
 
-# if __name__ == "__main__":
-#     list = dllist()
+if __name__ == "__main__":
+    list = dllist()
     
-#     with open("imperative/tests/input1.txt") as file:
-#         for line in file:
-#             sp_line = line.strip().split(' ')
-#             sp_line.append('\n')
-#             print(sp_line)
-#             if "live:" in sp_line:
-#                 break
-#             instr = Instruction(sp_line[0], operand1=sp_line[2], operator=sp_line[3], operand2=sp_line[4])
+    with open("imperative/tests/input1.txt") as file:
+        for line in file:
+            sp_line = line.strip().split(' ')
+            sp_line.append('\n')
+            print(sp_line)
+            if "live:" in sp_line:
+                break
+            instr = Instruction(sp_line[0], operand1=sp_line[2], operator=sp_line[3], operand2=sp_line[4])
 
-#             list.append(instr)
+            list.append(instr)
 
-#     print(list)
+    print(list)
