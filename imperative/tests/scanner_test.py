@@ -25,7 +25,7 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(scanner.index, 0)
         self.assertEqual(scanner.buffer, [])
 
-    def test_next_tokens(self):
+    def test_next_token(self):
         input = "a = a + 1\n"
         file = io.StringIO(input)
         scanner = Scanner(file)
@@ -37,13 +37,11 @@ class TestScanner(unittest.TestCase):
 
         tokens_read = []
         for i in range(len(scanner.buffer) - 1):
-            tokens_read.append(scanner.next_tokens())
+            tokens_read.append(scanner.next_token())
             # If the next token is equal to the token we just read, next_tokens()
             # is not working
-            self.assertNotEqual(scanner.next_tokens(), tokens_read[i])
+            self.assertNotEqual(scanner.next_token(), tokens_read[i])
             
-
-
     def test_identify_case1(self):
         """
             Tests the identify method of Scanner by simulating a file input.
@@ -75,7 +73,7 @@ class TestScanner(unittest.TestCase):
             Only tests for valid input cases.
         """
         
-        input = "t1 = a * 4\n"
+        input = "t1 = a* 4\n"
         file = io.StringIO(input)
         scanner = Scanner(file)
 
@@ -93,6 +91,46 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(received, expected)
 
         scanner.reset()
+
+    def test_identify_invalid_input1(self):
+
+        input = "a \ a $ 1\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        
+        # This test should pass if the scanner.identify() method properly raises an error
+        with self.assertRaises(ValueError) as cm:
+            scanner.identify(input)
+
+    def test_identify_invalid_input2(self):
+
+        input = "a a = 1 + 2\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        
+        # This test should pass if the scanner.identify() method properly raises an error
+        with self.assertRaises(ValueError) as cm:
+            scanner.identify(input)
+            print(cm)
+
+    def test_identify_invalid_input3(self):
+
+        input = "a = b - c = d\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        
+        # This test should pass if the scanner.identify() method properly raises an error
+        with self.assertRaises(ValueError) as cm:
+            scanner.identify(input)
+
+    def test_readline_invalid_input1(self):
+        input = "a \ a + 1\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+
+        with self.assertRaises(ValueError) as ve:
+            scanner.readline()
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
