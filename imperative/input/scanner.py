@@ -39,7 +39,7 @@ class Scanner:
         '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
     ]
 
-    # I know its duplicated, but its so there are no magic numbers
+    # I know it's duplicated, but it's so there are no magic numbers
     types = {
         'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
         'variable': 1,     # ex. 'a', 't1', 'b', variables
@@ -71,10 +71,11 @@ class Scanner:
         """
         self.index = 0
         self.buffer = []
+        self.reading = "instructions"
 
     def identify(self, symbol: str) -> int:
         """
-            Identifies the given object/string into its tokenized 'type'.
+            Identifies the given object/string into it's tokenized 'type'.
 
             :return: Identified type as an integer.
             :rtype: int
@@ -87,11 +88,11 @@ class Scanner:
         if symbol == '=':
             return self.types["equals"]
 
-        # If our symbol is just numbers, its a literal
+        # If our symbol is just numbers, it's a literal
         if symbol.isdigit():
             return self.types["literal"]
         # If symbol is in the list of operators, it returns true.
-        # If its just "symbol in operators", it returns true for something like "+" in "+t"
+        # If it's just "symbol in operators", it returns true for something like "+" in "+t"
         if any(op == symbol for op in self.operators):
             return self.types["operator"]
 
@@ -103,7 +104,7 @@ class Scanner:
         if self.reading == "live":
             return self.types["live_symbol"]
         
-        # If the symbol is not any of the above, its probably a variable; first check for invalid characters
+        # If the symbol is not any of the above, it's probably a variable; first check for invalid characters
         # if theres an invalid character, reject; if theres an operator with other stuff; also reject 
         # (this won't catch singletons because singletons are already handled above)
         if any(char in symbol for char in self.invalid) or any(op in symbol for op in self.operators):
@@ -113,7 +114,7 @@ class Scanner:
         if symbol[0].isdigit():
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
-        # Otherwise, its a valid variable/destination
+        # Otherwise, it's a valid variable/destination
         return self.types["destination"] if len(self.buffer) == 0 else self.types["variable"] 
 
     def tokenize(self, symbol: str) -> Token:
@@ -158,7 +159,7 @@ class Scanner:
         self.index: int = 0
 
         symbol: str = ""
-        read_cur: bool = False # If we have not read in the first character of a symbol
+        read_cur: bool = False # False while reading a symbol; True when between symbols looking for the next one
 
         for char in line:            
             if char in self.operators or char in ['\n', '=', ',']:  # Catch weird cases (newline or operator/equals)
@@ -168,7 +169,7 @@ class Scanner:
                         self.buffer.append(self.tokenize(symbol))
                         symbol = ""
 
-                    # Then, we tokenize the operator (as long as its not a comma)
+                    # Then, we tokenize the operator (as long as it's not a comma)
                     if char != ',':
                         self.buffer.append(self.tokenize(char))
                     read_cur = True

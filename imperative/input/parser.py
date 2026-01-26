@@ -87,10 +87,9 @@ class Parser:
             if token.type == self.types["variable"] or token.type == self.types["destination"]:
                 self.occurred_variables.add(token.value)
 
-            if token.type != self.types["newline"]: # newline (this isnt magic numbers i promise, its just how i would do it in haskell)
-                line.append(token)
-            else: 
-                line.append(token)
+            line.append(token)
+
+            if token.type == self.types["newline"]:
                 type: int = self.validate_instruction(line)
 
                 match type:
@@ -119,7 +118,7 @@ class Parser:
                         )
                         instruction_buffer.add_instruction(instr)
                     case -1:
-                        raise ValueError(f"Invalid instruction format. {" ".join([token.value for token in line])}")
+                        raise ValueError(f'Invalid instruction format. {" ".join([token.value for token in line])}')
 
                 line = [] # reset line after validating
 
@@ -185,7 +184,7 @@ class Parser:
 #     from io import StringIO
 
 #     # Example usage
-#     input_data = StringIO("a = c\nb = a + 10\nc = -b\nlive: a, b, c, d")
+#     input_data = StringIO("a = c\nb = a + 10\nc = -b\nlive: a, b, c")
 #     scanner = Scanner(input_data)
 #     parser = Parser(scanner)
 
