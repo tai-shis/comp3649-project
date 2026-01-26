@@ -143,7 +143,8 @@ class Parser:
         seen: set[str] = set()
 
         while token.type != self.types["EOF"]:
-            if token.type != self.types["live_symbol"]:
+            # Make sure all tokens are live symbols!
+            if token.type != self.types["live_symbol"]: 
                 raise ValueError(f"Invalid live object format. Expected live symbol, got {token.type_string()}.")
             else:
                 # Make sure live object was somewhere in the instructions
@@ -163,19 +164,15 @@ class Parser:
         
             :return: An InstructionBuffer containing all valid instructions and live objects.
             :rtype: InstructionBuffer
-            :raises ValueError: If an invalid instruction or live object format is encountered.
         """
         instruction_buffer: InstructionBuffer = InstructionBuffer()
 
-        try:
-            # Split into two, instructions, then lives objects.
-            eof: bool = self.parse_instructions(instruction_buffer)
+        # Split into two, instructions, then lives objects.
+        eof: bool = self.parse_instructions(instruction_buffer)
 
-            if not eof:
-                self.parse_live(instruction_buffer)
+        if not eof:
+            self.parse_live(instruction_buffer)
 
-        except ValueError as ve:
-            raise ve
 
         return instruction_buffer
                 

@@ -126,13 +126,9 @@ class Scanner:
             :type symbol: str
             :return: Identified symbol as a Token, if valid
             :rtype: Token
-            :raises ValueError: If the symbol contains invalid characters.
 
         """
-        try: 
-            type: int = self.identify(symbol)
-        except ValueError as ve:
-            raise 
+        type: int = self.identify(symbol)
 
         return Token(symbol, type)
 
@@ -144,8 +140,6 @@ class Scanner:
 
             :return: True if EOF, False otherwise.
             :rtype: bool
-
-            :raises ValueError: If the read line contains invalid characters.
         """
         
         # get leading whitespace out so we can assume we are reading destination immediately
@@ -164,23 +158,18 @@ class Scanner:
         for char in line:            
             if char in self.operators or char in ['\n', '=', ',']:  # Catch weird cases (newline or operator/equals)
                 # Tokenize what we have, if it exists
-                try:
-                    if symbol:
-                        self.buffer.append(self.tokenize(symbol))
-                        symbol = ""
 
-                    # Then, we tokenize the operator (as long as it's not a comma)
-                    if char != ',':
-                        self.buffer.append(self.tokenize(char))
-                    read_cur = True
-                except ValueError as ve:
-                    raise
+                if symbol:
+                    self.buffer.append(self.tokenize(symbol))
+                    symbol = ""
+
+                # Then, we tokenize the operator (as long as it's not a comma)
+                if char != ',':
+                    self.buffer.append(self.tokenize(char))
+                read_cur = True
             elif not read_cur: # Currently reading a new symbol
                 if char == ' ': # Symbol is ended by a space, so tokenize
-                    try:
-                        self.buffer.append(self.tokenize(symbol))
-                    except ValueError as ve:
-                        raise
+                    self.buffer.append(self.tokenize(symbol))
 
                     read_cur = True
                     symbol = ""
@@ -192,11 +181,10 @@ class Scanner:
                     read_cur = False
 
         # Make sure to tokenize anything left over at the end of the file
-        try:
-            if symbol:
-                self.buffer.append(self.tokenize(symbol))
-        except ValueError as ve:
-            raise
+
+        if symbol:
+            self.buffer.append(self.tokenize(symbol))
+
 
         return False
 
@@ -206,14 +194,10 @@ class Scanner:
  
             :return: Next token from the input stream. EOF token when input stream is exhausted.
             :rtype: Token
-            :raises ValueError: If the input stream contains invalid characters.
         """
         if len(self.buffer) - 1 == self.index or len(self.buffer) == 0:
-            try:
-                if (self.readline()): # EOF reached
-                    return Token("", -1) # return EOF token
-            except ValueError as ve:
-                raise
+            if (self.readline()): # EOF reached
+                return Token("", -1) # return EOF token
         else:
             self.index += 1
 
