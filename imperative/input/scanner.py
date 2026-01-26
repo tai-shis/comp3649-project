@@ -75,7 +75,7 @@ class Scanner:
 
     def identify(self, symbol: str) -> int:
         """
-            Identifies the given object/string into it's tokenized 'type'.
+            Identifies the given object/string into its tokenized 'type'.
 
             :return: Identified type as an integer.
             :rtype: int
