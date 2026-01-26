@@ -1,6 +1,19 @@
 from typing import TextIO
 
 class Token:
+    # Reference dict for types
+    types = {
+        0: "destination",  # 'd', 't3', 'z', destination (variable)
+        1: "variable",     # 'a', 't1', 'b', variables
+        2: "literal",      # '1', '23', '415', any integer literal
+        3: "operator",     # '+', '-', '*', '/' operators
+        4: "equals",       # '=' occurs once
+        5: "live",         # 'live:' occurs once
+        6: "live_symbol",  # 'a,', 'c,', 'd,', etc... (excluding commas in tokens)
+        7: "newline",      # '\n', terminating character   
+        -1: "EOF"          # End of File
+    }
+
     def __init__(self, value: str, type: int):
         self.value: str = value
         self.type: int = type
@@ -11,99 +24,90 @@ class Token:
             token's type.
         """
 
-         # Reference dict for types
-        types = {
-            0: "destination",  # 'd', 't3', 'z', destination (variable)
-            1: "variable",     # 'a', 't1', 'b', variables
-            2: "literal",      # '1', '23', '415', any integer literal
-            3: "operator",     # '+', '-', '*', '/' operators
-            4: "equals",       # '=' occurs once
-            5: "live",         # 'live:' occurs once
-            6: "live_symbol",  # 'a:', 'c:', 'd:', etc...
-            7: "newline",      # '\n', terminating character   
-            -1: "EOF"          # End of File
-        }
-
-        return types[self.type]
+        return self.types[self.type]
 
     def __str__(self):
         return f"{repr(self.value)}: {self.type_string()}"
 
 class Scanner:
-    # Invalid Characters
-    invalid = [
+    # List of allowed operators
+    operators = ['+', '-', '*', '/']
 
+    # List of invalid characters (can change)
+    invalid = [
+        '$', '`', '"', '\'', '\\', '&', '^', '%', '#', '@', '!', '~', 
+        '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
     ]
+
+    # I know its duplicated, but its so there are no magic numbers
+    types = {
+        'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
+        'variable': 1,     # ex. 'a', 't1', 'b', variables
+        'literal': 2,      # ex. '1', '23', '415', any integer literal
+        'operator': 3,     # '+', '-', '*', '/' operators
+        'equals': 4,       # '=' occurs once
+        'live': 5,         # 'live:' occurs once
+        'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc... (excluding commas in tokens)
+        'newline': 7,      # '\n', terminating character
+        'EOF': -1          # End of File
+    }
 
     def __init__(self, file: TextIO):  
         self.file: TextIO = file
 
-        # # What the scanner is reading (instruction):
-        # # 0: instructions, 1: live objects  
-        # self.state: int = 0 
+        # State on what we are reading
+        self.reading: str = "instructions"  # instructions or live
 
         # Scanner should hold the read line and which token it is passing
         self.index: int = 0 # to avoid shifting and quicker checks
-        self.buffer: list[Token] = [] # maxmimum length O(1) (max 6)
+        self.buffer: list[Token] = [] # maximum length O(1) (max 6)
 
     def __str__(self):
         return f"index: {self.index}, buffer: {[str(token) for token in self.buffer]}"
 
     def reset(self):
+        """
+            Reset the scanner's internal state, excluding the input stream
+        """
         self.index = 0
         self.buffer = []
+        self.reading = "instructions"
 
-    def identify(self, symbol: str):
+    def identify(self, symbol: str) -> int:
         """
             Identifies the given object/string into its tokenized 'type'.
 
-            This method should be called in a try/catch block.
+            :return: Identified type as an integer.
+            :rtype: int
+            :raises ValueError: If the symbol contains invalid characters.
         """
-        
-        # I know its duplicated, but its so there are no magic numbers
-        types = {
-            'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
-            'variable': 1,     # ex. 'a', 't1', 'b', variables
-            'literal': 2,      # ex. '1', '23', '415', any integer literal
-            'operator': 3,     # '+', '-', '*', '/' operators
-            'equals': 4,       # '=' occurs once
-            'live': 5,         # 'live:' occurs once
-            'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc...
-            'newline': 7,      # '\n', terminating character
-            'EOF': -1          # End of File
-        }
 
-        # List of allowed operators
-        operators = ['+', '-', '*', '/']
-
-        # List of invalid characters (can change)
-        invalid = [
-            '$', '`', '"', '\'', '\\', '&', '^', '%', '#', '@', '!', '~', 
-            '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
-        ]
+        if symbol == '\n':
+            return self.types["newline"]
 
         if symbol == '=':
-            return types["equals"]
+            return self.types["equals"]
 
         # If our symbol is just numbers, its a literal
         if symbol.isdigit():
-            return types["literal"]
-
+            return self.types["literal"]
         # If symbol is in the list of operators, it returns true.
         # If its just "symbol in operators", it returns true for something like "+" in "+t"
-        if any(op == symbol for op in operators):
-            return types["operator"]
+        if any(op == symbol for op in self.operators):
+            return self.types["operator"]
 
         if symbol == 'live:':
-            return types["live"]
+            # we have read in a live, switch state
+            self.reading = "live"
+            return self.types["live"]
 
-        if symbol.endswith(','):
-            return types["live_symbol"]
+        if self.reading == "live":
+            return self.types["live_symbol"]
         
         # If the symbol is not any of the above, its probably a variable; first check for invalid characters
-        # if theres an invalid character, reject; if theres an operator with other stuff; also reject 
+        # if there's an invalid character, reject; if there's an operator with other stuff; also reject 
         # (this won't catch singletons because singletons are already handled above)
-        if any(char in symbol for char in invalid) or any(op in symbol for op in operators):
+        if any(char in symbol for char in self.invalid) or any(op in symbol for op in self.operators):
             raise ValueError(f"Invalid character in symbol: {symbol}")
 
         # If a symbol starting with a number is valid, comment the following check:
@@ -111,13 +115,20 @@ class Scanner:
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
         # Otherwise, its a valid variable/destination
-        return types["destination"] if len(self.buffer) == 0 else types["variable"] 
+        return self.types["destination"] if len(self.buffer) == 0 else self.types["variable"] 
 
     def tokenize(self, symbol: str) -> Token:
-        try: 
-            type: int = self.identify(symbol)
-        except ValueError as ve:
-            raise 
+        """
+            Tokenizes the given symbol into a Token object if valid.
+
+            
+            :param symbol: Read in symbol to be tokenized
+            :type symbol: str
+            :return: Identified symbol as a Token, if valid
+            :rtype: Token
+
+        """
+        type: int = self.identify(symbol)
 
         return Token(symbol, type)
 
@@ -127,10 +138,8 @@ class Scanner:
             Error checking for valid order of tokens is not done. However, valid characters
             should be checked when obtaining the type.
 
-            Returns:
-                bool: True if EOF, False otherwise.
-
-            This method should be called in a try/catch block.
+            :return: True if EOF, False otherwise.
+            :rtype: bool
         """
         
         # get leading whitespace out so we can assume we are reading destination immediately
@@ -138,51 +147,57 @@ class Scanner:
 
         if line == '':
             return True
-
-        # Tokenize the line
-        tokens: list[Token] = []
+        
+        # Before anything, reset buffer and index
+        self.buffer: list[Token] = []
+        self.index: int = 0
 
         symbol: str = ""
-        read_cur: bool = False # If we have read in the first character of a symbol
+        read_cur: bool = False # False while reading a symbol; True when between symbols looking for the next one
 
-        for char in line:
-            if char == '\n':
+        for char in line:            
+            if char in self.operators or char in ['\n', '=', ',']:  # Catch weird cases (newline or operator/equals)
                 # Tokenize what we have, if it exists
-                try:
-                    if symbol:
-                        tokens.append(self.tokenize(symbol))
 
-                    # Then, we tokenize the newline
-                    tokens.append(self.tokenize(char))
-                except ValueError as ve:
-                    raise
+                if symbol:
+                    self.buffer.append(self.tokenize(symbol))
+                    symbol = ""
 
-            elif not read_cur:
-                if char == ' ': # Once we read a full symbol, tokenize it
-                    try:
-                        tokens.append(self.tokenize(symbol))
-                    except ValueError as ve:
-                        raise
+                # Then, we tokenize the operator (as long as its not a comma)
+                if char != ',':
+                    self.buffer.append(self.tokenize(char))
+                read_cur = True
+            elif not read_cur: # Currently reading a new symbol
+                if char == ' ': # Symbol is ended by a space, so tokenize
+                    self.buffer.append(self.tokenize(symbol))
 
                     read_cur = True
                     symbol = ""
                 else:
                     symbol += char
-            else:
+            else: # Searching for new symbol
                 if char != ' ':
                     symbol += char
                     read_cur = False
 
-        # Finally, Reset buffer and index
-        self.buffer = tokens
-        self.index = 0
+        # Make sure to tokenize anything left over at the end of the file
+
+        if symbol:
+            self.buffer.append(self.tokenize(symbol))
+
 
         return False
 
-    def next_tokens(self) -> Token:
-        if len(self.buffer) - 1 == self.index:
-            if (self.readline()):
-                return Token("", -1) # EOF token
+    def next_token(self) -> Token:
+        """
+            Get the next token from the input stream, until all characters are read
+ 
+            :return: Next token from the input stream. EOF token when input stream is exhausted.
+            :rtype: Token
+        """
+        if len(self.buffer) - 1 == self.index or len(self.buffer) == 0:
+            if (self.readline()): # EOF reached
+                return Token("", -1) # return EOF token
         else:
             self.index += 1
 
