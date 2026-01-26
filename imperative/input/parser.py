@@ -23,7 +23,7 @@ class Parser:
 
     def __init__(self, scanner: Scanner):
         self.scanner = scanner
-        self.occured_variables: set[str] = set()
+        self.occurred_variables: set[str] = set()
 
     def validate_instruction(self, instruction: list[Token]) -> int:
         """
@@ -85,7 +85,7 @@ class Parser:
         while token.type != self.types["EOF"] and token.type != self.types["live"]:  # While not live or EOF
             # Keep track of all tokens in the input
             if token.type == self.types["variable"] or token.type == self.types["destination"]:
-                self.occured_variables.add(token.value)
+                self.occurred_variables.add(token.value)
 
             if token.type != self.types["newline"]: # newline (this isnt magic numbers i promise, its just how i would do it in haskell)
                 line.append(token)
@@ -148,7 +148,7 @@ class Parser:
                 raise ValueError(f"Invalid live object format. Expected live symbol, got {token.type_string()}.")
             else:
                 # Make sure live object was somewhere in the instructions
-                if token.value not in self.occured_variables: 
+                if token.value not in self.occurred_variables: 
                     raise ValueError(f"Live object '{token.value}' has not been declared in previous instructions.")
                 
                 if token.value not in seen:
