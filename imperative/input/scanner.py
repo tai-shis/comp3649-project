@@ -39,7 +39,7 @@ class Scanner:
         '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
     ]
 
-    # I know it's duplicated, but it's so there are no magic numbers
+    # I know its duplicated, but its so there are no magic numbers
     types = {
         'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
         'variable': 1,     # ex. 'a', 't1', 'b', variables
@@ -60,7 +60,7 @@ class Scanner:
 
         # Scanner should hold the read line and which token it is passing
         self.index: int = 0 # to avoid shifting and quicker checks
-        self.buffer: list[Token] = [] # maxmimum length O(1) (max 6)
+        self.buffer: list[Token] = [] # maximum length O(1) (max 6)
 
     def __str__(self):
         return f"index: {self.index}, buffer: {[str(token) for token in self.buffer]}"
@@ -88,11 +88,11 @@ class Scanner:
         if symbol == '=':
             return self.types["equals"]
 
-        # If our symbol is just numbers, it's a literal
+        # If our symbol is just numbers, its a literal
         if symbol.isdigit():
             return self.types["literal"]
         # If symbol is in the list of operators, it returns true.
-        # If it's just "symbol in operators", it returns true for something like "+" in "+t"
+        # If its just "symbol in operators", it returns true for something like "+" in "+t"
         if any(op == symbol for op in self.operators):
             return self.types["operator"]
 
@@ -104,8 +104,8 @@ class Scanner:
         if self.reading == "live":
             return self.types["live_symbol"]
         
-        # If the symbol is not any of the above, it's probably a variable; first check for invalid characters
-        # if theres an invalid character, reject; if theres an operator with other stuff; also reject 
+        # If the symbol is not any of the above, its probably a variable; first check for invalid characters
+        # if there's an invalid character, reject; if there's an operator with other stuff; also reject 
         # (this won't catch singletons because singletons are already handled above)
         if any(char in symbol for char in self.invalid) or any(op in symbol for op in self.operators):
             raise ValueError(f"Invalid character in symbol: {symbol}")
@@ -114,7 +114,7 @@ class Scanner:
         if symbol[0].isdigit():
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
-        # Otherwise, it's a valid variable/destination
+        # Otherwise, its a valid variable/destination
         return self.types["destination"] if len(self.buffer) == 0 else self.types["variable"] 
 
     def tokenize(self, symbol: str) -> Token:
@@ -163,7 +163,7 @@ class Scanner:
                     self.buffer.append(self.tokenize(symbol))
                     symbol = ""
 
-                # Then, we tokenize the operator (as long as it's not a comma)
+                # Then, we tokenize the operator (as long as its not a comma)
                 if char != ',':
                     self.buffer.append(self.tokenize(char))
                 read_cur = True
