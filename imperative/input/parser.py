@@ -1,5 +1,5 @@
-from instruction_buffer import InstructionBuffer, Instruction
-from scanner import Scanner, Token
+from input.instruction_buffer import InstructionBuffer, Instruction
+from input.scanner import Scanner, Token
 
 class Parser:
     types = {
