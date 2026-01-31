@@ -15,12 +15,12 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         try: 
-            scanner.readline()
+            scanner._readline()
         except ValueError as ve:
             print(f"Error during readline: {ve}")
 
         # Call function we want to test
-        scanner.reset()
+        scanner._reset()
 
         self.assertEqual(scanner.index, 0)
         self.assertEqual(scanner.buffer, [])
@@ -31,7 +31,7 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         try:
-            scanner.readline()
+            scanner._readline()
         except ValueError as ve:
             print(f"Error during readline: {ve}")
 
@@ -53,7 +53,7 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         try:
-            scanner.readline()
+            scanner._readline()
         except ValueError as ve:
             print(f"Error during readline: {ve}")
 
@@ -65,7 +65,7 @@ class TestScanner(unittest.TestCase):
         
         self.assertEqual(received, expected)
 
-        scanner.reset()
+        scanner._reset()
 
     def test_identify_case2(self):
         """
@@ -78,7 +78,7 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         try:
-            scanner.readline()
+            scanner._readline()
         except ValueError as ve:
             print(f"Error during readline: {ve}")    
         
@@ -90,7 +90,7 @@ class TestScanner(unittest.TestCase):
         
         self.assertEqual(received, expected)
 
-        scanner.reset()
+        scanner._reset()
 
     def test_identify_invalid_input1(self):
 
@@ -100,7 +100,7 @@ class TestScanner(unittest.TestCase):
         
         # This test should pass if the scanner.identify() method properly raises an error
         with self.assertRaises(ValueError) as cm:
-            scanner.identify(input)
+            scanner._identify(input)
 
     def test_identify_invalid_input2(self):
 
@@ -110,7 +110,7 @@ class TestScanner(unittest.TestCase):
         
         # This test should pass if the scanner.identify() method properly raises an error
         with self.assertRaises(ValueError) as cm:
-            scanner.identify(input)
+            scanner._identify(input)
             print(cm)
 
     def test_identify_invalid_input3(self):
@@ -121,7 +121,7 @@ class TestScanner(unittest.TestCase):
         
         # This test should pass if the scanner.identify() method properly raises an error
         with self.assertRaises(ValueError) as cm:
-            scanner.identify(input)
+            scanner._identify(input)
 
     def test_readline_invalid_input1(self):
         input = "a \ a + 1\n"
@@ -129,7 +129,7 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         with self.assertRaises(ValueError) as ve:
-            scanner.readline()
+            scanner._readline()
 
 
 if __name__ == '__main__':

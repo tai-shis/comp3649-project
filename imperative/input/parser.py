@@ -25,7 +25,7 @@ class Parser:
         self.scanner = scanner
         self.occurred_variables: set[str] = set()
 
-    def validate_instruction(self, instruction: list[Token]) -> int:
+    def _validate_instruction(self, instruction: list[Token]) -> int:
         """
             Validates if the given list of tokens form a valid instruction.
 
@@ -67,7 +67,7 @@ class Parser:
         return self.instruction_types["invalid"]
        
 
-    def parse_instructions(self, instruction_buffer: InstructionBuffer) -> bool:
+    def _parse_instructions(self, instruction_buffer: InstructionBuffer) -> bool:
         """
             Parses through tokens representing instructions, validating
             and adding them to the instruction buffer.
@@ -126,7 +126,7 @@ class Parser:
 
         return token.type == self.types["EOF"]
 
-    def parse_live(self, instruction_buffer: InstructionBuffer) -> None:
+    def _parse_live(self, instruction_buffer: InstructionBuffer) -> None:
         """
             Parses through tokens representing live objects and adds them to the instruction buffer.
 

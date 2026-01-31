@@ -65,7 +65,7 @@ class Scanner:
     def __str__(self):
         return f"index: {self.index}, buffer: {[str(token) for token in self.buffer]}"
 
-    def reset(self):
+    def _reset(self):
         """
             Reset the scanner's internal state, excluding the input stream
         """
@@ -73,7 +73,7 @@ class Scanner:
         self.buffer = []
         self.reading = "instructions"
 
-    def identify(self, symbol: str) -> int:
+    def _identify(self, symbol: str) -> int:
         """
             Identifies the given object/string into its tokenized 'type'.
 
@@ -117,7 +117,7 @@ class Scanner:
         # Otherwise, it's a valid variable/destination
         return self.types["destination"] if len(self.buffer) == 0 else self.types["variable"] 
 
-    def tokenize(self, symbol: str) -> Token:
+    def _tokenize(self, symbol: str) -> Token:
         """
             Tokenizes the given symbol into a Token object if valid.
 
@@ -128,11 +128,11 @@ class Scanner:
             :rtype: Token
 
         """
-        type: int = self.identify(symbol)
+        type: int = self._identify(symbol)
 
         return Token(symbol, type)
 
-    def readline(self) -> bool:
+    def _readline(self) -> bool:
         """
             Tokenizes a line of the input into a list of tokens in the internal buffer.
             Error checking for valid order of tokens is not done. However, valid characters
@@ -160,16 +160,16 @@ class Scanner:
                 # Tokenize what we have, if it exists
 
                 if symbol:
-                    self.buffer.append(self.tokenize(symbol))
+                    self.buffer.append(self._tokenize(symbol))
                     symbol = ""
 
                 # Then, we tokenize the operator (as long as it's not a comma)
                 if char != ',':
-                    self.buffer.append(self.tokenize(char))
+                    self.buffer.append(self._tokenize(char))
                 read_cur = True
             elif not read_cur: # Currently reading a new symbol
                 if char == ' ': # Symbol is ended by a space, so tokenize
-                    self.buffer.append(self.tokenize(symbol))
+                    self.buffer.append(self._tokenize(symbol))
 
                     read_cur = True
                     symbol = ""
@@ -183,7 +183,7 @@ class Scanner:
         # Make sure to tokenize anything left over at the end of the file
 
         if symbol:
-            self.buffer.append(self.tokenize(symbol))
+            self.buffer.append(self._tokenize(symbol))
 
 
         return False
@@ -196,7 +196,7 @@ class Scanner:
             :rtype: Token
         """
         if len(self.buffer) - 1 == self.index or len(self.buffer) == 0:
-            if (self.readline()): # EOF reached
+            if (self._readline()): # EOF reached
                 return Token("", -1) # return EOF token
         else:
             self.index += 1
