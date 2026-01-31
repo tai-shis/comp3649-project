@@ -4,9 +4,10 @@ from input.scanner import Token
 
 class Liveness:
     # Possible states for a variable listed in our liveness analysis
-    state = {
+    states = {
         "defined": 0,
-        "live": 1
+        "live": 1,
+        "unlive": 2
     }
 
     def __init__(self, instruction_buffer: InstructionBuffer) -> None:
@@ -31,24 +32,26 @@ class Liveness:
 
         # First, we mark any carry variables as live in this line
         for c in carry_vars:
-            line_liveness[c] = self.state["live"]
-        # Make sure to clear the carry var array
-        carry_vars.clear()
+            line_liveness[c] = self.states["live"]
+
+        # Destination is always a variable (index 0)
+        line_liveness[variables[0].value] = self.states["defined"]
 
         # Check for any variables in the line
         match len(variables):
             case 3:
-                line_liveness[variables[1].value] = self.state["live"]
-                line_liveness[variables[2].value] = self.state["live"]
+                line_liveness[variables[1].value] = self.states["unlive"] if variables[1].value not in carry_vars else self.states["live"]
+                line_liveness[variables[2].value] = self.states["unlive"] if variables[2].value not in carry_vars else self.states["live"]
             case 2:
-                line_liveness[variables[1].value] = self.state["live"]
+                line_liveness[variables[1].value] = self.states["unlive"] if variables[1].value not in carry_vars else self.states["live"]
 
-        # Destination is always a variable (index 0)
-        line_liveness[variables[0].value] = self.state["defined"]
+        # Make sure to clear the carry var array before repopulating
+        # This is done so that unliveness/liveness states are properly applied
+        carry_vars.clear()
 
         # Repopulate carry vars
         for var, state in line_liveness.items():
-            if state == self.state["live"]:
+            if state != self.states["defined"]:
                 carry_vars.append(var)
 
     def _determine_initial_liveness(self) -> list[str]:
@@ -63,7 +66,7 @@ class Liveness:
         carry_vars: list[str] = []
 
         for live in self.instruction_buffer.list_live_objects():
-            line_liveness[live] = self.state["live"]
+            line_liveness[live] = self.states["live"]
             carry_vars.append(live) # We carry these forward to the previous line (itll make sense later)
 
         self.liveness.appendleft(line_liveness)
@@ -107,7 +110,13 @@ class Liveness:
         for line_liveness in self.liveness:
             line_string = "["
             for var, state in line_liveness.items():
-                state_str = "defined" if state == self.state["defined"] else "live"
+                match state:
+                    case 0: # For some reason, the states dict doesn't work here
+                        state_str = "defined"
+                    case 1:
+                        state_str = "live"
+                    case 2:
+                        state_str = "unlive"
                 line_string += f"{var}: {state_str}, "
             liveness_strings.append(f"{line_string[:-2]}]")
 
