@@ -96,25 +96,25 @@ class Parser:
                     case 0: # binary operator
                         instr = Instruction(
                             type=0,
-                            dest=line[0].value,
-                            operand1=line[2].value,
-                            operator=line[3].value,
-                            operand2=line[4].value
+                            dest=line[0],
+                            operand1=line[2],
+                            operator=line[3],
+                            operand2=line[4]
                         )
                         instruction_buffer.add_instruction(instr)
                     case 1: # unary operator
                         instr = Instruction(
                             type=1,
-                            dest=line[0].value,
-                            operator=line[2].value,
-                            operand2=line[3].value
+                            dest=line[0],
+                            operator=line[2],
+                            operand2=line[3]
                         )
                         instruction_buffer.add_instruction(instr)
                     case 2: # assignment
                         instr = Instruction(
                             type=2,
-                            dest=line[0].value,
-                            operand1=line[2].value
+                            dest=line[0],
+                            operand1=line[2]
                         )
                         instruction_buffer.add_instruction(instr)
                     case -1:
@@ -175,18 +175,3 @@ class Parser:
 
 
         return instruction_buffer
-                
-
-if __name__ == "__main__":
-    from io import StringIO
-
-    # Example usage
-    input_data = StringIO("a = c\nb = a + 10\nc = -b\nlive: a, b, c")
-    scanner = Scanner(input_data)
-    parser = Parser(scanner)
-
-    try:
-        instruction_buffer = parser.parse()
-        print(instruction_buffer)
-    except ValueError as e:
-        print(f"Parsing error: {e}")
