@@ -156,35 +156,6 @@ class Scanner:
         read_cur: bool = False # False while reading a symbol; True when between symbols looking for the next one
 
         self.tokenize_line(line)
-        # for char in line:            
-        #     if char in self.operators or char in ['\n', '=', ',']:  # Catch weird cases (newline or operator/equals)
-        #         # Tokenize what we have, if it exists
-
-        #         if symbol:
-        #             self.buffer.append(self.tokenize(symbol))
-        #             symbol = ""
-
-        #         # Then, we tokenize the operator (as long as it's not a comma)
-        #         if char != ',':
-        #             self.buffer.append(self.tokenize(char))
-        #         read_cur = True
-        #     elif not read_cur: # Currently reading a new symbol
-        #         if char == ' ': # Symbol is ended by a space, so tokenize
-        #             self.buffer.append(self.tokenize(symbol))
-
-        #             read_cur = True
-        #             symbol = ""
-        #         else:
-        #             symbol += char
-        #     else: # Searching for new symbol
-        #         if char != ' ':
-        #             symbol += char
-        #             read_cur = False
-
-        # Make sure to tokenize anything left over at the end of the file
-        # TODO: Determine if this is needed? tokenize_line() should handle this but I'm scared to delete it
-        if symbol:
-            self.buffer.append(self.tokenize(symbol))
 
         return False
 
