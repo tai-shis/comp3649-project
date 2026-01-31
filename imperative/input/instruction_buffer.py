@@ -1,21 +1,22 @@
 from llist import dllist, dllistnode
+from scanner import Token
             
 class Instruction:
-    def __init__(self, type: int, dest: str, operand1: str=None, operator: str=None, operand2: str=None):
+    def __init__(self, type: int, dest: Token, operand1: Token=None, operator: Token=None, operand2: Token=None):
         self.type: int = type
-        self.dest: str = dest
-        self.operand1: str = operand1
-        self.operator: str = operator
-        self.operand2: str = operand2
+        self.dest: Token = dest
+        self.operand1: Token = operand1
+        self.operator: Token = operator
+        self.operand2: Token = operand2
 
     def __str__(self):
         match self.type:
             case 0:
-                return f"{self.dest} = {self.operand1} {self.operator} {self.operand2}"
+                return f"{self.dest.value} = {self.operand1.value} {self.operator.value} {self.operand2.value}"
             case 1:
-                return f"{self.dest} = {self.operator}{self.operand2}"
+                return f"{self.dest.value} = {self.operator.value}{self.operand2.value}"
             case 2:
-                return f"{self.dest} = {self.operand1}"
+                return f"{self.dest.value} = {self.operand1.value}"
 
 class InstructionBuffer:
     def __init__(self):
