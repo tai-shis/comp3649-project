@@ -168,10 +168,9 @@ class Parser:
         instruction_buffer: InstructionBuffer = InstructionBuffer()
 
         # Split into two, instructions, then lives objects.
-        eof: bool = self.parse_instructions(instruction_buffer)
+        eof: bool = self._parse_instructions(instruction_buffer)
 
         if not eof:
-            self.parse_live(instruction_buffer)
-
+            self._parse_live(instruction_buffer)
 
         return instruction_buffer
