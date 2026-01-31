@@ -60,6 +60,24 @@ class InstructionBuffer:
 
         return [str(node.value) for node in self.live_objects.iternodes()]
 
+    def get_instructions(self) -> dllist:
+        """
+        Gets the instructions in the instruction buffer.
+
+        :return: The instructions.
+        :rtype: dllist
+        """
+        return self.instructions
+
+    def get_live_objects(self) -> dllist:
+        """
+        Gets the live objects in the instruction buffer.
+
+        :return: The live objects.
+        :rtype: dllist
+        """
+        return self.live_objects
+
     def __str__(self):
         string = ""
 
