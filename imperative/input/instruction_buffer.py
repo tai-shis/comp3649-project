@@ -74,18 +74,19 @@ class InstructionBuffer:
 
         return string
 
-if __name__ == "__main__":
-    list = dllist()
-    
-    with open("imperative/tests/input1.txt") as file:
-        for line in file:
-            sp_line = line.strip().split(' ')
-            sp_line.append('\n')
-            print(sp_line)
-            if "live:" in sp_line:
-                break
-            instr = Instruction(sp_line[0], operand1=sp_line[2], operator=sp_line[3], operand2=sp_line[4])
+if __name__ == "__main__":    
+    from io import StringIO
+    from scanner import Scanner
+    from parser import Parser
 
-            list.append(instr)
+    # Example usage
+    input_data = StringIO("a = c\nb = a + 10\nc = -b\nlive: a, b, c")
+    scanner = Scanner(input_data)
+    parser = Parser(scanner)
 
-    print(list)
+    try:
+        instruction_buffer = parser.parse()
+        print(instruction_buffer)
+    except ValueError as e:
+        print(f"Parsing error: {e}")
+
