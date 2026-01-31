@@ -90,7 +90,7 @@ class Parser:
             line.append(token)
 
             if token.type == self.types["newline"]:
-                type: int = self.validate_instruction(line)
+                type: int = self._validate_instruction(line)
 
                 match type:
                     case 0: # binary operator
