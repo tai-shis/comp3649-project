@@ -1,5 +1,5 @@
 from llist import dllist, dllistnode
-from scanner import Token
+from input.scanner import Token
             
 class Instruction:
     def __init__(self, type: int, dest: Token, operand1: Token=None, operator: Token=None, operand2: Token=None):
@@ -73,20 +73,3 @@ class InstructionBuffer:
             string += node + ", "
 
         return string
-
-if __name__ == "__main__":    
-    from io import StringIO
-    from scanner import Scanner
-    from parser import Parser
-
-    # Example usage
-    input_data = StringIO("a = c\nb = a + 10\nc = -b\nlive: a, b, c")
-    scanner = Scanner(input_data)
-    parser = Parser(scanner)
-
-    try:
-        instruction_buffer = parser.parse()
-        print(instruction_buffer)
-    except ValueError as e:
-        print(f"Parsing error: {e}")
-

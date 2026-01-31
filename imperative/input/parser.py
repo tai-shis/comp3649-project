@@ -1,5 +1,5 @@
-from instruction_buffer import InstructionBuffer, Instruction
-from scanner import Scanner, Token
+from input.instruction_buffer import InstructionBuffer, Instruction
+from input.scanner import Scanner, Token
 
 class Parser:
     types = {
@@ -175,18 +175,3 @@ class Parser:
 
 
         return instruction_buffer
-                
-
-if __name__ == "__main__":
-    from io import StringIO
-
-    # Example usage
-    input_data = StringIO("a = c\nb = a + 10\nc = -b\nlive: a, b, c")
-    scanner = Scanner(input_data)
-    parser = Parser(scanner)
-
-    try:
-        instruction_buffer = parser.parse()
-        print(instruction_buffer)
-    except ValueError as e:
-        print(f"Parsing error: {e}")
