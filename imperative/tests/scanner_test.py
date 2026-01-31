@@ -15,7 +15,7 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         try: 
-            scanner.readline()
+            scanner._readline()
         except ValueError as ve:
             print(f"Error during readline: {ve}")
 
@@ -31,7 +31,7 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         try:
-            scanner.readline()
+            scanner._readline()
         except ValueError as ve:
             print(f"Error during readline: {ve}")
 
@@ -53,7 +53,7 @@ class TestScanner(unittest.TestCase):
         scanner = Scanner(file)
 
         try:
-            scanner.readline()
+            scanner._readline()
         except ValueError as ve:
             print(f"Error during readline: {ve}")
 
@@ -90,7 +90,7 @@ class TestScanner(unittest.TestCase):
         
         self.assertEqual(received, expected)
 
-        scanner.reset()
+        scanner._reset()
 
     def test_identify_invalid_input1(self):
 
