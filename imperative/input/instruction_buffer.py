@@ -41,7 +41,7 @@ class InstructionBuffer:
         """
         self.live_objects.append(live_object)
 
-    def list_instructions(self) -> list[str]:
+    def list_instructions(self) -> list[Token]:
         """
             Lists all instructions in the instruction buffer.
 
