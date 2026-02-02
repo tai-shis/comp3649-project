@@ -98,6 +98,15 @@ class Liveness:
             # Appending left to reverse the order as we go
             self.liveness.appendleft(line_liveness)
 
+    def get_liveness(self) -> list[dict[str, int]]:
+        """
+        Retrieves the liveness information.
+
+        :return: A list of dictionaries representing the liveness information.
+        :rtype: list[dict[str, int]]
+        """
+        return list(self.liveness)
+
     def liveness_info(self) -> list[str]:
         """
         Retrieves the liveness information as a list of strings.
