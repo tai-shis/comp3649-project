@@ -46,6 +46,7 @@ class InstructionBuffer:
     def __init__(self):
         self.instructions: dllist = dllist() # Instruction objects
         self.live_objects: dllist = dllist() # Strings representing live objects
+        self.occured_variables: set[str] = set() # Set of unique variable names that have occurred in instructions
 
     def add_instruction(self, instruction: Instruction) -> None:
         """
@@ -101,6 +102,22 @@ class InstructionBuffer:
         :rtype: dllist
         """
         return self.live_objects
+    
+    def set_occured_variables(self, variables: set[str]) -> None:
+        """
+        Sets the occurred variables in the instruction buffer.
+        :param variables: The set of occurred variables.
+        :type variables: set[str]
+        """
+        self.occured_variables = variables
+    
+    def get_occured_variables(self) -> set[str]:
+        """
+        Gets a set of unique occurred variables in the instruction buffer.
+        :return: A set of occurred variables.
+        :rtype: set[str]
+        """
+        return self.occured_variables
 
     def __str__(self):
         string = ""
