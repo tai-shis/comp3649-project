@@ -58,6 +58,9 @@ def ig_test(liveness: Liveness, instruction_buffer: InstructionBuffer):
     interference_graph.build_graph(liveness, variables)
 
     print(interference_graph)
+
+    interference_graph.color_graph(3)
+    print(interference_graph)
     
 
 liveness_test2()
