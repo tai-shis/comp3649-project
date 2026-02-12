@@ -123,7 +123,7 @@ class TestScanner(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             scanner._identify(input)
 
-        scanner.reset()
+        scanner._reset()
 
     def test_readline_invalid_input1(self):
         input = "a \ a + 1\n"
@@ -133,14 +133,14 @@ class TestScanner(unittest.TestCase):
         with self.assertRaises(ValueError) as ve:
             scanner._readline()
 
-        scanner.reset()
+        scanner._reset()
 
     def test_tokenize_line1(self):
         input = "a = a + 1\n"
         file = io.StringIO(input)
         scanner = Scanner(file)
 
-        scanner.tokenize_line(input)
+        scanner._tokenize_line(input)
         
         token_list: list[str] = []
         for token in scanner.buffer:
@@ -158,7 +158,7 @@ class TestScanner(unittest.TestCase):
         file = io.StringIO(input)
         scanner = Scanner(file)
 
-        scanner.tokenize_line(input)
+        scanner._tokenize_line(input)
         
         token_list: list[str] = []
         for token in scanner.buffer:
@@ -176,7 +176,7 @@ class TestScanner(unittest.TestCase):
         file = io.StringIO(input)
         scanner = Scanner(file)
 
-        scanner.tokenize_line(input)
+        scanner._tokenize_line(input)
 
         token_list: list[str] = []
         for token in scanner.buffer:

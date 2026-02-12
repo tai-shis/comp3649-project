@@ -155,12 +155,11 @@ class Scanner:
         symbol: str = ""
         read_cur: bool = False # False while reading a symbol; True when between symbols looking for the next one
 
-        self.tokenize_line(line)
+        self._tokenize_line(line)
 
-<<<<<<< chore/refactor-scanner-readline
         return False
 
-    def tokenize_line(self, line: str):
+    def _tokenize_line(self, line: str):
         symbol = ""
         delimiters = {'\n', '=', ',', ' '} # '=' is only here because it is not in the self.operators array.
             
@@ -169,25 +168,12 @@ class Scanner:
             if char in delimiters or char in self.operators:
                 # Make sure a symbol is present and tokenize it
                 if symbol != "":
-                    self.buffer.append(self.tokenize(symbol))
+                    self.buffer.append(self._tokenize(symbol))
                     symbol = "" # Must reset symbol so we can build the next one 
                 
                 # As long as there are no invalid symbols, space (' '), or commas here, we can tokenize it.
                 if char not in self.invalid and char not in (' ', ','):
-                    self.buffer.append(self.tokenize(char))
-=======
-                if symbol:
-                    self.buffer.append(self._tokenize(symbol))
-                    symbol = ""
-
-                # Then, we tokenize the operator (as long as it's not a comma)
-                if char != ',':
                     self.buffer.append(self._tokenize(char))
-                read_cur = True
-            elif not read_cur: # Currently reading a new symbol
-                if char == ' ': # Symbol is ended by a space, so tokenize
-                    self.buffer.append(self._tokenize(symbol))
->>>>>>> main
 
             else:
                 # Symbol has not been fully read yet, so keep going to next char
