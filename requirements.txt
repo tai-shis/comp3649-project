@@ -1,1 +1,2 @@
 llist==0.7.1
+networkx==3.6.1

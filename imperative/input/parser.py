@@ -25,7 +25,7 @@ class Parser:
         self.scanner = scanner
         self.occurred_variables: set[str] = set()
 
-    def validate_instruction(self, instruction: list[Token]) -> int:
+    def _validate_instruction(self, instruction: list[Token]) -> int:
         """
             Validates if the given list of tokens form a valid instruction.
 
@@ -67,7 +67,7 @@ class Parser:
         return self.instruction_types["invalid"]
        
 
-    def parse_instructions(self, instruction_buffer: InstructionBuffer) -> bool:
+    def _parse_instructions(self, instruction_buffer: InstructionBuffer) -> bool:
         """
             Parses through tokens representing instructions, validating
             and adding them to the instruction buffer.
@@ -90,31 +90,31 @@ class Parser:
             line.append(token)
 
             if token.type == self.types["newline"]:
-                type: int = self.validate_instruction(line)
+                type: int = self._validate_instruction(line)
 
                 match type:
                     case 0: # binary operator
                         instr = Instruction(
                             type=0,
-                            dest=line[0].value,
-                            operand1=line[2].value,
-                            operator=line[3].value,
-                            operand2=line[4].value
+                            dest=line[0],
+                            operand1=line[2],
+                            operator=line[3],
+                            operand2=line[4]
                         )
                         instruction_buffer.add_instruction(instr)
                     case 1: # unary operator
                         instr = Instruction(
                             type=1,
-                            dest=line[0].value,
-                            operator=line[2].value,
-                            operand2=line[3].value
+                            dest=line[0],
+                            operator=line[2],
+                            operand2=line[3]
                         )
                         instruction_buffer.add_instruction(instr)
                     case 2: # assignment
                         instr = Instruction(
                             type=2,
-                            dest=line[0].value,
-                            operand1=line[2].value
+                            dest=line[0],
+                            operand1=line[2]
                         )
                         instruction_buffer.add_instruction(instr)
                     case -1:
@@ -126,7 +126,7 @@ class Parser:
 
         return token.type == self.types["EOF"]
 
-    def parse_live(self, instruction_buffer: InstructionBuffer) -> None:
+    def _parse_live(self, instruction_buffer: InstructionBuffer) -> None:
         """
             Parses through tokens representing live objects and adds them to the instruction buffer.
 
@@ -143,6 +143,11 @@ class Parser:
         seen: set[str] = set()
 
         while token.type != self.types["EOF"]:
+            # Skip newlines, they don't affect the live objects
+            if token.type == self.types["newline"]:
+                token = self.scanner.next_token()
+                continue
+
             # Make sure all tokens are live symbols!
             if token.type != self.types["live_symbol"]: 
                 raise ValueError(f"Invalid live object format. Expected live symbol, got {token.type_string()}.")
@@ -168,25 +173,12 @@ class Parser:
         instruction_buffer: InstructionBuffer = InstructionBuffer()
 
         # Split into two, instructions, then lives objects.
-        eof: bool = self.parse_instructions(instruction_buffer)
+        eof: bool = self._parse_instructions(instruction_buffer)
 
         if not eof:
-            self.parse_live(instruction_buffer)
+            self._parse_live(instruction_buffer)
 
+        # Pass all of our occured variables, we will need this later
+        instruction_buffer.set_occured_variables(self.occurred_variables)
 
         return instruction_buffer
-                
-
-if __name__ == "__main__":
-    from io import StringIO
-
-    # Example usage
-    input_data = StringIO("a = c\nb = a + 10\nc = -b\nlive: a, b, c")
-    scanner = Scanner(input_data)
-    parser = Parser(scanner)
-
-    try:
-        instruction_buffer = parser.parse()
-        print(instruction_buffer)
-    except ValueError as e:
-        print(f"Parsing error: {e}")
