@@ -123,6 +123,8 @@ class TestScanner(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             scanner._identify(input)
 
+        scanner._reset()
+
     def test_readline_invalid_input1(self):
         input = "a \ a + 1\n"
         file = io.StringIO(input)
@@ -131,6 +133,61 @@ class TestScanner(unittest.TestCase):
         with self.assertRaises(ValueError) as ve:
             scanner._readline()
 
+        scanner._reset()
+
+    def test_tokenize_line1(self):
+        input = "a = a + 1\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+
+        scanner._tokenize_line(input)
+        
+        token_list: list[str] = []
+        for token in scanner.buffer:
+            token_list.append(token.value)
+
+        self.assertEqual(token_list[0], "a")
+        self.assertEqual(token_list[1], "=")
+        self.assertEqual(token_list[2], "a")
+        self.assertEqual(token_list[3], "+")
+        self.assertEqual(token_list[4], "1")
+        self.assertEqual(token_list[5], "\n")
+
+    def test_tokenize_line2(self):
+        input = "t1 = a * 4\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+
+        scanner._tokenize_line(input)
+        
+        token_list: list[str] = []
+        for token in scanner.buffer:
+            token_list.append(token.value)
+
+        self.assertEqual(token_list[0], "t1")
+        self.assertEqual(token_list[1], "=")
+        self.assertEqual(token_list[2], "a")
+        self.assertEqual(token_list[3], "*")
+        self.assertEqual(token_list[4], "4")
+        self.assertEqual(token_list[5], "\n")
+
+    def test_tokenize_line3(self):
+        input = "t1 / a + 3\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+
+        scanner._tokenize_line(input)
+
+        token_list: list[str] = []
+        for token in scanner.buffer:
+            token_list.append(token.value)
+
+        self.assertEqual(token_list[0], "t1")
+        self.assertEqual(token_list[1], "/")
+        self.assertEqual(token_list[2], "a")
+        self.assertEqual(token_list[3], "+")
+        self.assertEqual(token_list[4], "3")
+        self.assertEqual(token_list[5], "\n")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

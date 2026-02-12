@@ -155,38 +155,33 @@ class Scanner:
         symbol: str = ""
         read_cur: bool = False # False while reading a symbol; True when between symbols looking for the next one
 
-        for char in line:            
-            if char in self.operators or char in ['\n', '=', ',']:  # Catch weird cases (newline or operator/equals)
-                # Tokenize what we have, if it exists
-
-                if symbol:
-                    self.buffer.append(self._tokenize(symbol))
-                    symbol = ""
-
-                # Then, we tokenize the operator (as long as it's not a comma)
-                if char != ',':
-                    self.buffer.append(self._tokenize(char))
-                read_cur = True
-            elif not read_cur: # Currently reading a new symbol
-                if char == ' ': # Symbol is ended by a space, so tokenize
-                    self.buffer.append(self._tokenize(symbol))
-
-                    read_cur = True
-                    symbol = ""
-                else:
-                    symbol += char
-            else: # Searching for new symbol
-                if char != ' ':
-                    symbol += char
-                    read_cur = False
-
-        # Make sure to tokenize anything left over at the end of the file
-
-        if symbol:
-            self.buffer.append(self._tokenize(symbol))
-
+        self._tokenize_line(line)
 
         return False
+
+    def _tokenize_line(self, line: str):
+        symbol = ""
+        delimiters = {'\n', '=', ',', ' '} # '=' is only here because it is not in the self.operators array.
+            
+        for char in line:
+            # If char has moved to a delimiter it's likely that a symbol can be tokenized
+            if char in delimiters or char in self.operators:
+                # Make sure a symbol is present and tokenize it
+                if symbol != "":
+                    self.buffer.append(self._tokenize(symbol))
+                    symbol = "" # Must reset symbol so we can build the next one 
+                
+                # As long as there are no invalid symbols, space (' '), or commas here, we can tokenize it.
+                if char not in self.invalid and char not in (' ', ','):
+                    self.buffer.append(self._tokenize(char))
+
+            else:
+                # Symbol has not been fully read yet, so keep going to next char
+                symbol += char
+        
+        # Make sure to catch anything left over at the end of the line
+        if symbol:
+            self.buffer.append(self._tokenize(symbol))
 
     def next_token(self) -> Token:
         """
