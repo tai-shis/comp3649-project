@@ -143,6 +143,11 @@ class Parser:
         seen: set[str] = set()
 
         while token.type != self.types["EOF"]:
+            # Skip newlines, they don't affect the live objects
+            if token.type == self.types["newline"]:
+                token = self.scanner.next_token()
+                continue
+
             # Make sure all tokens are live symbols!
             if token.type != self.types["live_symbol"]: 
                 raise ValueError(f"Invalid live object format. Expected live symbol, got {token.type_string()}.")
