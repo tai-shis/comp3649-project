@@ -75,18 +75,19 @@
 
 ## Plan Approvals
 ### Week 3
-<small>Last Updated: 22/01/2026</small>
+<small>Last Updated: 12/02/2026</small>
 
 - [x] Finalize project governance document
-- [ ] Finalize project management document
-- [ ] Develop data structures for input files and instructions
-- [ ] Develop file reading and validation
-- [ ] Create test functions for file reading, parsing, and scanning
+- [x] Finalize project management document
+- [x] Develop data structures for input files and instructions
+- [x] Develop file reading and validation
+- [x] Create test functions for file reading, parsing, and scanning
 
 ### Week 4
-<small>Last Updated: 22/01/2026</small>
+<small>Last Updated: 12/02/2026</small>
 
-- [ ] Develop interference graph for live variables
+- [x] Develop variable liveness algorithm
+- [x] Develop interference graph for live variables
 
 ### Week 5
 <small>Last Updated: 22/01/2026</small>
