@@ -1,7 +1,9 @@
 import array
 import io
 import unittest
-from input.instruction_buffer import Instruction, InstructionBuffer
+from input.instruction_buffer import InstructionBuffer
+from input.instruction import Instruction
+from input.scanner import Token
 import llist
 
 class TestInstructionBuffer(unittest.TestCase):
@@ -19,7 +21,7 @@ class TestInstructionBuffer(unittest.TestCase):
         ib: InstructionBuffer = InstructionBuffer()
         ib.add_instruction(instruction)
 
-        self.assertEqual(ib.instructions, instruction)
+        self.assertEqual(ib.instructions[0], instruction)
         self.assertEqual(ib.instructions[0].type, 1)
 
     def test_add_instruction_TYPE2(self):
@@ -27,7 +29,7 @@ class TestInstructionBuffer(unittest.TestCase):
         ib: InstructionBuffer = InstructionBuffer()
         ib.add_instruction(instruction)
 
-        self.assertEqual(ib.instructions, instruction)
+        self.assertEqual(ib.instructions[0], instruction)
         self.assertEqual(ib.instructions[0].type, 2)
 
     def test_add_live_object(self):
@@ -35,14 +37,40 @@ class TestInstructionBuffer(unittest.TestCase):
         ib: InstructionBuffer = InstructionBuffer()
         ib.add_live_object(lo)
 
-        self.assertEqual(ib.live_objects[0].value, lo)
+        self.assertEqual(ib.live_objects[0], lo)
 
     def test_list_instructions(self):
-        ins0: Instruction = Instruction(0, "a", "a", "+", "1")
-        ins1: Instruction = Instruction(0, "b", "a", "-", "6")
-        ins2: Instruction = Instruction(0, "t1", "b", "/", "2")
-        ins3: Instruction = Instruction(0, "prod_a", "a", "*", "6")
-        ins4: Instruction = Instruction(1, "c", "+", "2")
+        ins0: Instruction = Instruction(
+            0, 
+            Token("a", 0),
+            Token("a", 1),
+            Token("+", 3),
+            Token("1", 2))
+        ins1: Instruction = Instruction(
+            0,
+            Token("b", 0),
+            Token("a", 1),
+            Token("-", 3),
+            Token("6", 2))
+        ins2: Instruction = Instruction(
+            0,
+            Token("t1", 0),
+            Token("b", 1),
+            Token("/", 3),
+            Token("2", 2))
+        ins3: Instruction = Instruction(
+            0,
+            Token("prod_a", 0),
+            Token("a", 1),
+            Token("*", 3),
+            Token("6",2))
+        ins4: Instruction = Instruction(
+            1,
+            Token("c", 0),
+            Token("1", 2),
+            Token("+", 3),
+            Token("2", 2))
+
         ib: InstructionBuffer = InstructionBuffer()
         ib.add_instruction(ins0)
         ib.add_instruction(ins1)
@@ -52,11 +80,11 @@ class TestInstructionBuffer(unittest.TestCase):
 
         ib_list: list[str] = ib.list_instructions()
 
-        self.assertEqual(ib_list[0], str(ins0))
-        self.assertEqual(ib_list[1], str(ins1))
-        self.assertEqual(ib_list[2], str(ins2))
-        self.assertEqual(ib_list[3], str(ins3))
-        self.assertEqual(ib_list[4], str(ins4))
+        self.assertEqual(str(ib_list[0]), str(ins0))
+        self.assertEqual(str(ib_list[1]), str(ins1))
+        self.assertEqual(str(ib_list[2]), str(ins2))
+        self.assertEqual(str(ib_list[3]), str(ins3))
+        self.assertEqual(str(ib_list[4]), str(ins4))
 
 
 
@@ -75,3 +103,5 @@ class TestInstructionBuffer(unittest.TestCase):
         self.assertEqual(li_list[1], "b")
         self.assertEqual(li_list[2], "c")
 
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
