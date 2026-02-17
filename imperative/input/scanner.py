@@ -124,9 +124,6 @@ class Scanner:
         self.buffer: list[Token] = []
         self.index: int = 0
 
-        symbol: str = ""
-        read_cur: bool = False # False while reading a symbol; True when between symbols looking for the next one
-
         self._tokenize_line(line)
 
         return False
