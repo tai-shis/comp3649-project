@@ -1,4 +1,4 @@
-from input.scanner import Token
+from input.token import Token
 
 class Instruction:
     instruction_types = {
