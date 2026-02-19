@@ -19,7 +19,7 @@ class TestParser(unittest.TestCase):
         instructions = buffer.list_instructions()
 
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0], "a = 1")
+        self.assertEqual(str(instructions[0]), "a = 1")
 
     def test_arithmetic_operation(self):
         """
@@ -35,7 +35,7 @@ class TestParser(unittest.TestCase):
         instructions = buffer.list_instructions()
 
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0], "a = b + c")
+        self.assertEqual(str(instructions[0]), "a = b + c")
 
     def test_unary_operation(self):
         """
@@ -50,7 +50,7 @@ class TestParser(unittest.TestCase):
         instructions = buffer.list_instructions()
 
         self.assertEqual(len(instructions), 1)
-        self.assertEqual(instructions[0], "a = -b")
+        self.assertEqual(str(instructions[0]), "a = -b")
 
     def test_missing_operands(self):
         """
@@ -78,8 +78,8 @@ class TestParser(unittest.TestCase):
         instructions = buffer.list_instructions()
 
         self.assertEqual(len(instructions), 2)
-        self.assertEqual(instructions[0], "a = 1")
-        self.assertEqual(instructions[1], "b = a + 2")
+        self.assertEqual(str(instructions[0]), "a = 1")
+        self.assertEqual(str(instructions[1]), "b = a + 2")
 
     def test_live_object(self):
         """
@@ -94,7 +94,7 @@ class TestParser(unittest.TestCase):
         live_objects = buffer.list_live_objects()
 
         self.assertEqual(len(live_objects), 1)
-        self.assertEqual(live_objects[0], "a")
+        self.assertEqual(str(live_objects[0]), "a")
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
