@@ -3,13 +3,18 @@ import io
 import unittest
 from input.instruction_buffer import InstructionBuffer
 from input.instruction import Instruction
-from input.scanner import Token
+from input.token import Token
 import llist
 
 class TestInstructionBuffer(unittest.TestCase):
 
     def test_add_instruction_TYPE0(self):
-        instruction: Instruction = Instruction(0, "a", "a", "+", "1")
+        instruction: Instruction = Instruction(
+            type=0, 
+            dest=Token("a", 0),
+            operand1=Token("a", 1),
+            operator=Token("+", 3),
+            operand2=Token("1", 2))
         ib: InstructionBuffer = InstructionBuffer()
         ib.add_instruction(instruction)
 
@@ -17,7 +22,11 @@ class TestInstructionBuffer(unittest.TestCase):
         self.assertEqual(ib.instructions[0].type, 0)
 
     def test_add_instruction_TYPE1(self):
-        instruction: Instruction = Instruction(type=1, dest="a", operator="+", operand2="1")
+        instruction: Instruction = Instruction(
+            type=1,
+            dest=Token("a", 0),
+            operator=Token("+", 3),
+            operand2=Token("1", 2))
         ib: InstructionBuffer = InstructionBuffer()
         ib.add_instruction(instruction)
 
@@ -25,7 +34,10 @@ class TestInstructionBuffer(unittest.TestCase):
         self.assertEqual(ib.instructions[0].type, 1)
 
     def test_add_instruction_TYPE2(self):
-        instruction: Instruction = Instruction(type=2, dest="a", operand1="1")
+        instruction: Instruction = Instruction(
+            type=2,
+            dest=Token("a", 0),
+            operand1=Token("1",2))
         ib: InstructionBuffer = InstructionBuffer()
         ib.add_instruction(instruction)
 
