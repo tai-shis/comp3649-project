@@ -52,7 +52,7 @@ from input.token import Token
 
 class ASMGenerator:
     def __init__(self, instruction_buffer: InstructionBuffer, interference_graph: InterferenceGraph):
-        self.buffer = instruction_buffer
+        self.buffer: InstructionBuffer = instruction_buffer
         self.register_colors: dict[str, int | None] = interference_graph.colors
 
         self.opcodes = {
@@ -82,7 +82,7 @@ class ASMGenerator:
         if (token.type == 2): # 'literal' Token type
             return f"#{token.value}"
         
-        register = self.register_colors.get(token.value)
+        register = self.register_colors[token.value]
         if register is None:
             # Just return the value held in the Token as a fail safe
             return str(token.value)
