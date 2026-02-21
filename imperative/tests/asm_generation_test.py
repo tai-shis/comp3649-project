@@ -24,10 +24,11 @@ class TestASMGeneration(unittest.TestCase):
         
         return parser.parse()
     
-    def _get_interference_graph(self, buffer: InstructionBuffer, liveness: Liveness) -> InterferenceGraph:
+    def _get_interference_graph(self, buffer: InstructionBuffer) -> InterferenceGraph:
         '''
         Helper function to return an interference graph from a given instruction buffer and liveness.
         '''
+        liveness = Liveness(buffer)
         interference_graph = InterferenceGraph()
         interference_graph.build_graph(liveness, buffer.get_occured_variables())
 
@@ -37,7 +38,12 @@ class TestASMGeneration(unittest.TestCase):
         '''
         Tests the ASMGenerator initialization.
         '''
-        pass
+        buffer = self._get_buffer()
+        interference_graph = self._get_interference_graph(buffer)
+        generator = ASMGenerator(buffer, interference_graph)
+
+        self.assertEqual(generator.buffer, buffer)
+        self.assertEqual(generator.register_colors, interference_graph.colors)
 
     def test_reg_or_value_literal(self):
         '''
@@ -58,9 +64,7 @@ class TestASMGeneration(unittest.TestCase):
         Tests the function responsible for returning the op-code for the ADD operator.
         '''
         buffer = self._get_buffer()
-
-        liveness = Liveness(buffer)
-        interference_graph = self._get_interference_graph(buffer, liveness)
+        interference_graph = self._get_interference_graph(buffer)
 
         add_token: Token = Token("+", 3)
         generator: ASMGenerator = ASMGenerator(buffer, interference_graph)
@@ -73,9 +77,7 @@ class TestASMGeneration(unittest.TestCase):
         Tests the function responsible for returning the op-code for the SUB operator.
         '''
         buffer = self._get_buffer()
-
-        liveness = Liveness(buffer)
-        interference_graph = self._get_interference_graph(buffer, liveness)
+        interference_graph = self._get_interference_graph(buffer)
 
         sub_token: Token = Token("-", 3)
         generator: ASMGenerator = ASMGenerator(buffer, interference_graph)
@@ -88,9 +90,7 @@ class TestASMGeneration(unittest.TestCase):
         Tests the function responsible for returning the op-code for the MUL operator.
         '''
         buffer = self._get_buffer()
-
-        liveness = Liveness(buffer)
-        interference_graph = self._get_interference_graph(buffer, liveness)
+        interference_graph = self._get_interference_graph(buffer)
 
         mul_token: Token = Token("*", 3)
         generator: ASMGenerator = ASMGenerator(buffer, interference_graph)
@@ -103,9 +103,7 @@ class TestASMGeneration(unittest.TestCase):
         Tests the function responsible for returning the op-code for the DIV operator.
         '''
         buffer = self._get_buffer()
-
-        liveness = Liveness(buffer)
-        interference_graph = self._get_interference_graph(buffer, liveness)
+        interference_graph = self._get_interference_graph(buffer)
 
         div_token: Token = Token("/", 3)
         generator: ASMGenerator = ASMGenerator(buffer, interference_graph)
@@ -124,3 +122,6 @@ class TestASMGeneration(unittest.TestCase):
         Tests the function responsible for generating all ASM code from a given input file.
         '''
         pass
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)
