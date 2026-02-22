@@ -109,7 +109,7 @@ class ASMGenerator:
                 return "MOV" + ' ' + source + ',' + dest
             
     def generate_assembly(self) -> list[str]:
-        for instruction in self.buffer:
+        for instruction in self.buffer.instructions:
             next_instructions: list[str] = self._generate_instruction_asm(instruction)
             self.generated_asm.extend(next_instructions)
 
