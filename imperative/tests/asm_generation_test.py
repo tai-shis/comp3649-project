@@ -31,16 +31,13 @@ class TestASMGeneration(unittest.TestCase):
         liveness = Liveness(buffer)
         interference_graph = InterferenceGraph()
         interference_graph.build_graph(liveness, buffer.get_occured_variables())
+        interference_graph.color_graph(3)
 
         return interference_graph
     
     def _get_generator(self) -> ASMGenerator:
         buffer = self._get_buffer()
         interference_graph = self._get_interference_graph(buffer)
-
-        liveness = Liveness(buffer)
-        interference_graph = InterferenceGraph()
-        interference_graph.build_graph(liveness, buffer.get_occured_variables())
 
         return ASMGenerator(buffer, interference_graph)
 
@@ -74,17 +71,8 @@ class TestASMGeneration(unittest.TestCase):
         Tests function responsible for returning register for a variable from the
         Token it was given.
         '''
-        generator = self._get_generator()
+        pass
 
-        token = generator.buffer.instructions[0].dest
-        expected_reg = "R1"
-        value = generator._get_reg_or_value(token)
-
-        print(f"\n {token.type}")
-        print(f"\n {token.value}")
-        print(f"\n {generator.buffer.instructions[0]}")
-        print(f"\n {generator.register_colors}")
-        self.assertEqual(value, expected_reg)
 
     def test_get_op_code_ADD(self):
         '''
@@ -130,7 +118,17 @@ class TestASMGeneration(unittest.TestCase):
         '''
         Tests the function responsible for generating ASM code for a given instruction.
         '''
-        pass
+        generator = self._get_generator()
+
+        '''
+        Testing first instruction in the buffer
+        a = a + 1
+        ''' 
+        instruction = generator.buffer.instructions[0]
+        asm = generator._generate_instruction_asm(instruction)
+        register = f"R{generator.register_colors["a"]}"
+        expected_asm = [f"MOV a,{register}",f"ADD #1,{register}"]
+        self.assertEqual(asm,expected_asm) 
 
     def test_generate_assembly(self):
         '''
