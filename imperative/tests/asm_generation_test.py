@@ -134,7 +134,9 @@ class TestASMGeneration(unittest.TestCase):
         '''
         Tests the function responsible for generating all ASM code from a given input file.
         '''
-        pass
+        generator = self._get_generator()
+        asm_list = generator.generate_assembly()
+        print(asm_list)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
