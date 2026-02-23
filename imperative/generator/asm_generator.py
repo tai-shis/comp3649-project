@@ -107,10 +107,28 @@ class ASMGenerator:
                 dest = self._get_reg_or_value(instruction.dest)
                 source = self._get_reg_or_value(instruction.operand1)
                 return [f"MOV {source},{dest}"]
-            
+    
+    def _output_to_file(self) -> None:
+        '''
+        Writes the generated assembly instructions to a file in the directory this file is in
+        (/imperative/generator)
+        '''
+        with open("./generator/assembly.txt", "w") as f:
+            for instruction in self.generated_asm:
+                f.write(f"{instruction}\n")
+
     def generate_assembly(self) -> list[str]:
+        '''
+        Generates the assembly for every instruction contained within the instruction buffer.
+        Returns the assembly as a list but also writes the assembly to an output file
+        :return: The list of assembly instructions.
+        :rtype: list[str]
+        '''
         for instruction in self.buffer.instructions:
             next_instructions: list[str] = self._generate_instruction_asm(instruction)
             self.generated_asm.extend(next_instructions)
 
+        self._output_to_file()
+
         return self.generated_asm
+    
