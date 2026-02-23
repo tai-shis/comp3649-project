@@ -114,7 +114,7 @@ class TestASMGeneration(unittest.TestCase):
 
         self.assertEqual(op_code, "DIV")
 
-    def test_generate_instruction_asm(self):
+    def test_generate_instruction_binary(self):
         '''
         Tests the function responsible for generating ASM code for a given instruction.
         '''
@@ -130,6 +130,31 @@ class TestASMGeneration(unittest.TestCase):
         expected_asm = [f"MOV a,{register}",f"ADD #1,{register}"]
         self.assertEqual(asm,expected_asm) 
 
+    def test_generate_instruction_unary(self):
+        generator = self._get_generator()
+        # Testing a = -b
+        instruction = Instruction(
+            1,
+            dest=Token('a', 0),
+            operator=Token('-', 3),
+            operand2=Token('b', 1))
+        asm = generator._generate_instruction_asm(instruction)
+        register = f"R{generator.register_colors["a"]}"
+        expected_asm = [f"MOV b,{register}", f"MUL #-1,{register}"]
+        self.assertEqual(asm, expected_asm)
+
+    def test_generate_instruction_assignment(self):
+        generator = self._get_generator()
+        # Testing a = 1
+        instruction = Instruction(
+            2,
+            dest=Token('a',0),
+            operand1=Token('1',2))
+        asm = generator._generate_instruction_asm(instruction)
+        register = f"R{generator.register_colors["a"]}"
+        expected_asm = [f"MOV #1,{register}"]
+        self.assertEqual(asm, expected_asm)
+
     def test_generate_assembly(self):
         '''
         Tests the function responsible for generating all ASM code from a given input file.
@@ -137,6 +162,8 @@ class TestASMGeneration(unittest.TestCase):
         generator = self._get_generator()
         asm_list = generator.generate_assembly()
         print(asm_list)
+        # NOTE: Add proper test for this at some point. But from the looks of things
+        # it is printing out what is expected
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
