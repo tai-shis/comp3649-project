@@ -86,7 +86,7 @@ class ASMGenerator:
                 # MUL #-1,R1 ; taking inverse of b and storing in x (value in R0)
 
                 dest = self._get_reg_or_value(instruction.dest)
-                source = self._get_reg_or_value(instruction.operand2)
+                source = instruction.operand2.value
                 op_symbol = instruction.operator.value
 
                 if (op_symbol == '-'):
@@ -106,7 +106,7 @@ class ASMGenerator:
                 # In this case the operator will always be a MOV
                 dest = self._get_reg_or_value(instruction.dest)
                 source = self._get_reg_or_value(instruction.operand1)
-                return "MOV" + ' ' + source + ',' + dest
+                return [f"MOV {source},{dest}"]
             
     def generate_assembly(self) -> list[str]:
         for instruction in self.buffer.instructions:
