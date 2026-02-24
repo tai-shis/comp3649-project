@@ -1,4 +1,5 @@
-from input.instruction_buffer import InstructionBuffer, Instruction
+from input.instruction_buffer import InstructionBuffer
+from input.instruction import Instruction
 from input.scanner import Scanner
 from input.token import Token
 
