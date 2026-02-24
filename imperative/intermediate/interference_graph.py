@@ -93,8 +93,7 @@ class InterferenceGraph:
         if self._solve_graph_coloring(0, n):
             print("Graph successfully colored.")
         else:
-            print("Failed to color the graph with the given number of colors.")
-        
+            raise ValueError("Failed to color the graph with the given number of colors.")        
         
 
     def __str__(self) -> str:
