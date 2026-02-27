@@ -8,13 +8,6 @@ class ASMGenerator:
         self.buffer: InstructionBuffer = instruction_buffer
         self.register_colors: dict[str, int | None] = interference_graph.colors
 
-        self.opcodes = {
-            '+': 'ADD',
-            '-': 'SUB',
-            '*': 'MUL',
-            '/': 'DIV',
-        }
-
         # This will be formatted like ["MOV a,R0", "ADD #1,R0"] where each string entry can be separated by a "\n" when being printed
         # out to the console of output file
         self.generated_asm: list[str] = []
