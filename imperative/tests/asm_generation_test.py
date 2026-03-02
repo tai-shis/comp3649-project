@@ -135,7 +135,7 @@ class TestASMGeneration(unittest.TestCase):
         ''' 
         instruction = generator.buffer.instructions[0]
         asm = generator._generate_instruction_asm(instruction)
-        register = f"R{generator.register_colors["a"]}"
+        register = f'R{generator.register_colors["a"]}'
         expected_asm = [ASMInstruction("MOV", "a", register), ASMInstruction("ADD", "#1", register)]
         
         self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
