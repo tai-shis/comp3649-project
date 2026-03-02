@@ -1,5 +1,6 @@
 import io
 import unittest
+import os
 
 from input.instruction_buffer import InstructionBuffer
 from input.instruction import Instruction
@@ -9,6 +10,7 @@ from input.parser import Parser
 from intermediate.liveness import Liveness
 from intermediate.interference_graph import InterferenceGraph
 from generator.asm_generator import ASMGenerator
+from generator.asm_instruction import ASMInstruction
 
 class TestASMGeneration(unittest.TestCase):
 
@@ -53,6 +55,21 @@ class TestASMGeneration(unittest.TestCase):
         self.assertEqual(generator.buffer, buffer)
         self.assertEqual(generator.register_colors, interference_graph.colors)
 
+    def test_reg_or_value_no_register(self):
+        '''
+        Tests that the generator returns the variable name if no register was
+        assigned in the interference graph.
+        '''
+        generator = self._get_generator()
+        token = Token("none", 1)
+
+        if ("none" in generator.register_colors):
+            del generator.register_colors["none"]
+
+        value = generator._get_reg_or_value(token)
+        self.assertEqual(value, "none")
+
+
     def test_reg_or_value_literal(self):
         '''
         Tests function responsible for returning the value from the literal
@@ -64,15 +81,6 @@ class TestASMGeneration(unittest.TestCase):
         value = generator._get_reg_or_value(token)
 
         self.assertEqual(value, "#1")
-
-
-    def test_reg_or_value_variable(self):
-        '''
-        Tests function responsible for returning register for a variable from the
-        Token it was given.
-        '''
-        pass
-
 
     def test_get_op_code_ADD(self):
         '''
@@ -127,8 +135,17 @@ class TestASMGeneration(unittest.TestCase):
         instruction = generator.buffer.instructions[0]
         asm = generator._generate_instruction_asm(instruction)
         register = f"R{generator.register_colors["a"]}"
-        expected_asm = [f"MOV a,{register}",f"ADD #1,{register}"]
-        self.assertEqual(asm,expected_asm) 
+        expected_asm = [ASMInstruction("MOV", "a", register), ASMInstruction("ADD", "#1", register)]
+        
+        self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
+        self.assertEqual(asm[0].op1, expected_asm[0].op1)
+        self.assertEqual(asm[0].op2, expected_asm[0].op2)
+
+        self.assertEqual(asm[1].op_code, expected_asm[1].op_code)
+        self.assertEqual(asm[1].op1, expected_asm[1].op1)
+        self.assertEqual(asm[1].op2, expected_asm[1].op2)
+        
+
 
     def test_generate_instruction_unary(self):
         generator = self._get_generator()
@@ -140,8 +157,14 @@ class TestASMGeneration(unittest.TestCase):
             operand2=Token('b', 1))
         asm = generator._generate_instruction_asm(instruction)
         register = f"R{generator.register_colors["a"]}"
-        expected_asm = [f"MOV b,{register}", f"MUL #-1,{register}"]
-        self.assertEqual(asm, expected_asm)
+        expected_asm = [ASMInstruction("MOV", "b", register), ASMInstruction("MUL", "#-1", register)]
+        self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
+        self.assertEqual(asm[0].op1, expected_asm[0].op1)
+        self.assertEqual(asm[0].op2, expected_asm[0].op2)
+        
+        self.assertEqual(asm[1].op_code, expected_asm[1].op_code)
+        self.assertEqual(asm[1].op1, expected_asm[1].op1)
+        self.assertEqual(asm[1].op2, expected_asm[1].op2)
 
     def test_generate_instruction_assignment(self):
         generator = self._get_generator()
@@ -152,18 +175,72 @@ class TestASMGeneration(unittest.TestCase):
             operand1=Token('1',2))
         asm = generator._generate_instruction_asm(instruction)
         register = f"R{generator.register_colors["a"]}"
-        expected_asm = [f"MOV #1,{register}"]
-        self.assertEqual(asm, expected_asm)
+        expected_asm = [ASMInstruction("MOV", "#1", register)]
+        
+        self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
+        self.assertEqual(asm[0].op1, expected_asm[0].op1)
+        self.assertEqual(asm[0].op2, expected_asm[0].op2)
 
-    def test_generate_assembly(self):
+    def test_output_file_content(self):
         '''
-        Tests the function responsible for generating all ASM code from a given input file.
+        Checks if the assembly.txt file is created and contains the expected contents.
         '''
         generator = self._get_generator()
-        asm_list = generator.generate_assembly()
-        print(asm_list)
-        # NOTE: Add proper test for this at some point. But from the looks of things
-        # it is printing out what is expected
+        generator.generate_assembly()
+
+        path = "./generator/assembly.txt"
+        # Make sure the file was created
+        self.assertTrue(os.path.exists(path))
+
+        # Testing 'a = a + 1' which should have resulted in a MOV and an ADD operation
+        # Test line 1
+        with open(path, "r") as f:
+            lines = f.readlines()
+            # Verify that the first line is something like "MOV, a,R0" (register can vary)
+            register = f"R{generator.register_colors["a"]}"
+            expected_line = f"MOV a,{register}\n"
+            self.assertEqual(lines[0], expected_line)
+
+        # Test line 2
+        with open(path, "r") as f:
+            lines = f.readlines()
+            # Verify that the first line is something like "ADD, #1,R0" (register can vary)
+            register = f"R{generator.register_colors["a"]}"
+            expected_line = f"ADD #1,{register}\n"
+            self.assertEqual(lines[1], expected_line)
+
+
+    def test_asm_instruction_object_integrity(self):
+        '''
+        Checks that the ASMInstruction objects have the correct op_code, op1, op2
+        after being created.
+        '''
+        generator = self._get_generator()
+        # a = a + 1
+        instruction = generator.buffer.instructions[0]
+        asm_objects = generator._generate_instruction_asm(instruction)
+        
+        register = f"R{generator.register_colors["a"]}"
+        
+        # Check MOV object
+        self.assertEqual(asm_objects[0].op_code, "MOV")
+        self.assertEqual(asm_objects[0].op1, "a")
+        self.assertEqual(asm_objects[0].op2, register)
+        
+        # Check ADD object
+        self.assertEqual(asm_objects[1].op_code, "ADD")
+        self.assertEqual(asm_objects[1].op1, "#1")
+        self.assertEqual(asm_objects[1].op2, register)
+
+    # def test_generate_assembly(self):
+    #     '''
+    #     Tests the function responsible for generating all ASM code from a given input file.
+    #     '''
+    #     generator = self._get_generator()
+    #     asm_list = generator.generate_assembly()
+    #     print(asm_list)
+    #     # NOTE: Add proper test for this at some point. But from the looks of things
+    #     # it is printing out what is expected
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
