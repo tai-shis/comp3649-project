@@ -1,3 +1,4 @@
+from generator.asm_instruction import ASMInstruction
 from intermediate.interference_graph import InterferenceGraph
 from input.instruction_buffer import InstructionBuffer
 from input.instruction import Instruction
@@ -8,16 +9,16 @@ class ASMGenerator:
         self.buffer: InstructionBuffer = instruction_buffer
         self.register_colors: dict[str, int | None] = interference_graph.colors
 
+        # This will be formatted like ["MOV a,R0", "ADD #1,R0"] where each string entry can be separated by a "\n" when being printed
+        # out to the console of output file
+        self.generated_asm: list[ASMInstruction] = []
+        
         self.opcodes = {
             '+': 'ADD',
             '-': 'SUB',
             '*': 'MUL',
             '/': 'DIV',
         }
-
-        # This will be formatted like ["MOV a,R0", "ADD #1,R0"] where each string entry can be separated by a "\n" when being printed
-        # out to the console of output file
-        self.generated_asm: list[str] = []
 
     def _get_reg_or_value(self, token: Token) -> str:
         '''
@@ -34,7 +35,10 @@ class ASMGenerator:
         '''
         if (token.type == 2): # 'literal' Token type
             return f"#{token.value}"
-        
+
+        if token.value not in self.register_colors:
+            raise ValueError(f"Error: Variable {str(token.value)} has no assigned register.")
+
         register = self.register_colors[token.value]
         if register is None:
             # Just return the value held in the Token as a fail safe
@@ -55,7 +59,7 @@ class ASMGenerator:
 
         return self.opcodes[operator.value]
                 
-    def _generate_instruction_asm(self, instruction: Instruction) -> list[str]:
+    def _generate_instruction_asm(self, instruction: Instruction) -> list[ASMInstruction]:
         '''
         Generates the assembly code for 1 instruction in the instruction buffer.
         Probably going to be calling this function in some sort of loop.
@@ -74,9 +78,8 @@ class ASMGenerator:
                 op2 = self._get_reg_or_value(instruction.operand2)
                 op_code = self._get_op_code(instruction.operator)
                 
-                operation1 = f"MOV {op1},{dest}"
-                operation2 = f"{op_code} {op2},{dest}"
-
+                operation1 = ASMInstruction("MOV", op1, dest)
+                operation2 = ASMInstruction(op_code, op2, dest)
                 return [operation1, operation2]
 
             case 1: # Unary Operator
@@ -91,33 +94,35 @@ class ASMGenerator:
 
                 if (op_symbol == '-'):
                     # Negation
-                    operation1 = f"MOV {source},{dest}"
-                    operation2 = f"MUL #-1,{dest}"
+                    operation1 = ASMInstruction("MOV", source, dest)
+                    operation2 = ASMInstruction("MUL", "#-1", dest)
 
                     return [operation1, operation2]
-                elif (op_symbol == '+'):
-                    return [f"MOV {source},{dest}"]
                 # Not sure what other cases go here as anything like a += 1 would be treated
                 # as binary operator and I'm not sure if that is even being supported
 
-                return []
+                return [ASMInstruction("MOV", source, dest)]
                 
             case 2: # Assignment
                 # In this case the operator will always be a MOV
                 dest = self._get_reg_or_value(instruction.dest)
                 source = self._get_reg_or_value(instruction.operand1)
-                return [f"MOV {source},{dest}"]
+                return [ASMInstruction("MOV", source, dest)]
+            
+            case _:
+                return []
     
     def _output_to_file(self) -> None:
         '''
         Writes the generated assembly instructions to a file in the directory this file is in
         (/imperative/generator)
         '''
-        with open("./generator/assembly.txt", "w") as f:
+        with open("./generator/assembly.s", "w") as f:
             for instruction in self.generated_asm:
-                f.write(f"{instruction}\n")
+                instruction_str = instruction.op_code + " " + instruction.op1 + "," + instruction.op2
+                f.write(f"{instruction_str}\n")
 
-    def generate_assembly(self) -> list[str]:
+    def generate_assembly(self) -> list[ASMInstruction]:
         '''
         Generates the assembly for every instruction contained within the instruction buffer.
         Returns the assembly as a list but also writes the assembly to an output file
@@ -125,7 +130,7 @@ class ASMGenerator:
         :rtype: list[str]
         '''
         for instruction in self.buffer.instructions:
-            next_instructions: list[str] = self._generate_instruction_asm(instruction)
+            next_instructions: list[ASMInstruction] = self._generate_instruction_asm(instruction)
             self.generated_asm.extend(next_instructions)
 
         self._output_to_file()
