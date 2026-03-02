@@ -118,5 +118,34 @@ class TestInstructionBuffer(unittest.TestCase):
         self.assertEqual(li_list[1], "b")
         self.assertEqual(li_list[2], "c")
 
+    def test_empty_buffer_behaviour(self):
+        '''
+        Tests that the InstructionBuffer initializes to empty in the expected way.
+        '''
+        ib = InstructionBuffer()
+        self.assertEqual(ib.list_instructions(), [])
+        self.assertEqual(ib.list_live_objects(), [])
+        self.assertEqual(ib.get_occurred_variables(), set())
+        self.assertEqual(str(ib).strip(), "live:")
+
+    def test_variable_tracking(self):
+        '''
+        Tests that variables are tracked properly in occurred variables 
+        '''
+        ib = InstructionBuffer()
+        variables = {"a", "b", "t1"}
+        ib.set_occurred_variables(variables)
+        self.assertEqual(ib.get_occurred_variables(), variables)
+        # Check if the t1 variable is recognized
+        self.assertIn("t1", ib.get_occurred_variables())
+
+    def test_getters_return_dllist(self):
+        '''
+        Test the return type of the getter functions
+        '''
+        ib = InstructionBuffer()
+        self.assertIsInstance(ib.get_instructions(), llist.dllist)
+        self.assertIsInstance(ib.get_live_objects(), llist.dllist)
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
