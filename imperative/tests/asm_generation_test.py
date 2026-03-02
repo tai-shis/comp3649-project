@@ -1,4 +1,5 @@
 import io
+from multiprocessing import Value
 import unittest
 import os
 
@@ -66,8 +67,8 @@ class TestASMGeneration(unittest.TestCase):
         if ("none" in generator.register_colors):
             del generator.register_colors["none"]
 
-        value = generator._get_reg_or_value(token)
-        self.assertEqual(value, "none")
+        with self.assertRaises(ValueError):
+            generator._get_reg_or_value(token)
 
 
     def test_reg_or_value_literal(self):
@@ -188,7 +189,7 @@ class TestASMGeneration(unittest.TestCase):
         generator = self._get_generator()
         generator.generate_assembly()
 
-        path = "./generator/assembly.txt"
+        path = "./generator/assembly.s"
         # Make sure the file was created
         self.assertTrue(os.path.exists(path))
 

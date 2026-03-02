@@ -117,7 +117,7 @@ class ASMGenerator:
         Writes the generated assembly instructions to a file in the directory this file is in
         (/imperative/generator)
         '''
-        with open("./generator/assembly.txt", "w") as f:
+        with open("./generator/assembly.s", "w") as f:
             for instruction in self.generated_asm:
                 instruction_str = instruction.op_code + " " + instruction.op1 + "," + instruction.op2
                 f.write(f"{instruction_str}\n")
