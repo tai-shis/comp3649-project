@@ -1,4 +1,4 @@
-from asm_instruction import ASMInstruction
+from generator.asm_instruction import ASMInstruction
 from intermediate.interference_graph import InterferenceGraph
 from input.instruction_buffer import InstructionBuffer
 from input.instruction import Instruction
@@ -35,7 +35,10 @@ class ASMGenerator:
         '''
         if (token.type == 2): # 'literal' Token type
             return f"#{token.value}"
-        
+
+        if token.value not in self.register_colors:
+            raise ValueError(f"Error: Variable {str(token.value)} has no assigned register.")
+
         register = self.register_colors[token.value]
         if register is None:
             # Just return the value held in the Token as a fail safe
