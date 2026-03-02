@@ -33,7 +33,7 @@ class TestASMGeneration(unittest.TestCase):
         '''
         liveness = Liveness(buffer)
         interference_graph = InterferenceGraph()
-        interference_graph.build_graph(liveness, buffer.get_occured_variables())
+        interference_graph.build_graph(liveness, buffer.get_occurred_variables())
         interference_graph.color_graph(3)
 
         return interference_graph

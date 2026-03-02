@@ -133,7 +133,7 @@ class TestParser(unittest.TestCase):
 
         buffer = parser.parse()
         expected_vars = {"a", "b", "c", "t1"}
-        self.assertEqual(buffer.get_occured_variables(), expected_vars)
+        self.assertEqual(buffer.get_occurred_variables(), expected_vars)
 
     def test_invalid_assignment_literal_dest(self):
         '''

@@ -51,7 +51,7 @@ def main():
 
     # Get the information for the graph
     liveness = Liveness(instruction_buffer)
-    variables = instruction_buffer.get_occured_variables()
+    variables = instruction_buffer.get_occurred_variables()
 
     # Now build the graph
     interference_graph = InterferenceGraph()
