@@ -94,7 +94,7 @@
 ### Phases
 1. Parsing: The Parser uses the Scanner's Tokens to fill the InstructionBuffer with valid Instructions.
 2. Intermediate Code: The Liveness module processes Instructions within the InstructionBuffer to allocate registers to variables.
-3. Generation: ASMGenerator takes the InstructionBuffer and InterferenceGraph data to produce assembly representations of each Instruction. These instructions are placed into a list of all assembly instructions and outputs them to the ```assmebly.s``` file.
+3. Generation: ASMGenerator takes the InstructionBuffer and InterferenceGraph data to produce assembly representations of each Instruction. These instructions are placed into a list of all assembly instructions and outputs them to the ```assembly.s``` file.
 
 
 ## High-level Testing Framework

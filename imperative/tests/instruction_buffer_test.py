@@ -101,6 +101,9 @@ class TestInstructionBuffer(unittest.TestCase):
 
 
     def test_list_live_objects(self):
+        """
+        Tests the list_live_objects() function
+        """
         lo0: str = "a"
         lo1: str = "b"
         lo2: str = "c"

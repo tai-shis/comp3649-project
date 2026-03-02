@@ -1,3 +1,5 @@
+import os
+
 from generator.asm_instruction import ASMInstruction
 from intermediate.interference_graph import InterferenceGraph
 from input.instruction_buffer import InstructionBuffer
@@ -114,10 +116,13 @@ class ASMGenerator:
     
     def _output_to_file(self, input_filename: str) -> None:
         '''
-        Writes the generated assembly instructions to <filename>.s 
+        Writes the generated assembly instructions to <filename> 
         in the current directory.
         '''
-        output_name = f"{input_filename}.s"
+        output_name = f"{input_filename}"
+        
+        os.makedirs(os.path.dirname(output_name), exist_ok=True)
+
         with open(output_name, "w") as f:
             for instruction in self.generated_asm:
                 instruction_str = instruction.op_code + " " + instruction.op1 + "," + instruction.op2

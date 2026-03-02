@@ -40,7 +40,7 @@ class TestGraph(unittest.TestCase):
         
         liveness = Liveness(buffer)
         interferencegraph = InterferenceGraph()
-        interferencegraph.build_graph(liveness, buffer.get_occured_variables())
+        interferencegraph.build_graph(liveness, buffer.get_occurred_variables())
 
         nodes = list(interferencegraph.interference_graph.nodes())
         
@@ -63,7 +63,7 @@ class TestGraph(unittest.TestCase):
     
         liveness = Liveness(buffer)
         interferencegraph = InterferenceGraph()
-        interferencegraph.build_graph(liveness, buffer.get_occured_variables())
+        interferencegraph.build_graph(liveness, buffer.get_occurred_variables())
         
         interferencegraph.color_graph(3)
 
@@ -82,7 +82,7 @@ class TestGraph(unittest.TestCase):
         
         liveness = Liveness(buffer)
         interferencegraph = InterferenceGraph()
-        interferencegraph.build_graph(liveness, buffer.get_occured_variables())
+        interferencegraph.build_graph(liveness, buffer.get_occurred_variables())
 
         # 'a' and 'b' are both live at the end, so they must interfere (have an edge)
         self.assertTrue(interferencegraph.interference_graph.has_edge('a', 'b'))
@@ -103,7 +103,7 @@ class TestGraph(unittest.TestCase):
         
         liveness = Liveness(buffer)
         interferencegraph = InterferenceGraph()
-        interferencegraph.build_graph(liveness, buffer.get_occured_variables())
+        interferencegraph.build_graph(liveness, buffer.get_occurred_variables())
         
         # There should be NO edge between x and y
         self.assertFalse(interferencegraph.interference_graph.has_edge('x', 'y'))

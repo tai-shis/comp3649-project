@@ -8,6 +8,8 @@ from intermediate.liveness import Liveness
 from intermediate.interference_graph import InterferenceGraph
 from generator.asm_generator import ASMGenerator
 
+OUTPUT_FILE = "./generated/assembly.s"
+
 def main():
     """
     Generates assembly code from a three-address code input file, given a specified number of registers.
@@ -49,7 +51,7 @@ def main():
 
     # Get the information for the graph
     liveness = Liveness(instruction_buffer)
-    variables = instruction_buffer.get_occured_variables()
+    variables = instruction_buffer.get_occurred_variables()
 
     # Now build the graph
     interference_graph = InterferenceGraph()
@@ -69,68 +71,9 @@ def main():
 
     generator = ASMGenerator(instruction_buffer, interference_graph)
     
-    generator.generate_assembly(input_file)
+    generator.generate_assembly(OUTPUT_FILE)
 
-    print(f"Assembly code generated successfully to {input_file}.s")
-
-
-
-def ig_test(liveness: Liveness, instruction_buffer: InstructionBuffer):
-    interference_graph = InterferenceGraph()
-    variables = instruction_buffer.get_occured_variables()
-    interference_graph.build_graph(liveness, variables)
-
-    print(interference_graph)
-
-    interference_graph.color_graph(3)
-    print(interference_graph)
-
-
-def liveness_test():
-    # Example usage
-    input_data = StringIO("a=a+1\nt1=a*4\nt2=t1+1\nt3=a*3\nb=t2-t3\nt4=b/2\nd=c+t4\nlive: d")
-    scanner = Scanner(input_data)
-    parser = Parser(scanner)
-
-    try:
-        instruction_buffer = parser.parse()
-    except ValueError as ve:
-        print(f"Parsing error: {ve}")
-
-
-    liveness = Liveness(instruction_buffer)
-
-    ig_test(liveness, instruction_buffer)
-
-def liveness_test2():
-    input_data = StringIO("b=a+1\nd=b*2\ne=4-d\nb=e\nc=5\nf=b-1\nlive: c, e")
-    scanner = Scanner(input_data)
-    parser = Parser(scanner)
-
-    try:
-        instruction_buffer = parser.parse()
-    except ValueError as ve:
-        print(f"Parsing error: {ve}")
-
-
-    liveness = Liveness(instruction_buffer)
-
-    ig_test(liveness, instruction_buffer)
-
-def liveness_test3():
-    input_data = StringIO("a=a+1\nt1=a*2\nb=t1/3\nlive: a, b")
-    scanner = Scanner(input_data)
-    parser = Parser(scanner)
-
-    try:
-        instruction_buffer: InstructionBuffer = parser.parse()
-    except ValueError as ve:
-        print(f"Parsing error: {ve}")
-
-
-    liveness = Liveness(instruction_buffer)
-
-    ig_test(liveness, instruction_buffer)
+    print(f"Assembly code generated successfully to {OUTPUT_FILE}")
 
 
 main()

@@ -27,4 +27,4 @@ jobs:
       - name: Run unit tests
         working-directory: imperative
         run: |
-          python -m unittest -v tests.scanner_test
+          ./test_imperative.sh
