@@ -157,7 +157,7 @@ class TestASMGeneration(unittest.TestCase):
             operator=Token('-', 3),
             operand2=Token('b', 1))
         asm = generator._generate_instruction_asm(instruction)
-        register = f"R{generator.register_colors["a"]}"
+        register = f'R{generator.register_colors["a"]}'
         expected_asm = [ASMInstruction("MOV", "b", register), ASMInstruction("MUL", "#-1", register)]
         self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
         self.assertEqual(asm[0].op1, expected_asm[0].op1)
@@ -175,7 +175,7 @@ class TestASMGeneration(unittest.TestCase):
             dest=Token('a',0),
             operand1=Token('1',2))
         asm = generator._generate_instruction_asm(instruction)
-        register = f"R{generator.register_colors["a"]}"
+        register = f'R{generator.register_colors["a"]}'
         expected_asm = [ASMInstruction("MOV", "#1", register)]
         
         self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
@@ -199,7 +199,7 @@ class TestASMGeneration(unittest.TestCase):
         with open(path, "r") as f:
             lines = f.readlines()
             # Verify that the first line is something like "MOV, a,R0" (register can vary)
-            register = f"R{generator.register_colors["a"]}"
+            register = f'R{generator.register_colors["a"]}'
             expected_line = f"MOV a,{register}\n"
             self.assertEqual(lines[0], expected_line)
 
@@ -207,7 +207,7 @@ class TestASMGeneration(unittest.TestCase):
         with open(path, "r") as f:
             lines = f.readlines()
             # Verify that the first line is something like "ADD, #1,R0" (register can vary)
-            register = f"R{generator.register_colors["a"]}"
+            register = f'R{generator.register_colors["a"]}'
             expected_line = f"ADD #1,{register}\n"
             self.assertEqual(lines[1], expected_line)
 
@@ -222,7 +222,7 @@ class TestASMGeneration(unittest.TestCase):
         instruction = generator.buffer.instructions[0]
         asm_objects = generator._generate_instruction_asm(instruction)
         
-        register = f"R{generator.register_colors["a"]}"
+        register = f'R{generator.register_colors["a"]}'
         
         # Check MOV object
         self.assertEqual(asm_objects[0].op_code, "MOV")
