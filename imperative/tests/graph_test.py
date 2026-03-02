@@ -103,7 +103,7 @@ class TestGraph(unittest.TestCase):
         
         liveness = Liveness(buffer)
         interferencegraph = InterferenceGraph()
-        interferencegraph.build_graph(liveness, buffer.get_occured_variables())
+        interferencegraph.build_graph(liveness, buffer.get_occurred_variables())
         
         # There should be NO edge between x and y
         self.assertFalse(interferencegraph.interference_graph.has_edge('x', 'y'))
