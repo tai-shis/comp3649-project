@@ -90,7 +90,7 @@ class TestInstructionBuffer(unittest.TestCase):
         ib.add_instruction(ins3)
         ib.add_instruction(ins4)
 
-        ib_list: list[str] = ib.list_instructions()
+        ib_list: list[Token] = ib.list_instructions()
 
         self.assertEqual(str(ib_list[0]), str(ins0))
         self.assertEqual(str(ib_list[1]), str(ins1))
@@ -101,6 +101,9 @@ class TestInstructionBuffer(unittest.TestCase):
 
 
     def test_list_live_objects(self):
+        """
+        Tests the list_live_objects() function
+        """
         lo0: str = "a"
         lo1: str = "b"
         lo2: str = "c"
