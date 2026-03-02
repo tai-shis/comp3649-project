@@ -112,17 +112,18 @@ class ASMGenerator:
             case _:
                 return []
     
-    def _output_to_file(self) -> None:
+    def _output_to_file(self, input_filename: str) -> None:
         '''
-        Writes the generated assembly instructions to a file in the directory this file is in
-        (/imperative/generator)
+        Writes the generated assembly instructions to <filename>.s 
+        in the current directory.
         '''
-        with open("./generator/assembly.s", "w") as f:
+        output_name = f"{input_filename}.s"
+        with open(output_name, "w") as f:
             for instruction in self.generated_asm:
                 instruction_str = instruction.op_code + " " + instruction.op1 + "," + instruction.op2
                 f.write(f"{instruction_str}\n")
 
-    def generate_assembly(self) -> list[ASMInstruction]:
+    def generate_assembly(self, input_filename: str) -> list[ASMInstruction]:
         '''
         Generates the assembly for every instruction contained within the instruction buffer.
         Returns the assembly as a list but also writes the assembly to an output file
@@ -133,7 +134,7 @@ class ASMGenerator:
             next_instructions: list[ASMInstruction] = self._generate_instruction_asm(instruction)
             self.generated_asm.extend(next_instructions)
 
-        self._output_to_file()
+        self._output_to_file(input_filename)
 
         return self.generated_asm
     

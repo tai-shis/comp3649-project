@@ -94,7 +94,45 @@ class InterferenceGraph:
             print("Graph successfully colored.")
         else:
             raise ValueError("Failed to color the graph with the given number of colors.")        
+    
+    def print_variable_interference_table(self) -> None:
+        """
+        Prints the variable interference table.
+        """
+        print("Variable Interference Table:")
+
+        # sorting to make sure variables print in the same order
+        for var in sorted(self.interference_graph.nodes()):
+            neighbors = list(self.interference_graph.neighbors(var))
+            neighbors.sort()
+            
+            output = ", ".join(neighbors)
+            print(f"{var}: {output}")
+            
+        print()
+
+    def print_register_colouring_table(self, n: int) -> None:
+        """
+        Prints the register colouring table.
+
+        :param n: The number of registers used.
+        :type n: int
+        """
+        print("Register Colouring Table:")
         
+        for i in range(n):
+            # get all variables assigned to the register
+            assigned_vars = []
+            for var, color in self.colors.items():
+                if color == i:
+                    assigned_vars.append(var)
+            
+            assigned_vars.sort()
+            
+            output = ", ".join(assigned_vars)
+            print(f"R{i}: {output}")
+            
+        print()
 
     def __str__(self) -> str:
         string = f"Interference Graph:\n\

@@ -62,12 +62,16 @@ def main():
         print(f"Error coloring graph: {ve}")
         sys.exit(1)
     
-    print("Graph successfully colored. Now generating assembly code...")
+    print("\nGraph successfully colored. Now generating assembly code...\n")
+
+    interference_graph.print_variable_interference_table()
+    interference_graph.print_register_colouring_table(int(num_regs))
 
     generator = ASMGenerator(instruction_buffer, interference_graph)
-    generator.generate_assembly()
+    
+    generator.generate_assembly(input_file)
 
-    print("Assembly code generated successfully:")
+    print(f"Assembly code generated successfully to {input_file}.s")
 
 
 
