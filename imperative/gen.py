@@ -21,19 +21,19 @@ def main():
     
     if len(args) != 2:
         print("Usage: gen <num_regs> <input_file>")
-        return -1
+        sys.exit(1)
     
     num_regs, input_file = args
 
     if not num_regs.isdigit() or int(num_regs) <= 0:
         print("Number of registers must be a positive integer.")
-        return -1 
+        sys.exit(1) 
     
     try: 
         file = open(input_file, 'r')
     except FileNotFoundError:
         print(f"File not found: {input_file}")
-        return -1
+        sys.exit(1)
     
     print(f"Generating assembly code from {input_file} using {num_regs} registers...")
     scanner = Scanner(file)
@@ -43,7 +43,7 @@ def main():
         instruction_buffer = parser.parse()
     except ValueError as ve:
         print(f"Error parsing input: {ve}")
-        return -1
+        sys.exit(1)
 
     print("Successfully parsed input. Now performing liveness analysis and graph coloring...")
 
@@ -60,7 +60,7 @@ def main():
         interference_graph.color_graph(int(num_regs))
     except ValueError as ve:
         print(f"Error coloring graph: {ve}")
-        return -1
+        sys.exit(1)
     
     print("Graph successfully colored. Now generating assembly code...")
 
