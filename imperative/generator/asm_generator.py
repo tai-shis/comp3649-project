@@ -117,7 +117,7 @@ class ASMGenerator:
         Writes the generated assembly instructions to <filename>.s 
         in the current directory.
         '''
-        output_name = f"{input_filename}.s"
+        output_name = f"{input_filename}"
         with open(output_name, "w") as f:
             for instruction in self.generated_asm:
                 instruction_str = instruction.op_code + " " + instruction.op1 + "," + instruction.op2

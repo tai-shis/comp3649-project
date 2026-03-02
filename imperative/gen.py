@@ -8,6 +8,8 @@ from intermediate.liveness import Liveness
 from intermediate.interference_graph import InterferenceGraph
 from generator.asm_generator import ASMGenerator
 
+OUTPUT_FILE = "./generated/assembly.s"
+
 def main():
     """
     Generates assembly code from a three-address code input file, given a specified number of registers.
@@ -69,9 +71,9 @@ def main():
 
     generator = ASMGenerator(instruction_buffer, interference_graph)
     
-    generator.generate_assembly(input_file)
+    generator.generate_assembly(OUTPUT_FILE)
 
-    print(f"Assembly code generated successfully to {input_file}.s")
+    print(f"Assembly code generated successfully to {OUTPUT_FILE}")
 
 
 main()

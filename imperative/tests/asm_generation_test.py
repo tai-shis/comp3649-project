@@ -184,12 +184,13 @@ class TestASMGeneration(unittest.TestCase):
 
     def test_output_file_content(self):
         '''
-        Checks if the assembly.txt file is created and contains the expected contents.
+        Checks if the assembly.s file is created and contains the expected contents.
         '''
-        generator = self._get_generator()
-        generator.generate_assembly()
+        path = "./generated/assembly.s"
 
-        path = "./generator/assembly.s"
+        generator = self._get_generator()
+        generator.generate_assembly(path)
+
         # Make sure the file was created
         self.assertTrue(os.path.exists(path))
 
