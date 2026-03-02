@@ -105,9 +105,9 @@ The group decided on a system where we will implement tests as new features are 
 - **Always** develop tests on a separate branch from the *feature* branch. Test branches must be formatted the following way: *test/feature-name-**tests*** \
 For example: \
 Feature branch: *feat/scanner* \
-- Merge test branches into the feature branch, and then the feature branch can be dealt with afterwards. We are treating the test branches as sub-branches to the feature branch, not an extension of main.
+Resulting test branch: *test/scanner-tests*
+- Merge test branches into the feature branch, and then the feature branch can be dealt with afterwards. We are treating the test branches as sub-branches to the feature branch, not an extension of main. **Note:** Special exception to this rule is if more test coverage is being added after the feature branch was merged. If no new features are added to the module then the test branch can be merged into main.
 - It is ideal for another member of the group to review and accept the PR that was opened on the test branch. However, if timeline becomes an issue and no member has merged the PR, the test branch developer may accept it themselves.
-Resulting test branch: *test/scanner-tests* 
 
 
 A future implementation possibility could be module-based unit testing and using Git Issues to assign debugging/fix jobs to certain members. This alongside our current approach of opening pull requests that are *not* approved by the same person who opened it. This will ensure consistent testing/code quality assessment throughout the project's timeline.
