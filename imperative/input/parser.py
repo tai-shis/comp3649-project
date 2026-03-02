@@ -180,7 +180,7 @@ class Parser:
         if not eof:
             self._parse_live(instruction_buffer)
 
-        # Pass all of our occured variables, we will need this later
-        instruction_buffer.set_occured_variables(self.occurred_variables)
+        # Pass all of our occurred variables, we will need this later
+        instruction_buffer.set_occurred_variables(self.occurred_variables)
 
         return instruction_buffer
