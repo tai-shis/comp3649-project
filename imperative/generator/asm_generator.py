@@ -118,6 +118,8 @@ class ASMGenerator:
         in the current directory.
         '''
         output_name = f"{input_filename}"
+        import os
+        print(os.getcwd())
         print(output_name)
         with open(output_name, "w") as f:
             for instruction in self.generated_asm:
