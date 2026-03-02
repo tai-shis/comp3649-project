@@ -95,7 +95,7 @@ class TestScanner(unittest.TestCase):
 
     def test_identify_invalid_input1(self):
 
-        input = "a \ a $ 1\n"
+        input = "a ] a $ 1\n"
         file = io.StringIO(input)
         scanner = Scanner(file)
         
@@ -127,7 +127,7 @@ class TestScanner(unittest.TestCase):
         scanner._reset()
 
     def test_readline_invalid_input1(self):
-        input = "a \ a + 1\n"
+        input = "a ] a + 1\n"
         file = io.StringIO(input)
         scanner = Scanner(file)
 
