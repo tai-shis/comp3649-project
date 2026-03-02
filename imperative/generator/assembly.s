@@ -1,6 +1,0 @@
-MOV a,R1
-ADD #1,R1
-MOV a,R0
-MUL #2,R0
-MOV t1,R0
-DIV #3,R0
