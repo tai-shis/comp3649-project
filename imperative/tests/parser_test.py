@@ -96,5 +96,56 @@ class TestParser(unittest.TestCase):
         self.assertEqual(len(live_objects), 1)
         self.assertEqual(str(live_objects[0]), "a")
 
+    def test_undeclared_live_objects(self):
+        '''
+        Checks if a ValueError is raised if a live object was not used
+        '''
+        input = "a = 1\nlive: b\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        parser = Parser(scanner)
+
+        with self.assertRaises(ValueError) as ve:
+            parser.parse()
+
+    def test_duplicate_live(self):
+        '''
+        Checks if parser filters out duplicate live objects.
+        '''
+        input = "a = 1\nlive: a, a, a\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        parser = Parser(scanner)
+
+        buffer = parser.parse()
+        live_objects = buffer.list_live_objects()
+        self.assertEqual(len(live_objects), 1)
+        self.assertEqual(live_objects[0], "a")
+
+    def test_occurred_variables_tracking(self):
+        '''
+        Checks if the parser finds all unique variables.
+        '''
+        input = "a = b + c\nt1 = a * 2\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        parser = Parser(scanner)
+
+        buffer = parser.parse()
+        expected_vars = {"a", "b", "c", "t1"}
+        self.assertEqual(buffer.get_occured_variables(), expected_vars)
+
+    def test_invalid_assignment_literal_dest(self):
+        '''
+        Checks if the parser catches a literal being in the place of a destination.
+        '''
+        input = "1 = a\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        parser = Parser(scanner)
+
+        with self.assertRaises(ValueError):
+            parser.parse()
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

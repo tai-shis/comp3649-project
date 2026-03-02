@@ -1,4 +1,5 @@
 import io
+from multiprocessing import Value
 import unittest
 from input.scanner import Scanner
 from input.scanner import Token
@@ -188,6 +189,61 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(token_list[3], "+")
         self.assertEqual(token_list[4], "3")
         self.assertEqual(token_list[5], "\n")
+
+    def test_multiline_to_eof(self):
+        '''
+        tests that next_token() correctly hits end of file after multiple lines of input.
+        '''
+        input = "a = 1\nb = 2\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+
+        # Should be 8 tokens
+        tokens = []
+        for i in range(8):
+            tokens.append(scanner.next_token().type)
+        
+        # Check that 9th call returns EOF
+        self.assertEqual(scanner.next_token().type, -1)
+
+    def test_liveness_transition(self):
+        '''
+        Tests that the identify() function identifies 'live' keyword properly
+        '''
+        input = "live: a, b\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        
+        token = scanner.next_token()
+
+        self.assertEqual(scanner.reading, "live")
+
+        next_token = scanner.next_token() # This should be 'a'
+        self.assertEqual(next_token.type, 6)
+
+    def test_invalid_identifier_start(self):
+        '''
+        Ensures any destination that starts with a number will raise a value error. (i.e. 1a = 2 is not valid)
+        '''
+        input = "1a = 2\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+
+        with self.assertRaises(ValueError):
+            scanner._identify("1a")
+
+    def test_destination_variable(self):
+        '''
+        Ensures the first sequence is 'destination' (type=0) and others are variable (type=1)
+        '''
+        input = "res = a + b\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+        scanner._readline()
+
+        self.assertEqual(scanner.buffer[0].type, 0)
+        self.assertEqual(scanner.buffer[2].type, 1)
+        self.assertEqual(scanner.buffer[4].type, 1)
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

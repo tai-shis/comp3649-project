@@ -1,4 +1,4 @@
-from llist import dllist, dllistnode
+from llist import dllist
 from input.instruction import Instruction
 from input.scanner import Token
 
