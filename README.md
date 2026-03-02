@@ -90,21 +90,27 @@
 - [x] Develop interference graph for live variables
 
 ### Week 5
-<small>Last Updated: 22/01/2026</small>
+<small>Last Updated: 02/03/2026</small>
 
-- [ ] Develop and execute a graph colouring algorithm to assign registers to live variables
+- [x] Develop and execute a graph colouring algorithm to assign registers to live variables
 
 ### Week 6
-<small>Last Updated: 22/01/2026</small>
+<small>Last Updated: 02/03/2026</small>
 
-- [ ] Complete initial test runs of assembly code generation
+- [x] Complete initial test runs of assembly code generation
+- [x] Go over tests from previous modules and add more coverage if needed. This is crucial before continuing to next step.
 
 ### Week 7
-<small>Last Updated: 22/01/2026</small>
+<small>Last Updated: 02/03/2026</small>
 
-- [ ] Ensure code generation is fully functional by this point
+- [x] Ensure code generation is fully functional by this point
 - [ ] Begin planning Haskell solution
 
+### Week 8
+<small>Last Updated: 02/03/2026</small>
+> From here onwards, all reference to code modules is referring to the Haskell implementation unless otherwise stated.
+- [ ] Develop Scanner module
+- [ ] Test Scanner module
 
 ## Developing and Contributing
 ### Pull Requests
