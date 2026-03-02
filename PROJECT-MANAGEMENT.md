@@ -56,36 +56,59 @@
 - Finish graph colouring algorithm
 - Ensure testing is complete and thorough. Update any tests to ensure the most coverage as possible and promptly fix any issues that arise
 
+### Week 8
+<small>Last Updated: 01/03/2026</small>
+
+- Begin Haskell implementation
+
 ## High-level Design Architecture
-<small>Last Updated: 12/02/2026</small>
+<small>Last Updated: 01/03/2026</small>
 
 ### Main Data Structures
 - Token
-- Scanner
-- Parser
+  - Token contains a value (str) and a type (Int). The ```type``` field is mapped to a dictionary with options such as **variable, literal, operator, equals, etc...**.
+- Instruction
+  - A representation of a single three-address-instruction. There are three (3) types not including the ```invalid``` type/classification for error handling. The types are: **binary_operator: 0, unary_operator: 1, assignment: 2**. 
 - Instruction Buffer
-#### Description
-The Scanner will read from the input file line by line and create a Token object for every symbol it sees. The Scanner will also be responsible for removing any whitespace, ensuring that whitespace does not affect the outcome of the program. 
-
-Example:
-```
-a = a + 1
-# Will have the same meaning and have the same outcome after tokenization as:
-a     = a                + 1
-```
-
-The Parser is then responsible for requesting Tokens from the Parser one-by-one and identifying (a) If the Token is valid, and (b) the type of Token it is.
-
-Once the Parser has identified the Token, it will build up a list of these Tokens into lists of instructions.
-
-If at any point the Parser identifies (a) an *invalid symbol*, or (b) invalid ordering of symbols (i.e. a = a -) would be invalid as there is nothing to subtract from the variable 'a', the Parser will throw an exception.
+  - An object that manages the list of valid instructions using a doubly linked list from the Python package [dllist](https://pypi.org/project/dllist/). It also tracks the *occurred variables* and *live objects* that will be used when creating the interference graph and later colouring that graph.
+- ASMInstruction
+  - A simple object used by the main assembly code generator to represent a single assembly instruction. It stores strings representing the following: *op_code* (i.e. MOV, ADD, MUL), *op1* (i.e. a, #1, b), and *op2* (i.e. R0).
 
 ### Modules
+#### Input Module(s)
+- Scanner
+  - Reads the raw input stream and tokenizes symbols it deems valid. Builds up a buffer of valid Tokens.
+- Parser
+  - Reads Tokens from the Scanner, checks that the sequence of the Tokens is valid against rules such as valid assignments or binary operations and builds the InstructionBuffer with Instructions.
+#### Intermediate Module(s)
+- Liveness
+  - Determines which variables are still live at the end of the given input file. The program will use this data to ensure the registers these variables are stored in are not cleared as they are likely being used in another file at another point in the program's execution.
+- InterferenceGraph
+  - Uses result of the Liveness to build a graph where each node represents a variable, and edges connecting nodes represent the variables that are live at the same time (i.e. are interfering). This object has the ability to colour the graph, that determines which registers to use for each variable. 
+#### Generator Module(s)
+- ASMGenerator
+  - Converts the intermediate code into assembly instructions by mapping variables to their assigned registers based on the InterferenceGraph's colouring. The result will be an output ```.s``` file containing instructions for the entirety of the input file.
+
+### Phases
+1. Parsing: The Parser uses the Scanner's Tokens to fill the InstructionBuffer with valid Instructions.
+2. Intermediate Code: The Liveness module processes Instructions within the InstructionBuffer to allocate registers to variables.
+3. Generation: ASMGenerator takes the InstructionBuffer and InterferenceGraph data to produce assembly representations of each Instruction. These instructions are placed into a list of all assembly instructions and outputs them to the ```assmebly.s``` file.
+
 
 ## High-level Testing Framework
-<small>Last Updated: 22/01/2026</small>
+<small>Last Updated: 01/03/2026</small>
 
-With the current state of the project, our testing framework is to develop test cases as we go.
+~~With the current state of the project, our testing framework is to develop test cases as we go.~~
+
+The group decided on a system where we will implement tests as new features are developed. To minimize conflicts with other coursework, there are no hard rules on which member develops tests. The general idea for our framework is for a member to partially or fully implement a feature, and once that feature has been completed, tests are developed for it. The tests can be developed by any member of the group, including the person who developed the feature.
+### Guidelines
+- **Always** develop tests on a separate branch from the *feature* branch. Test branches must be formatted the following way: *test/feature-name-**tests*** \
+For example: \
+Feature branch: *feat/scanner* \
+- Merge test branches into the feature branch, and then the feature branch can be dealt with afterwards. We are treating the test branches as sub-branches to the feature branch, not an extension of main.
+- It is ideal for another member of the group to review and accept the PR that was opened on the test branch. However, if timeline becomes an issue and no member has merged the PR, the test branch developer may accept it themselves.
+Resulting test branch: *test/scanner-tests* 
+
 
 A future implementation possibility could be module-based unit testing and using Git Issues to assign debugging/fix jobs to certain members. This alongside our current approach of opening pull requests that are *not* approved by the same person who opened it. This will ensure consistent testing/code quality assessment throughout the project's timeline.
 
