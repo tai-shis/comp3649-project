@@ -37,7 +37,7 @@ class ASMGenerator:
             return f"#{token.value}"
 
         if token.value not in self.register_colors:
-            return str(token.value)
+            raise ValueError(f"Error: Variable {str(token.value)} has no assigned register.")
 
         register = self.register_colors[token.value]
         if register is None:
