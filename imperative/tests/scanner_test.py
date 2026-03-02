@@ -189,5 +189,22 @@ class TestScanner(unittest.TestCase):
         self.assertEqual(token_list[4], "3")
         self.assertEqual(token_list[5], "\n")
 
+    def test_multiline_to_eof(self):
+        '''
+        tests that next_token() correctly hits end of file after multiple lines of input.
+        '''
+        input = "a = 1\nb = 2\n"
+        file = io.StringIO(input)
+        scanner = Scanner(file)
+
+        # Should be 8 tokens
+        tokens = []
+        for i in range(8):
+            tokens.append(scanner.next_token().type)
+        
+        # Check that 9th call returns EOF
+        self.assertEqual(scanner.next_token().type)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
