@@ -14,5 +14,5 @@ data Operator = Token
 data Instruction 
     = BinaryIns InstructionType Dest Operand Operator Operand
     | UnaryIns InstructionType Dest Operator Operand
-    | Assignment = InstructionType Dest Operand
+    | AssignmentIns = InstructionType Dest Operand
     deriving (Show, Eq)
