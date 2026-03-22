@@ -1,5 +1,5 @@
-data TokenType = 
-    Destination
+data TokenType 
+    = Destination
     | Variable
     | Literal
     | Operator
