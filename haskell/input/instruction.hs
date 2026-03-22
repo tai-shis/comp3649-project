@@ -17,23 +17,13 @@ data Instruction
     | AssignmentIns = InstructionType Dest Operand
     deriving (Show, Eq)
 
-getInstructionDest :: Instruction -> Token
-getInstructionDest (Instruction _ dest _ _ _) = dest
-
-getInstructionOperand :: Int -> Instruction -> Token
-getInstructionOperand operandNum (Instruction type _ op1 _ op2) = 
-    case type of
-        BinaryOperator ->
-            if (operandNum == 1)
-                op1
-            else
-                op2
-        UnaryOperator -> op2
-        Assignment -> op1
-
 -- Retrieves all variable tokens stored in the given instruction
-getListVariables :: Instruction -> [Token]
-getListVariables instruction = 
-    [getInstructionDest instruction,
-    getInstructionOperand (1 instruction),
-    getInstructionOperand (2 instruction)]
+getVariables :: Instruction -> [Token]
+getVariables (BinaryIns _ dest op1 _ op2) = filter isVariable [dest, op1, op2]
+getVariables (UnaryIns _ dest _ op) = filter isVariable [dest, op]
+getVariable (AssignmentIns _ dest op) = filter isVariable [dest, op]
+
+isVariable :: Token -> Bool
+isVariable (Token _ Variable) = True
+isVariable _ = False
+
