@@ -1,4 +1,4 @@
-module Instruction (Instruction, getVariables) where
+module Instruction (Instruction, Instructions, getVariables) where
 
 import Token
 
@@ -18,6 +18,12 @@ data Instruction
     | UnaryIns InstructionType Dest Operator Operand
     | AssignmentIns InstructionType Dest Operand
     deriving (Show, Eq)
+
+data LiveVariable = Live String
+
+-- Doesn't have to be a pair
+data Instructions
+    = Instruction ([Instruction],[LiveVariable])
 
 -- Public: Retrieves all variable tokens stored in the given instruction
 getVariables :: Instruction -> [Token]
