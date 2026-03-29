@@ -1,4 +1,4 @@
-module Token where
+module Token (TokenType(..), Token(..)) where
 
 data TokenType 
     = Destination
