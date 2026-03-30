@@ -4,7 +4,7 @@ module Instruction (Instruction,
                     showInstructions,
                     showLiveVars) where
 
-import Token
+import Input.Token
 
 type Dest = Token
 type Operand = Token
