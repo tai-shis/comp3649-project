@@ -1,4 +1,4 @@
-module Token (TokenType(..), Token(..)) where
+module Input.Token (TokenType(..), Token(..)) where
 
 data TokenType 
     = Destination
