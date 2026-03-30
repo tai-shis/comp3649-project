@@ -1,4 +1,4 @@
-module Instruction (Instruction,
+module Input.Instruction (Instruction,
                     Instructions,
                     getVariables,
                     showInstructions,
