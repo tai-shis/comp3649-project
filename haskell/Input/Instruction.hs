@@ -1,5 +1,7 @@
-module Input.Instruction (Instruction,
-                    Instructions,
+module Input.Instruction (Instruction(..),
+                    InstructionType(..),
+                    Instructions(..),
+                    LiveVariable(..),
                     getVariables,
                     showInstructions,
                     showLiveVars) where
@@ -26,7 +28,7 @@ data Instruction
 data LiveVariable = LiveVar String
 
 -- Doesn't have to be a pair
-data Instructions = Instruction ([Instruction],[LiveVariable])
+data Instructions = Instructions ([Instruction],[LiveVariable])
 
 instance Show Instruction where
     show (BinaryIns _ dest op1 operator op2) = "Binary Instruction: " ++ show dest ++ " = " ++ show op1 ++ " " ++ show operator ++ " " ++ show op2
@@ -37,7 +39,7 @@ instance Show LiveVariable where
     show (LiveVar var) = var ++ ","
 
 instance Show Instructions where
-    show (Instruction (ins,live)) = showInstructions ins ++ showLiveVars live
+    show (Instructions (ins,live)) = showInstructions ins ++ showLiveVars live
 
 -- Public: Prints all instructions
 showInstructions :: [Instruction] -> String
