@@ -1,4 +1,4 @@
-module Assembly (OpCode, AssemblyInstruction) where
+module Assembly (OpCode, AssemblyInstruction, Assembly) where
 
 data OpCode 
     = ADD
