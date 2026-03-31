@@ -1,4 +1,4 @@
-module InterferenceGraph (
+module Intermediate.InterferenceGraph (
     Variable, 
     Graph, 
     createVariable, 
@@ -10,19 +10,35 @@ module InterferenceGraph (
 ) where
 
 
-import Data.Set (Set, toList, empty, insert)
-import Instruction (Instruction, getVariables)
-import Display
+import Data.Set (
+    Set, 
+    toList, 
+    empty, 
+    insert)
+
+import Input.Token (
+    Token, 
+    TokenType(..), 
+    getType, 
+    createToken)
+
+import Input.Instruction (
+    Instruction, 
+    getVariables, 
+    createInstruction, 
+    fromArraysInstructions)
+
+import Lib.Display
 
 type Neighbors = Set String
 
 
 -- Variables name, and their neighbors (just the names)
-data Variable = Variable (String, Neighbors)
+data Variable = Var (String, Neighbors)
     deriving (Eq)
 
 instance Show Variable where
-    show (Variable (name, neighbors)) = name ++ " -> " ++ commaSperatedList (toList neighbors)
+    show (Var (name, neighbors)) = name ++ " -> " ++ commaSperatedList (toList neighbors)
 
 data Graph = Graph [Variable]
     deriving (Eq)
@@ -32,15 +48,15 @@ instance Show Graph where
 
 -- Public: Creates a variable given a name
 createVariable :: String -> Variable
-createVariable name = Variable (name, empty)
+createVariable name = Var (name, empty)
 
 -- Public: Gets the name of a variable
 getName :: Variable -> String
-getName (Variable (name, _)) = name
+getName (Var (name, _)) = name
 
 -- Public: Gets the neighbors of a variable 
 getNeighbors :: Variable -> Neighbors
-getNeighbors (Variable (_, neighbors)) = neighbors
+getNeighbors (Var (_, neighbors)) = neighbors
 
 -- Public: Creates an empty graph
 createGraph :: Graph
@@ -52,8 +68,8 @@ getVertices (Graph vertices) = vertices
 
 -- Private: Given two variable names, updates the neighbors of a variable if it matches either name
 updateNeighbors :: String -> String -> Variable -> Variable
-updateNeighbors name1 name2 var = if name == name1 then Variable (name, insert name2 neighbors)
-    else if name == name2 then Variable (name, insert name1 neighbors)
+updateNeighbors name1 name2 var = if name == name1 then Var (name, insert name2 neighbors)
+    else if name == name2 then Var (name, insert name1 neighbors)
     else var
     where name = getName var
           neighbors = getNeighbors var
@@ -76,3 +92,13 @@ addEdge :: Graph -> String -> String -> Graph
 addEdge graph name1 name2 | pairTrue (edgeExists (getVertices graph) name1 name2) = Graph (map (updateNeighbors name1 name2) (getVertices graph))
     | otherwise = graph
 
+
+ins1 = createInstruction (createToken "a"  Destination, createToken "a"  Variable, createToken "+"  Operator, createToken "1"  Literal)
+ins2 = createInstruction (createToken "t1" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "4"  Literal)
+ins3 = createInstruction (createToken "t2" Destination, createToken "t1" Variable, createToken "+"  Operator, createToken "1"  Literal)
+ins4 = createInstruction (createToken "t3" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "3"  Literal)
+ins5 = createInstruction (createToken "b"  Destination, createToken "t2" Variable, createToken "-"  Operator, createToken "t3" Variable)
+ins6 = createInstruction (createToken "t4" Destination, createToken "b"  Variable, createToken "/"  Operator, createToken "2"  Literal)
+ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variable, createToken "+"  Operator, createToken "t5" Variable)
+
+input1Instructions = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]

@@ -1,8 +1,9 @@
-module Token (
+module Input.Token (
     TokenType(..), 
-    Token(..), 
+    Token, 
     getValue, 
-    getType
+    getType,
+    createToken
 ) where
 
 data TokenType 
@@ -17,16 +18,20 @@ data TokenType
     | EOF
     deriving (Show, Eq)
 
-data Token = Token String TokenType
+data Token = Tn String TokenType
     deriving (Eq)
 
 instance Show Token where
-    show (Token value tokenType) = value ++ " : " ++ show tokenType
+    show (Tn value tokenType) = value ++ " : " ++ show tokenType
+
+-- Public: Creates a token given a value and type
+createToken :: String -> TokenType -> Token
+createToken value tokenType = Tn value tokenType
 
 -- Public: Gets the value of a token
 getValue :: Token -> String
-getValue (Token value _) = value
+getValue (Tn value _) = value
 
 -- Public: Gets the type of a token
 getType :: Token -> TokenType
-getType (Token _ tokenType) = tokenType
+getType (Tn _ tokenType) = tokenType
