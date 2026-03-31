@@ -1,4 +1,9 @@
-module Token (TokenType(..), Token(..)) where
+module Token (
+    TokenType(..), 
+    Token(..), 
+    getValue, 
+    getType
+) where
 
 data TokenType 
     = Destination
@@ -13,4 +18,15 @@ data TokenType
     deriving (Show, Eq)
 
 data Token = Token String TokenType
-    deriving (Show, Eq)
+    deriving (Eq)
+
+instance Show Token where
+    show (Token value tokenType) = value ++ " : " ++ show tokenType
+
+-- Public: Gets the value of a token
+getValue :: Token -> String
+getValue (Token value _) = value
+
+-- Public: Gets the type of a token
+getType :: Token -> TokenType
+getType (Token _ tokenType) = tokenType
