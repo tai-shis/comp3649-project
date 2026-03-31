@@ -1,4 +1,6 @@
-module Display (commaSperatedList) where
+module Lib.Display (
+    commaSperatedList
+) where
 
 -- Utility functions for displaying various data structures in a readable format
 

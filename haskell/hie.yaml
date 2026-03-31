@@ -2,3 +2,6 @@ cradle:
   direct:
     arguments:
       - "-i./Input"
+      - "-i./Intermediate"
+      - "-i./Output"
+      - "-i./Lib"
