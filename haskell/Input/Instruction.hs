@@ -1,10 +1,10 @@
-module Instruction (Instruction,
+module Input.Instruction (Instruction,
                     Instructions,
                     getVariables,
                     showInstructions,
                     showLiveVars) where
 
-import Token
+import Input.Token
 
 type Dest = Token
 type Operand = Token
