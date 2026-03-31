@@ -85,6 +85,7 @@ ipython_config.py
 # Assembly output
 assembly.txt
 *.s
+/haskell/bin
 
 # pyenv
 #   For a library or package, you might want to ignore these files since the code is
