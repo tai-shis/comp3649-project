@@ -2,25 +2,25 @@
 
 | Category (Reason) | Test (Input) | Expected Output | Actual Output |
 |:------------------|:-------------|:----------------|:--------------|
-| `BinaryIns` construction | `BinaryIns BinaryOperator (Token "x" Destination) (Token "a" Variable) (Token "+" Operator) (Token "b" Variable)` | A `BinaryIns` holding the correct instruction type, destination, operands, and operator | |
-| `UnaryIns` construction | `UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "a" Variable)` | A `UnaryIns` holding the correct instruction type, destination, operator, and operand | |
-| `AssignmentIns` construction | `AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal)` | An `AssignmentIns` holding the correct instruction type, destination, and operand | |
-| `Show` instance for `BinaryIns` | `show (BinaryIns BinaryOperator (Token "x" Destination) (Token "a" Variable) (Token "+" Operator) (Token "b" Variable))` | `"Binary Instruction: Token \"x\" Destination = Token \"a\" Variable Token \"+\" Operator Token \"b\" Variable"` | |
-| `Show` instance for `UnaryIns` | `show (UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "a" Variable))` | `"Unary Instruction: Token \"x\" Destination = Token \"-\" Operator Token \"a\" Variable"` | |
-| `Show` instance for `AssignmentIns` | `show (AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal))` | `"Assignment Instruction: Token \"x\" Destination = Token \"42\" Literal"` | |
-| `Eq` instance for `Instruction` — equal instructions | Two identical `BinaryIns` values | `True` | |
-| `Eq` instance for `Instruction` — unequal instructions | A `BinaryIns` compared to an `AssignmentIns` | `False` | |
-| `getVariables` on `BinaryIns` — all variables | `getVariables (BinaryIns BinaryOperator (Token "x" Variable) (Token "a" Variable) (Token "+" Operator) (Token "b" Variable))` | `[Token "x" Variable, Token "a" Variable, Token "b" Variable]` | |
-| `getVariables` on `BinaryIns` — no variables | `getVariables (BinaryIns BinaryOperator (Token "x" Destination) (Token "42" Literal) (Token "+" Operator) (Token "1" Literal))` | `[]` | |
-| `getVariables` on `BinaryIns` — mixed tokens | `getVariables (BinaryIns BinaryOperator (Token "x" Destination) (Token "a" Variable) (Token "+" Operator) (Token "1" Literal))` | `[Token "a" Variable]` | |
-| `getVariables` on `UnaryIns` — with variable | `getVariables (UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "a" Variable))` | `[Token "a" Variable]` | |
-| `getVariables` on `UnaryIns` — no variables | `getVariables (UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "42" Literal))` | `[]` | |
-| `getVariables` on `AssignmentIns` — with variable | `getVariables (AssignmentIns Assignment (Token "x" Variable) (Token "a" Variable))` | `[Token "x" Variable, Token "a" Variable]` | |
-| `getVariables` on `AssignmentIns` — no variables | `getVariables (AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal))` | `[]` | |
-| `showInstructions` — single instruction | `showInstructions [AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal)]` | `"Instructions: \nAssignment Instruction: Token \"x\" Destination = Token \"42\" Literal\n"` | |
-| `showInstructions` — multiple instructions | `showInstructions [AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal), AssignmentIns Assignment (Token "y" Destination) (Token "1" Literal)]` | `"Instructions: \n"` followed by each instruction on its own line | |
-| `showInstructions` — empty list | `showInstructions []` | `"Instructions: \n"` | |
-| `showLiveVars` — single variable | `showLiveVars [LiveVar "x"]` | `"Live: x,"` | |
-| `showLiveVars` — multiple variables | `showLiveVars [LiveVar "x", LiveVar "y"]` | `"Live: x,y,"` | |
-| `showLiveVars` — empty list | `showLiveVars []` | `"Live: "` | |
+| `BinaryIns` construction | `BinaryIns BinaryOperator (Token "x" Destination) (Token "a" Variable) (Token "+" Operator) (Token "b" Variable)` | A `BinaryIns` holding the correct instruction type, destination, operands, and operator | A `BinaryIns` holding the correct instruction type, destination, operands, and operator |
+| `UnaryIns` construction | `UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "a" Variable)` | A `UnaryIns` holding the correct instruction type, destination, operator, and operand | A `UnaryIns` holding the correct instruction type, destination, operator, and operand |
+| `AssignmentIns` construction | `AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal)` | An `AssignmentIns` holding the correct instruction type, destination, and operand | An `AssignmentIns` holding the correct instruction type, destination, and operand |
+| `Show` instance for `BinaryIns` | `show (BinaryIns BinaryOperator (Token "x" Destination) (Token "a" Variable) (Token "+" Operator) (Token "b" Variable))` | `"Binary Instruction: Token \"x\" Destination = Token \"a\" Variable Token \"+\" Operator Token \"b\" Variable"` | `"Binary Instruction: Token \"x\" Destination = Token \"a\" Variable Token \"+\" Operator Token \"b\" Variable"` |
+| `Show` instance for `UnaryIns` | `show (UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "a" Variable))` | `"Unary Instruction: Token \"x\" Destination = Token \"-\" Operator Token \"a\" Variable"` | `"Unary Instruction: Token \"x\" Destination = Token \"-\" Operator Token \"a\" Variable"` |
+| `Show` instance for `AssignmentIns` | `show (AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal))` | `"Assignment Instruction: Token \"x\" Destination = Token \"42\" Literal"` | `"Assignment Instruction: Token \"x\" Destination = Token \"42\" Literal"` |
+| `Eq` instance for `Instruction` — equal instructions | Two identical `BinaryIns` values | `True` | `True` |
+| `Eq` instance for `Instruction` — unequal instructions | A `BinaryIns` compared to an `AssignmentIns` | `False` | `False` |
+| `getVariables` on `BinaryIns` — all variables | `getVariables (BinaryIns BinaryOperator (Token "x" Variable) (Token "a" Variable) (Token "+" Operator) (Token "b" Variable))` | `[Token "x" Variable, Token "a" Variable, Token "b" Variable]` | `[Token "x" Variable, Token "a" Variable, Token "b" Variable]` |
+| `getVariables` on `BinaryIns` — no variables | `getVariables (BinaryIns BinaryOperator (Token "x" Destination) (Token "42" Literal) (Token "+" Operator) (Token "1" Literal))` | `[]` | `[]` |
+| `getVariables` on `BinaryIns` — mixed tokens | `getVariables (BinaryIns BinaryOperator (Token "x" Destination) (Token "a" Variable) (Token "+" Operator) (Token "1" Literal))` | `[Token "a" Variable]` | `[Token "a" Variable]` |
+| `getVariables` on `UnaryIns` — with variable | `getVariables (UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "a" Variable))` | `[Token "a" Variable]` | `[Token "a" Variable]` |
+| `getVariables` on `UnaryIns` — no variables | `getVariables (UnaryIns UnaryOperator (Token "x" Destination) (Token "-" Operator) (Token "42" Literal))` | `[]` | `[]` |
+| `getVariables` on `AssignmentIns` — with variable | `getVariables (AssignmentIns Assignment (Token "x" Variable) (Token "a" Variable))` | `[Token "x" Variable, Token "a" Variable]` | `[Token "x" Variable, Token "a" Variable]` |
+| `getVariables` on `AssignmentIns` — no variables | `getVariables (AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal))` | `[]` | `[]` |
+| `showInstructions` — single instruction | `showInstructions [AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal)]` | `"Instructions: \nAssignment Instruction: Token \"x\" Destination = Token \"42\" Literal\n"` | `"Instructions: \nAssignment Instruction: Token \"x\" Destination = Token \"42\" Literal\n"` |
+| `showInstructions` — multiple instructions | `showInstructions [AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal), AssignmentIns Assignment (Token "y" Destination) (Token "1" Literal)]` | `"Instructions: \n"` followed by each instruction on its own line | `"Instructions: \n"` followed by each instruction on its own line |
+| `showInstructions` — empty list | `showInstructions []` | `"Instructions: \n"` | `"Instructions: \n"` |
+| `showLiveVars` — single variable | `showLiveVars [LiveVar "x"]` | `"Live: x,"` | `"Live: x,"` |
+| `showLiveVars` — multiple variables | `showLiveVars [LiveVar "x", LiveVar "y"]` | `"Live: x,y,"` | `"Live: x,y,"` |
+| `showLiveVars` — empty list | `showLiveVars []` | `"Live: "` | `"Live: "` |
 | `Show` instance for `Instructions` | `show (Instruction ([AssignmentIns Assignment (Token "x" Destination) (Token "42" Literal)], [LiveVar "x"]))` | Output of `showInstructions` concatenated with output of `showLiveVars` | |
