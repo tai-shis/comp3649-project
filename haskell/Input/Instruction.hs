@@ -3,6 +3,7 @@ module Input.Instruction (
     Instruction,
     Instructions,
     getVariables,
+    getDestination,
     getInstructions,
     getLiveVariables,
     showInstructions,
@@ -87,6 +88,12 @@ getVariables :: Instruction -> [Token]
 getVariables (BinaryIns _ dest op1 _ op2) = filter isVariable [dest, op1, op2]
 getVariables (UnaryIns _ dest _ op) = filter isVariable [dest, op]
 getVariables (AssignmentIns _ dest op) = filter isVariable [dest, op]
+
+-- Public: Retrieves the destination variable token stored in the given instruction
+getDestination :: Instruction -> Token
+getDestination (BinaryIns _ dest _ _ _) = dest
+getDestination (UnaryIns _ dest _ _) = dest
+getDestination (AssignmentIns _ dest _) = dest
 
 -- Private: Helper that checks if Token is a variable
 isVariable :: Token -> Bool

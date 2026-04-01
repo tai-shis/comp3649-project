@@ -1,6 +1,8 @@
 module Lib.Helper (
     commaSperatedList,
-    addList
+    addList,
+    addUnique,
+    pairTrue
 ) where
 
 -- Utility functions for displaying various data structures in a readable format
@@ -19,4 +21,13 @@ commaSperatedList [] = ""
 addList :: (Eq a) => [a] -> [a] -> [a]
 addList [] acc = acc
 addList (x:xs) acc | elem x acc = addList xs acc
-    | otherwise = addList xs (x:acc)   
+    | otherwise = addList xs (x:acc)
+
+-- Public: Adds element to a list if it is not already present
+addUnique :: (Eq a) => a -> [a] -> [a]
+addUnique x acc | elem x acc = acc
+    | otherwise = x:acc
+
+-- Public: And on a pair of bools
+pairTrue :: (Bool, Bool) -> Bool
+pairTrue (b1, b2) = b1 && b2
