@@ -6,7 +6,10 @@ module Intermediate.InterferenceGraph (
     getNeighbors, 
     createGraph, 
     getVertices, 
-    addEdge
+    addEdge,
+    buildGraph,
+    testBuildGraph,
+    liveness
 ) where
 
 import Lib.Helper (
@@ -112,6 +115,19 @@ addEdge graph name1 name2 | pairTrue (edgeExists (getVertices graph) name1 name2
     | otherwise = graph
 
 
+-- Public: Builds the full interference graph from a list of variable names and their liveness states
+buildGraph :: [String] -> [LivenessStates] -> Graph
+buildGraph variables liveness = foldl (\g (v1, v2) -> addEdge g v1 v2) emptyGraph allPairs
+    where emptyGraph = Graph (map createVariable variables)
+          activePerLine = map (\line -> map getLivenessName (filter (not . isUnlive) line)) liveness
+          allPairs = concatMap getPairs activePerLine
+
+-- Private: Helper function to generate all unique pairs from a list of strings
+getPairs :: [String] -> [(String, String)]
+getPairs [] = []
+getPairs (x:xs) = map (\y -> (x, y)) xs ++ getPairs xs
+
+
 
 -- TEST DATA
 ins1 = createInstruction (createToken "a"  Destination, createToken "a"  Variable, createToken "+"  Operator, createToken "1"  Literal)
@@ -125,3 +141,7 @@ ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variabl
 is = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]
 liveness = determineLiveness is
 linfo = livenessInfo liveness
+
+-- Test variable for buildGraph
+testBuildGraph = buildGraph ["a", "b", "c", "d", "t1", "t2", "t3", "t4", "t5"] liveness
+
