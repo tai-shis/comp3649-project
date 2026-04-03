@@ -1,15 +1,14 @@
 class Token:
-    # Reference dict for types
     types = {
         0: "destination",  # 'd', 't3', 'z', destination (variable)
         1: "variable",     # 'a', 't1', 'b', variables
         2: "literal",      # '1', '23', '415', any integer literal
         3: "operator",     # '+', '-', '*', '/' operators
-        4: "equals",       # '=' occurs once
+        4: "equals",
         5: "live",         # 'live:' occurs once
         6: "live_symbol",  # 'a,', 'c,', 'd,', etc... (excluding commas in tokens)
-        7: "newline",      # '\n', terminating character   
-        -1: "EOF"          # End of File
+        7: "newline",
+        -1: "EOF"
     }
 
     def __init__(self, value: str, type: int):
