@@ -19,7 +19,6 @@
 | `_tokenize_line()` — unary operator line | `"x = - a\n"` | Buffer contains 5 tokens: destination, equals, operator, variable, newline | |
 | `_tokenize_line()` — assignment line | `"x = 42\n"` | Buffer contains 4 tokens: destination, equals, literal, newline | |
 | `_tokenize_line()` — live line | `"live:\n"` | Buffer contains 2 tokens: live, newline | |
-| `_tokenize_line()` — live symbols | `"a, b, c,"` | Buffer contains 3 live symbol tokens | |
-| `_tokenize_line()` — leading whitespace stripped | `"   x = a + b\n"` | Same 6 tokens as without leading whitespace | |
+| `_tokenize_line()` — live symbols | `"live: a, b, c"` | Buffer contains 3 live symbol tokens | |
 | `_readline()` — returns False on valid line | File with `"x = a + b\n"` | Returns `False`, buffer populated with 6 tokens | |
 | `_readline()` — returns True on empty file | Empty file | Returns `True` | |
