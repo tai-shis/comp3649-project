@@ -2,26 +2,23 @@ from typing import TextIO
 from input.token import Token
 
 class Scanner:
-    # List of allowed operators
     operators = ['+', '-', '*', '/']
 
-    # List of invalid characters (can change)
     invalid = [
         '$', '`', '"', '\'', '\\', '&', '^', '%', '#', '@', '!', '~', 
         '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
     ]
 
-    # I know it's duplicated, but its so there are no magic numbers
     types = {
         'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
         'variable': 1,     # ex. 'a', 't1', 'b', variables
         'literal': 2,      # ex. '1', '23', '415', any integer literal
         'operator': 3,     # '+', '-', '*', '/' operators
-        'equals': 4,       # '=' occurs once
+        'equals': 4,
         'live': 5,         # 'live:' occurs once
         'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc... (excluding commas in tokens)
-        'newline': 7,      # '\n', terminating character
-        'EOF': -1          # End of File
+        'newline': 7,
+        'EOF': -1
     }
 
     def __init__(self, file: TextIO):  
@@ -60,25 +57,20 @@ class Scanner:
         if symbol == '=':
             return self.types["equals"]
 
-        # If our symbol is just numbers, its a literal
         if symbol.isdigit():
             return self.types["literal"]
-        # If symbol is in the list of operators, it returns true.
-        # If its just "symbol in operators", it returns true for something like "+" in "+t"
+        
         if any(op == symbol for op in self.operators):
             return self.types["operator"]
 
         if symbol == 'live:':
-            # we have read in a live, switch state
             self.reading = "live"
             return self.types["live"]
 
         if self.reading == "live":
             return self.types["live_symbol"]
         
-        # If the symbol is not any of the above, it's probably a variable; first check for invalid characters
-        # if theres an invalid character, reject; if theres an operator with other stuff; also reject 
-        # (this won't catch singletons because singletons are already handled above)
+        # symbol is likely a variable at this point. Check for invalids/operators and reject if true
         if any(char in symbol for char in self.invalid) or any(op in symbol for op in self.operators):
             raise ValueError(f"Invalid character in symbol: {symbol}")
 
@@ -92,8 +84,7 @@ class Scanner:
     def _tokenize(self, symbol: str) -> Token:
         """
             Tokenizes the given symbol into a Token object if valid.
-
-            
+    
             :param symbol: Read in symbol to be tokenized
             :type symbol: str
             :return: Identified symbol as a Token, if valid
@@ -114,9 +105,10 @@ class Scanner:
             :rtype: bool
         """
         
-        # get leading whitespace out so we can assume we are reading destination immediately
+        # Leading whitespace increases time to tokenize, get rid of it
         line = self.file.readline().lstrip()
 
+        # Hit EOF
         if line == '':
             return True
         
@@ -130,22 +122,21 @@ class Scanner:
 
     def _tokenize_line(self, line: str):
         symbol = ""
-        delimiters = {'\n', '=', ',', ' '} # '=' is only here because it is not in the self.operators array.
+        delimiters = {'\n', '=', ',', ' '}
             
         for char in line:
-            # If char has moved to a delimiter it's likely that a symbol can be tokenized
             if char in delimiters or char in self.operators:
                 # Make sure a symbol is present and tokenize it
                 if symbol != "":
                     self.buffer.append(self._tokenize(symbol))
-                    symbol = "" # Must reset symbol so we can build the next one 
+                    # Reset before building next symbol
+                    symbol = "" 
                 
                 # As long as there are no invalid symbols, space (' '), or commas here, we can tokenize it.
                 if char not in self.invalid and char not in (' ', ','):
                     self.buffer.append(self._tokenize(char))
 
-            else:
-                # Symbol has not been fully read yet, so keep going to next char
+            else: # Have not reached end of symbol
                 symbol += char
         
         # Make sure to catch anything left over at the end of the line
@@ -161,7 +152,7 @@ class Scanner:
         """
         if len(self.buffer) - 1 == self.index or len(self.buffer) == 0:
             if (self._readline()): # EOF reached
-                return Token("", -1) # return EOF token
+                return Token("", -1)
         else:
             self.index += 1
 
