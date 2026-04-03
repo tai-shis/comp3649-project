@@ -9,7 +9,11 @@ module Intermediate.InterferenceGraph (
     addEdge,
     buildGraph,
     testBuildGraph,
-    liveness
+    liveness,
+    Register,
+    RegisterMap,
+    colourGraph,
+    testColourGraph
 ) where
 
 import Lib.Helper (
@@ -127,7 +131,33 @@ getPairs :: [String] -> [(String, String)]
 getPairs [] = []
 getPairs (x:xs) = map (\y -> (x, y)) xs ++ getPairs xs
 
+-- Type alias for better readability and understanding
+type Register = Int
+-- RegisterMap is the "history" of all the registers that have already been coloured
+type RegisterMap = [(String, Register)] 
 
+-- Public: Colours the graph using recursive backtracking
+colourGraph :: Graph -> Int -> [RegisterMap]
+colourGraph (Graph vars) numColours = solve vars []
+    where
+        solve :: [Variable] -> RegisterMap -> [RegisterMap]
+        solve [] assigned = [assigned]
+        solve (v:vs) assigned = 
+            -- picks an available register, verifies it doesn't conflict with neighbour, then adds it to finishedMap and keeps going
+            [ finishedMap 
+            | colour <- [0 .. numColours - 1]
+            , isSafe colour v assigned
+            , finishedMap <- solve vs ((getName v, colour) : assigned) 
+            ]
+
+-- Private: Helper function to check if a register (colour) is safe and does not conflict with neighbours
+isSafe :: Register -> Variable -> RegisterMap -> Bool
+isSafe colour var assigned = not (any hasConflict assigned)
+    where 
+        -- list of neighbours that interfere with the variable
+        enemies = toList (getNeighbors var)
+        -- hasConflict occurs when a previous assigned variable has the same colour and is a neighbour
+        hasConflict (enemyName, enemyColour) = (enemyColour == colour) && (elem enemyName enemies)
 
 -- TEST DATA
 ins1 = createInstruction (createToken "a"  Destination, createToken "a"  Variable, createToken "+"  Operator, createToken "1"  Literal)
@@ -145,3 +175,5 @@ linfo = livenessInfo liveness
 -- Test variable for buildGraph
 testBuildGraph = buildGraph ["a", "b", "c", "d", "t1", "t2", "t3", "t4", "t5"] liveness
 
+-- Test variable for colourGraph (outputs first valid solution using 5 registers (A0-A4))
+testColourGraph = take 1 (colourGraph testBuildGraph 5)
