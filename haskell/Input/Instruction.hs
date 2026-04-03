@@ -31,7 +31,6 @@ data InstructionType
     | Assignment
     deriving (Show, Eq)
 
-
 data Instruction 
     = BinaryIns InstructionType Dest Operand Operator Operand
     | UnaryIns InstructionType Dest Operator Operand
@@ -39,7 +38,6 @@ data Instruction
     deriving (Eq)
 
 -- Doesn't have to be a pair
-
 data Instructions = Inst ([Instruction],[LiveVariable])
 
 instance Show Instruction where

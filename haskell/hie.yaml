@@ -5,3 +5,4 @@ cradle:
       - "-i./Intermediate"
       - "-i./Output"
       - "-i./Lib"
+      - "-i./Tests"
