@@ -9,11 +9,11 @@ class Parser:
         'variable': 1,     # ex. 'a', 't1', 'b', variables
         'literal': 2,      # ex. '1', '23', '415', any integer literal
         'operator': 3,     # '+', '-', '*', '/' operators
-        'equals': 4,       # '=' occurs once
+        'equals': 4,       
         'live': 5,         # 'live:' occurs once
         'live_symbol': 6,  # ex. 'a,', 'c,', 'd,', etc... (excluding commas in tokens)
-        'newline': 7,      # '\n', terminating character
-        'EOF': -1          # End of File
+        'newline': 7,
+        'EOF': -1          
     }
 
     instruction_types = {
@@ -65,7 +65,6 @@ class Parser:
                     instruction[3].type == self.types["newline"]):  # newline
                     return self.instruction_types["assignment"]
                 
-        # invalid instruction length or format
         return self.instruction_types["invalid"]
        
 
@@ -81,9 +80,8 @@ class Parser:
             :raises ValueError: If an invalid instruction format is encountered.
         """
         token: Token = self.scanner.next_token()
-        line: list[Token] = [] # Could change into a different implementation
+        line: list[Token] = []
 
-        # for now parse back into lines ig :/
         while token.type != self.types["EOF"] and token.type != self.types["live"]:  # While not live or EOF
             # Keep track of all tokens in the input
             if token.type == self.types["variable"] or token.type == self.types["destination"]:
@@ -124,7 +122,7 @@ class Parser:
 
                 line = [] # reset line after validating
 
-            token = self.scanner.next_token() # get next token
+            token = self.scanner.next_token() 
 
         return token.type == self.types["EOF"]
 
@@ -174,7 +172,7 @@ class Parser:
         """
         instruction_buffer: InstructionBuffer = InstructionBuffer()
 
-        # Split into two, instructions, then lives objects.
+        # Split into two, instructions, then live objects.
         eof: bool = self._parse_instructions(instruction_buffer)
 
         if not eof:
