@@ -1,4 +1,4 @@
-module LivenessTest where
+module Tests.LivenessTest where
 
 import Intermediate.Liveness hiding (Live)
 import qualified Intermediate.Liveness as L
