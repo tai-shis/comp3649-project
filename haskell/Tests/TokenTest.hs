@@ -1,6 +1,7 @@
 module TokenTest where
 import Input.Token
 
+-- Helper to report pass/fail
 check :: String -> Bool -> String
 check name True = "PASS: " ++ name
 check name False = "FAIL: " ++ name 
