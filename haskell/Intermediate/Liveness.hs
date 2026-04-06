@@ -1,5 +1,5 @@
 module Intermediate.Liveness (
-    LivenessState,
+    LivenessState(..),
     LivenessStates,
     showLivenessStates,
     getLivenessName,
