@@ -1,4 +1,4 @@
-module TokenTest where
+module Tests.TokenTest where
 import Input.Token
 
 -- Helper to report pass/fail
