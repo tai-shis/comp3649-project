@@ -1,6 +1,6 @@
 module Intermediate.InterferenceGraph (
-    Variable, 
-    Graph, 
+    Variable(..), 
+    Graph(..), 
     createVariable, 
     getName, 
     getNeighbors, 
