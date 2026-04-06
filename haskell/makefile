@@ -15,6 +15,9 @@ test-token:
 test-instruction:
 	$(GHCI) $(FLAGS) Tests/InstructionTest.hs
 
+test-liveness:
+	$(GHCI) $(FLAGS) Tests/LivenessTest.hs
+
 test-all:
 	runghc Tests/TokenTest.hs
 	runghc Tests/InstructionTest.hs
