@@ -13,7 +13,8 @@ module Intermediate.InterferenceGraph (
     Register,
     RegisterMap,
     colourGraph,
-    testColourGraph
+    testColourGraph,
+    is
 ) where
 
 import Lib.Helper (

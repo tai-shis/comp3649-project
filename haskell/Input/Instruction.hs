@@ -1,6 +1,7 @@
 module Input.Instruction (
     Instructable(createInstruction),
-    Instruction,
+    Instruction(..),
+    InstructionType(..),
     Instructions,
     getVariables,
     getDestination,
