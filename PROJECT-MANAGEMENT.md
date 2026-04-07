@@ -98,7 +98,7 @@
 
 
 ## High-level Testing Framework
-<small>Last Updated: 02/03/2026</small>
+<small>Last Updated: 06/04/2026</small>
 
 ~~With the current state of the project, our testing framework is to develop test cases as we go.~~
 
@@ -132,12 +132,14 @@ The ```-v``` flag will print the ```unittest``` results in *verbose* form so you
 These steps are **ONLY** applicable once the Test Plan document has been completed and ideally reviewed by other group members.<br>
 1. Add your test module to the makefile rules with the following rule-naming convention: `test-<module>`<br>
 i.e. Test Module `InstructionTest.hs` will have the following rule within the makefile:
-```
+``` sh
+# Example
 test-instruction:
   $(GHCI) $(FLAGS) Tests/InstructionTest.hs
-``` 
-2. Navigate to the `/comp3649-project/haskell` directory
-3. Run `make test-<module>` where `<module>` refers to the module name as it is written in the `makefile` and **not** the name of the `.hs` file in `/Tests`.
-4. Once modules have been loaded successfully and you are in the `GHCI` prompt, run `main` and hit `Enter` to view the output
+```
+2. Add a new entry to the `test-all` rule to include your new test module.
+3. Navigate to the `/comp3649-project/haskell` directory.
+4. Run `make test-<module>` where `<module>` refers to the module name as it is written in the `makefile` and **not** the name of the `.hs` file in `/Tests`.
+5. Once modules have been loaded successfully and you are in the `GHCI` prompt, run `main` and hit `Enter` to view the output.
 
 **Alternatively** you can run `make test-all` and every test under the `test-all` rule will be compiled and ran automatically.
