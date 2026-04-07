@@ -8,13 +8,12 @@ module Intermediate.InterferenceGraph (
     getVertices, 
     addEdge,
     buildGraph,
-    testBuildGraph,
-    liveness,
+    -- testBuildGraph,
+    -- liveness,
     Register,
     RegisterMap,
     colourGraph,
-    testColourGraph,
-    is
+    -- testColourGraph,
 ) where
 
 import Lib.Helper (
@@ -159,22 +158,3 @@ isSafe colour var assigned = not (any hasConflict assigned)
         enemies = toList (getNeighbors var)
         -- hasConflict occurs when a previous assigned variable has the same colour and is a neighbour
         hasConflict (enemyName, enemyColour) = (enemyColour == colour) && (elem enemyName enemies)
-
--- TEST DATA
-ins1 = createInstruction (createToken "a"  Destination, createToken "a"  Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins2 = createInstruction (createToken "t1" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "4"  Literal)
-ins3 = createInstruction (createToken "t2" Destination, createToken "t1" Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins4 = createInstruction (createToken "t3" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "3"  Literal)
-ins5 = createInstruction (createToken "b"  Destination, createToken "t2" Variable, createToken "-"  Operator, createToken "t3" Variable)
-ins6 = createInstruction (createToken "t4" Destination, createToken "b"  Variable, createToken "/"  Operator, createToken "2"  Literal)
-ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variable, createToken "+"  Operator, createToken "t5" Variable)
-
-is = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]
-liveness = determineLiveness is
-linfo = livenessInfo liveness
-
--- Test variable for buildGraph
-testBuildGraph = buildGraph ["a", "b", "c", "d", "t1", "t2", "t3", "t4", "t5"] liveness
-
--- Test variable for colourGraph (outputs first valid solution using 5 registers (A0-A4))
-testColourGraph = take 1 (colourGraph testBuildGraph 5)
