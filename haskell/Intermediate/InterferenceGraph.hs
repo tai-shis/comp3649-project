@@ -14,6 +14,7 @@ module Intermediate.InterferenceGraph (
     RegisterMap,
     colourGraph,
     -- testColourGraph,
+    getColouring
 ) where
 
 import Lib.Helper (
@@ -158,3 +159,8 @@ isSafe colour var assigned = not (any hasConflict assigned)
         enemies = toList (getNeighbors var)
         -- hasConflict occurs when a previous assigned variable has the same colour and is a neighbour
         hasConflict (enemyName, enemyColour) = (enemyColour == colour) && (elem enemyName enemies)
+
+-- Public: Checks if graph was coloured successfully on runtime, returns the first valid colouring if so.
+getColouring :: [RegisterMap] -> RegisterMap
+getColouring colourings | length colourings == 0 = error "Graph could not be coloured with the given number of registers" 
+                        | otherwise = colourings !! 0
