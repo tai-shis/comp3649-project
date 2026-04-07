@@ -27,6 +27,9 @@ test-assembly:
 test-all:
 	runghc Tests/TokenTest.hs
 	runghc Tests/InstructionTest.hs
+	runghc Tests/LivenessTest.hs
+	runghc Tests/InterferenceGraphTest.hs
+	runghc Tests/AssemblyTest.hs
 
 clean:
 	rm -rf $(OUT)
