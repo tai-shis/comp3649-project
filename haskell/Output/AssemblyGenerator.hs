@@ -1,6 +1,6 @@
 module Output.AssemblyGenerator (
     generateAssembly,
-    testAssembly
+    -- testAssembly
 ) where
 
 import Input.Token (
@@ -31,7 +31,7 @@ import Output.Assembly (
 
 -- imports specifically for testing
 import Input.Instruction (getInstructions)
-import Intermediate.InterferenceGraph (is, testColourGraph)
+-- import Intermediate.InterferenceGraph (is, testColourGraph)
 
 -- Public: loops through all our 3-address instructions, translates them one by one and then concats them together into a final assembly object
 generateAssembly :: [Instruction] -> RegisterMap -> Assembly
@@ -99,6 +99,6 @@ getOpCode token
     where operatorString = getValue token
 
 
--- Test Data: outputs formated machine code using our test instructions (in Instruction.hs) and first valid graph colouring
-testAssembly :: Assembly
-testAssembly = generateAssembly (getInstructions is) (head testColourGraph)
+-- -- Test Data: outputs formated machine code using our test instructions (in Instruction.hs) and first valid graph colouring
+-- testAssembly :: Assembly
+-- testAssembly = generateAssembly (getInstructions is) (head testColourGraph)

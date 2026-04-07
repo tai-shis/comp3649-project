@@ -10,7 +10,8 @@ module Input.Instruction (
     showInstructions,
     showLiveVars,
     emptyInstructions,
-    fromArraysInstructions
+    fromArraysInstructions,
+    getAllVariables
 ) where
 
 import Input.Token
@@ -97,3 +98,7 @@ getDestination (AssignmentIns _ dest _) = dest
 -- Private: Helper that checks if Token is a variable
 isVariable :: Token -> Bool
 isVariable token = getType token == Variable
+
+-- Public: Gets all unique variables in the list of instructions
+getAllVariables :: Instructions -> [String]
+getAllVariables (Inst (instructions, _)) = concatMap (map getValue . getVariables) instructions
