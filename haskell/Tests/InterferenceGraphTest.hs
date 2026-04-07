@@ -34,8 +34,8 @@ singleLiveLine = [[L.Live "a", L.Live "b"]]
 mixedLiveLine :: [LivenessStates]
 mixedLiveLine = [[L.Live "a", L.Unlive "b"]]
 
-testInterferenceGraph :: IO ()
-testInterferenceGraph = mapM_ putStrLn results
+main :: IO ()
+main = mapM_ putStrLn results
 
 results :: [String]
 results =
