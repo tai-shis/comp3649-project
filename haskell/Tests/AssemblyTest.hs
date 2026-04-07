@@ -7,8 +7,8 @@ check :: String -> Bool -> String
 check name True = "PASS: " ++ name
 check name False = "FAIL: " ++ name 
 
-testAssembly :: IO()
-testAssembly = mapM_ putStrLn results
+main :: IO()
+main = mapM_ putStrLn results
 
 results :: [String]
 results = 

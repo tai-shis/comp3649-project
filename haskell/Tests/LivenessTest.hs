@@ -46,8 +46,8 @@ assignYX = createInstruction (destY, createToken "x" Variable)
 binaryXAB :: Instruction
 binaryXAB = createInstruction (destX, varA, addOp, varB)
 
-testLiveness :: IO ()
-testLiveness = mapM_ putStrLn results
+main :: IO ()
+main = mapM_ putStrLn results
 
 results :: [String]
 results =

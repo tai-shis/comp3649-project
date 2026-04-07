@@ -37,8 +37,8 @@ unaryIns = createInstruction (destToken, negOpToken, varTokenA)
 assignIns :: Instruction
 assignIns = createInstruction (destToken, litToken)
 
-testLiveness :: IO ()
-testLiveness = mapM_ putStrLn results
+main :: IO ()
+main = mapM_ putStrLn results
 
 results :: [String]
 results =
