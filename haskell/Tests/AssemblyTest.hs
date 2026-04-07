@@ -33,5 +33,8 @@ results =
 
         -- Eq AssemblyInstruction
         check "Eq AssemblyInstruction - Equal instruction" (AssemblyInstruction MOV "#2" "R0" == AssemblyInstruction MOV "#2" "R0"),
-        check "Eq AssemblyInstruction - Unequal instruction" (AssemblyInstruction MOV "#2" "R0" /= AssemblyInstruction ADD "x" "R0")
+        check "Eq AssemblyInstruction - Unequal instruction" (AssemblyInstruction MOV "#2" "R0" /= AssemblyInstruction ADD "x" "R0"),
+
+        -- Show Assembly
+        check "Show Assembly - Multiple instructions" (show (Assembly [AssemblyInstruction MOV "x" "R0", AssemblyInstruction ADD "#1" "R0"]) == "Assembly Instructions: \nMOV x,R0\nADD #1,R0\n")
     ]
