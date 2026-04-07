@@ -30,7 +30,8 @@ import Intermediate.InterferenceGraph (
     buildGraph,
     Register,
     RegisterMap,
-    colourGraph)
+    colourGraph,
+    getColouring)
 
 import Output.AssemblyGenerator (
     generateAssembly)
@@ -47,13 +48,13 @@ ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variabl
 
 is = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]
 
+-- Private: runs generation process.
 gen :: Int -> Instructions -> IO ()
 gen registers instructions = do
     let liveness = determineLiveness instructions
     let graph = buildGraph (getAllVariables instructions) liveness
     let colourings = colourGraph graph registers
-    let assembly = generateAssembly (getInstructions instructions) (colourings !! 0)
-    putStrLn "\nAssembly:"
+    let assembly = generateAssembly (getInstructions instructions) (getColouring colourings)
     print assembly
 
 main :: IO ()
