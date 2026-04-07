@@ -15,4 +15,4 @@
 | `Show AssemblyInstruction` - MOV instruction | `show AssemblyInstruction MOV "#1" "R0" | `"MOV #1,R0"` | `"MOV #1,R0"` **PASS** | 
 | `Eq AssemblyInstruction` — Equal instruction | `AssemblyInstruction MOV "#2" "R0" == AssemblyInstruction MOV "#2" "R0"` | `True` | `True` **PASS** |
 | `Eq AssemblyInstruction` — Unequal instruction | `AssemblyInstruction MOV "#2" "R0" /= AssemblyInstruction ADD "x" "R0"` | `True` | `True` **PASS** |
-| `Show Assembly` | 
+| `Show Assembly` | `[AssemblyInstruction MOV "x" "R0", AssemblyInstruction ADD "#1" "R0"]` | `"Assembly Instructions: \nMOV x,R0\nADD #1,R0\n"` | `"Assembly Instructions: \nMOV x,R0\nADD #1,R0\n"` **PASS** |
