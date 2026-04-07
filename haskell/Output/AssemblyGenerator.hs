@@ -40,7 +40,10 @@ generateAssembly instructions registerMap = Assembly (concatMap (\instruction ->
 -- Private: pattern matches based on the type of instructions given (binary,unary, or assignment) and converts to assembly appropriately
 generateSingleAsm :: Instruction -> RegisterMap -> [AssemblyInstruction]
 generateSingleAsm (BinaryIns _ destination operand1 operator operand2) registerMap = 
-    [AssemblyInstruction MOV source1String destString, AssemblyInstruction finalOpCode source2String destString]
+    if source1String == destString then
+        [AssemblyInstruction finalOpCode source2String destString] -- skips the MOV instruction and just does the math (as the dead variable and the new variable are assigned at the same time)
+    else
+        [AssemblyInstruction MOV source1String destString, AssemblyInstruction finalOpCode source2String destString]
     where destString    = getOperand destination registerMap
           source1String = getOperand operand1 registerMap 
           source2String = getOperand operand2 registerMap
@@ -48,20 +51,29 @@ generateSingleAsm (BinaryIns _ destination operand1 operator operand2) registerM
 
 generateSingleAsm (UnaryIns _ destination operator operand) registerMap = 
     if getValue operator == "-" then
-        [AssemblyInstruction MOV sourceString destString, AssemblyInstruction MUL "#-1" destString]
+        if sourceString == destString then
+            [AssemblyInstruction MUL "#-1" destString] -- skips the MOV instruction and just negates the register (as the dead variable and the new variable are assigned at the same time)
+        else
+            [AssemblyInstruction MOV sourceString destString, AssemblyInstruction MUL "#-1" destString]
+    else
+        if sourceString == destString then
+            [] -- skips the redundand MOV instruction
+        else
+            [AssemblyInstruction MOV sourceString destString]
+    where destString   = getOperand destination registerMap
+          sourceString = getOperand operand registerMap
+
+generateSingleAsm (AssignmentIns _ destination operand) registerMap = 
+    if sourceString == destString then
+        [] -- if the dead variable and the new variable are assigned to the same register at the same time, skip
     else
         [AssemblyInstruction MOV sourceString destString]
     where destString   = getOperand destination registerMap
           sourceString = getOperand operand registerMap
 
-generateSingleAsm (AssignmentIns _ destination operand) registerMap = 
-    [AssemblyInstruction MOV sourceString destString]
-    where destString   = getOperand destination registerMap
-          sourceString = getOperand operand registerMap
-
 -- Private: helper function to find out if we are dealing with a literal (1,2,3,4,etc) or a register (a,b,c,d,e,etc)
 getOperand :: Token -> RegisterMap -> String
-getOperand token registerMap = 
+getOperand token registerMap =
     if getType token == Literal then
         "#" ++ getValue token
     else

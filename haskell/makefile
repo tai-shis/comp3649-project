@@ -18,9 +18,12 @@ test-instruction:
 test-liveness:
 	$(GHCI) $(FLAGS) Tests/LivenessTest.hs
 
+test-interferenceGraph:
+	$(GHCI) $(FLAGS) Tests/InterferenceGraphTest.hs
+
 test-assembly:
 	$(GHCI) $(FLAGS) Tests/AssemblyTest.hs
-
+  
 test-all:
 	runghc Tests/TokenTest.hs
 	runghc Tests/InstructionTest.hs
