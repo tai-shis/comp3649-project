@@ -7,4 +7,4 @@
 | Construction — SUB instruction | `ASMInstruction("SUB", "R1", "R0")` | `op_code == "SUB"`, `op1 == "R1"`, `op2 == "R0"` | `op_code == "SUB"`, `op1 == "R1"`, `op2 == "R0"` **PASS** |
 | Construction — MUL instruction | `ASMInstruction("MUL", "#-1", "R0")` | `op_code == "MUL"`, `op1 == "#-1"`, `op2 == "R0"` | `op_code == "MUL"`, `op1 == "#-1"`, `op2 == "R0"` **PASS** |
 | Construction — DIV instruction | `ASMInstruction("DIV", "R2", "R0")` | `op_code == "DIV"`, `op1 == "R2"`, `op2 == "R0"` | `op_code == "DIV"`, `op1 == "R2"`, `op2 == "R0"` **PASS** |
-| Construction — literal operand | `ASMInstruction("MOV", "#42", "R0")` | `op1 == "#42"` | `op1 == "#42"` **PASS** |
+| Construction — literal operand | `ASMInstruction("MOV", "#29", "R0")` | `op1 == "#42"` | `op1 == "#29"` **PASS** |
