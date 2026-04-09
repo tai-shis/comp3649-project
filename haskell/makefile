@@ -7,7 +7,7 @@ all: build test-all
 
 build:
 	mkdir -p $(OUT)
-	$(GHC) $(FLAGS) Input/Token.hs Input/Instruction.hs Tests/TokenTest.hs Tests/InstructionTest.hs -outputdir $(OUT)
+	$(GHC) $(FLAGS) Input/Token.hs Input/Instruction.hs Tests/TokenTest.hs Tests/InstructionTest.hs Gen.hs -outputdir $(OUT)
 
 test-token:
 	$(GHCI) $(FLAGS) Tests/TokenTest.hs
