@@ -137,28 +137,4 @@ isOperator _ = False
 isValidVariable :: String -> Bool
 isValidVariable (c:cs) | isDigit c = False -- Variables cannot start with a digit
                        | otherwise = True
-testScanner :: Scanner
-testScanner = Scanner
-    { fileHandle    = undefined  -- never touched by pure functions
-    , buffer        = []
-    , scanningState = Instructions
-    }
-
--- Test tokenizeLine directly
-main :: IO ()
-main = do
-    handle <- openFile "Tests/Test-Inputs/single-line.txt" ReadMode
-    let scanner = Scanner { fileHandle = handle, buffer = [], scanningState = Instructions }
-    scanAll scanner
-    hClose handle
-
-scanAll :: Scanner -> IO ()
-scanAll scanner = do
-    scanner' <- scanNextLine scanner
-    if scanningState scanner' == ScanEOF
-        then putStrLn "=== EOF ==="
-        else do
-            putStrLn $ "State:  " ++ show (scanningState scanner')
-            putStrLn $ "Tokens: " ++ tokenListToString (buffer scanner')
-            putStrLn ""
-            scanAll scanner'
+isValidVariable [] = False -- Empty string is not a valid variable
