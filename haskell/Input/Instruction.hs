@@ -15,7 +15,7 @@ module Input.Instruction (
 ) where
 
 import Input.Token
-import Lib.Helper (commaSperatedList)
+import Lib.Helper (commaSeparatedList)
 
 type Dest = Token
 type Operand = Token
@@ -73,7 +73,7 @@ showInstructions instructions = "Instructions: \n" ++ concatMap (\x -> show x ++
 
 -- Public: Prints all live variables
 showLiveVars :: [LiveVariable] -> String
-showLiveVars liveVars =  "Live: " ++ commaSperatedList liveVars
+showLiveVars liveVars =  "Live: " ++ commaSeparatedList liveVars
 
 -- Public: Retrieves all live variables stored in the given Instructions object
 getLiveVariables :: Instructions -> [LiveVariable]

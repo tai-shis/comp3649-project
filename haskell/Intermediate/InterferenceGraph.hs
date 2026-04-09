@@ -18,7 +18,7 @@ module Intermediate.InterferenceGraph (
 ) where
 
 import Lib.Helper (
-    commaSperatedList, 
+    commaSeparatedList, 
     pairTrue)
 
 import Data.Set (
@@ -69,7 +69,7 @@ data Variable = Var (String, Neighbors)
     deriving (Eq)
 
 instance Show Variable where
-    show (Var (name, neighbors)) = name ++ " -> " ++ commaSperatedList (toList neighbors)
+    show (Var (name, neighbors)) = name ++ " -> " ++ commaSeparatedList (toList neighbors)
 
 data Graph = Graph [Variable]
     deriving (Eq)
