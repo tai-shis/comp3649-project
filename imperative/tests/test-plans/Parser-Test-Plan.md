@@ -17,6 +17,7 @@
 | `_parse_instructions()` — stops at live | `StringIO("x = a + b\nlive:\na,")` | Returns `False`, buffer has 1 instruction, `instructions[0] == "x = a + b"` | Return `False`; `instructions[0] == "x = a + b"` **PASS** |
 | `_parse_instructions()` — returns True on EOF | `StringIO("x = a + b\n")` | Returns `True` | Returns `True` **PASS** |
 | `_parse_instructions()` — invalid instruction raises error | `StringIO("= x a +\n")` | Raises `ValueError` | Raises `ValueError` **PASS** |
+| `_parse_live()` — no vars after 'live:' | `"x = a\nlive:\n"` | Buffer live objects contains `[]` | Buffer live objects contains `[]` **PASS** |
 | `_parse_live()` — single valid live object | `StringIO("x = a\nlive:\na,")` | Buffer live objects contains `["a"]` | Buffer live objects contains `["a"]` **PASS** |
 | `_parse_live()` — multiple valid live objects | `StringIO("x = a + b\nb = c + 1\nlive:\na, b, c,")` | Buffer live objects contains `["a", "b", "c"]` | Buffer live objects contains `["a", "b", "c"]` **PASS** |
 | `_parse_live()` — duplicate live objects dropped | `StringIO("x = a + b\nlive:\na, a, b,")`| Buffer live objects contains `["a", "b"]` | Buffer live objects contains `["a", "b"]` **PASS** |
