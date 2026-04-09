@@ -167,6 +167,14 @@ class TestParseInstructions(unittest.TestCase):
             parser._parse_instructions(buffer)
 
 class TestParseLive(unittest.TestCase):
+    def test_live_no_vars(self):
+        parser = create_parser_from_string("x = a\nlive:\n")
+        buffer = InstructionBuffer()
+        parser._parse_instructions(buffer)
+        parser._parse_live(buffer)
+        live_objs = buffer.list_live_objects()
+        self.assertEqual(live_objs, [])
+
     def test_valid_obj(self):
         parser = create_parser_from_string("x = a\nlive:\na,")
         buffer = InstructionBuffer()
