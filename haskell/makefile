@@ -24,12 +24,16 @@ test-interferenceGraph:
 test-assembly:
 	$(GHCI) $(FLAGS) Tests/AssemblyTest.hs
 
+test-scanner:
+	$(GHCI) $(FLAGS) Tests/ScannerTest.hs
+  
 test-all:
 	runghc Tests/TokenTest.hs
 	runghc Tests/InstructionTest.hs
 	runghc Tests/LivenessTest.hs
 	runghc Tests/InterferenceGraphTest.hs
 	runghc Tests/AssemblyTest.hs
+	runghc Tests/ScannerTest.hs
 
 clean:
 	rm -rf $(OUT)

@@ -39,7 +39,7 @@ import Input.Instruction (
     fromArraysInstructions)
 
 import Lib.Helper (
-    commaSperatedList, 
+    commaSeparatedList, 
     addList,
     addUnique)
 
@@ -48,7 +48,7 @@ type LivenessStates = [LivenessState]
 
 -- Public: Displays the liveness states in a readable format
 showLivenessStates :: [LivenessStates] -> String
-showLivenessStates liveness = concatMap (\x -> commaSperatedList x ++ "\n" ) liveness
+showLivenessStates liveness = concatMap (\x -> commaSeparatedList x ++ "\n" ) liveness
 
 data LivenessState = Defined String 
                    | Live String
