@@ -124,7 +124,7 @@ addEdge graph name1 name2 | pairTrue (edgeExists (getVertices graph) name1 name2
 buildGraph :: [String] -> [LivenessStates] -> Graph
 buildGraph variables liveness = foldl (\g (v1, v2) -> addEdge g v1 v2) emptyGraph allPairs
     where emptyGraph = Graph (map createVariable variables)
-          activePerLine = map (\line -> map getLivenessName (filter (not . isUnlive) line)) liveness
+          activePerLine = map namesFromLiveness liveness
           allPairs = concatMap getPairs activePerLine
 
 -- Private: Helper function to generate all unique pairs from a list of strings
