@@ -1,75 +1,77 @@
-import Input.Scanner (
-    createScanner,
-    scanAll)
-
-import Input.Parser (
-    parse)
-
-import Input.Token (
-    TokenType(
-        Destination,
-        Variable,
-        Literal,
-        Operator),
-    createToken,
-    tokenListToString)
-
-import Input.Instruction (
-    Instructions,
-    createInstruction, 
+import Input.Instruction
+  ( Instructions,
+    createInstruction,
     fromArraysInstructions,
     getAllVariables,
     getInstructions,
-    getLiveVariables)
-
-import Intermediate.Liveness (
-    determineLiveness,
-    livenessInfo,
-    showLivenessStates)
-
-import Intermediate.InterferenceGraph (
-    Variable(..), 
-    Graph(..),
-    createVariable, 
-    getName, 
-    getNeighbors, 
-    createGraph, 
-    getVertices, 
-    addEdge,
-    buildGraph,
+    getLiveVariables,
+  )
+import Input.Parser
+  ( parse,
+  )
+import Input.Scanner
+  ( createScanner,
+    scanAll,
+  )
+import Input.Token
+  ( TokenType
+      ( Destination,
+        Literal,
+        Operator,
+        Variable
+      ),
+    createToken,
+    tokenListToString,
+  )
+import Intermediate.InterferenceGraph
+  ( Graph (..),
     Register,
     RegisterMap,
+    Variable (..),
+    addEdge,
+    buildGraph,
     colourGraph,
-    getColouring)
-
-import Output.AssemblyGenerator (
-    generateAssembly)
-
-
--- TEST DATA
-ins1 = createInstruction (createToken "a"  Destination, createToken "a"  Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins2 = createInstruction (createToken "t1" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "4"  Literal)
-ins3 = createInstruction (createToken "t2" Destination, createToken "t1" Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins4 = createInstruction (createToken "t3" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "3"  Literal)
-ins5 = createInstruction (createToken "b"  Destination, createToken "t2" Variable, createToken "-"  Operator, createToken "t3" Variable)
-ins6 = createInstruction (createToken "t4" Destination, createToken "b"  Variable, createToken "/"  Operator, createToken "2"  Literal)
-ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variable, createToken "+"  Operator, createToken "t5" Variable)
-
-is = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]
+    createGraph,
+    createVariable,
+    getColouring,
+    getName,
+    getNeighbors,
+    getVertices,
+  )
+import Intermediate.Liveness
+  ( determineLiveness,
+    livenessInfo,
+    showLivenessStates,
+  )
+import Output.AssemblyGenerator
+  ( generateAssembly,
+  )
 
 -- Private: runs generation process.
 gen :: Int -> IO ()
 gen registers = do
-    scanner <- createScanner "Tests/Test-Inputs/input1.txt"
-    tokens <- scanAll scanner
-    putStrLn "=== Tokens ==="
-    mapM_ (putStrLn . tokenListToString) tokens
-    let instructions = parse tokens
-    let liveness = determineLiveness instructions
-    let graph = buildGraph (getAllVariables instructions) liveness
-    let colourings = colourGraph graph registers
-    let assembly = generateAssembly (getInstructions instructions) (getLiveVariables instructions) (getColouring colourings)
-    print assembly
+  putStrLn "Scanning and parsing through input file..."
+  scanner <- createScanner "Tests/Test-Inputs/input1.txt"
+  tokens <- scanAll scanner
+  -- putStrLn "=== Tokens ==="
+  -- mapM_ (putStrLn . tokenListToString) tokens
+  let instructions = parse tokens
+  putStrLn "=== Instructions ==="
+  putStrLn "Generating instructions..."
+  print instructions
+  putStrLn "=== Liveness ==="
+  putStrLn "Determining liveness..."
+  let liveness = determineLiveness instructions
+  putStrLn (showLivenessStates liveness)
+
+  putStrLn "Building interference graph..."
+  let graph = buildGraph (getAllVariables instructions) liveness
+  putStrLn "Colouring graph..."
+  let colourings = colourGraph graph registers
+  putStrLn "Generating assembly..."
+  let assembly = generateAssembly (getInstructions instructions) (getLiveVariables instructions) (getColouring colourings)
+  putStrLn "=== Assembly ==="
+  print assembly
 
 main :: IO ()
 main = gen 5
