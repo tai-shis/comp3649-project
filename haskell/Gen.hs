@@ -42,6 +42,8 @@ import Intermediate.Liveness
   ( determineLiveness,
     livenessInfo,
     showLivenessStates,
+    isLive,
+    getLivenessName
   )
 import Output.AssemblyGenerator
   ( generateAssembly,
@@ -62,6 +64,7 @@ gen registers = do
   putStrLn "=== Liveness ==="
   putStrLn "Determining liveness..."
   let liveness = determineLiveness instructions
+  let initialLiveVars = map getLivenessName (filter isLive (head liveness))
   putStrLn (showLivenessStates liveness)
 
   putStrLn "Building interference graph..."
@@ -69,7 +72,7 @@ gen registers = do
   putStrLn "Colouring graph..."
   let colourings = colourGraph graph registers
   putStrLn "Generating assembly..."
-  let assembly = generateAssembly (getInstructions instructions) (getLiveVariables instructions) (getColouring colourings)
+  let assembly = generateAssembly (getInstructions instructions) initialLiveVars (getLiveVariables instructions) (getColouring colourings)
   putStrLn "=== Assembly ==="
   print assembly
 

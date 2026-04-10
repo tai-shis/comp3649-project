@@ -34,24 +34,26 @@ import Input.Instruction (getInstructions)
 -- import Intermediate.InterferenceGraph (is, testColourGraph)
 
 -- Public: loops through all our instructions, translates them, and adds final stores for live variables
-generateAssembly :: [Instruction] -> [String] -> RegisterMap -> Assembly
-generateAssembly instructions liveVars registerMap = 
-    let body = concatMap (\instruction -> generateSingleAsm instruction registerMap) instructions
-        finalStores = generateFinalStores liveVars registerMap
-    in Assembly (body ++ finalStores)
-
--- Private: Generates MOV instructions for variables that must be stored back to memory at the end
-generateFinalStores :: [String] -> RegisterMap -> [AssemblyInstruction]
-generateFinalStores liveVars registerMap = 
-    map (\var -> AssemblyInstruction MOV (getRegister var registerMap) var) liveVars
+generateAssembly :: [Instruction] -> [String] -> [String] -> RegisterMap -> Assembly
+generateAssembly instructions liveOnEntry liveOnExit registerMap = 
+    let -- creating MOVs for variables that need to be in registers at the start
+        loadLiveOnEntry = [AssemblyInstruction MOV var (getRegister var registerMap) | var <- liveOnEntry, getRegister var registerMap /= var]
+        -- translating the math instructions
+        body = concatMap (\instruction -> generateSingleAsm instruction registerMap) instructions
+        -- creating MOVs for variables that must be stored back to memory at the end
+        storeLiveOnExit = [AssemblyInstruction MOV (getRegister var registerMap) var | var <- liveOnExit, getRegister var registerMap /= var]
+    in Assembly (loadLiveOnEntry ++ body ++ storeLiveOnExit)
 
 -- Private: pattern matches based on the type of instructions given (binary,unary, or assignment) and converts to assembly appropriately
 generateSingleAsm :: Instruction -> RegisterMap -> [AssemblyInstruction]
-generateSingleAsm (BinaryIns _ destination operand1 operator operand2) registerMap = 
-    if source1String == destString then
-        [AssemblyInstruction finalOpCode source2String destString] -- skips the MOV instruction and just does the math (as the dead variable and the new variable are assigned at the same time)
-    else
-        [AssemblyInstruction MOV source1String destString, AssemblyInstruction finalOpCode source2String destString]
+generateSingleAsm (BinaryIns _ destination operand1 operator operand2) registerMap
+    -- case 1: the first operand is already in the destination register
+    | source1String == destString = [AssemblyInstruction finalOpCode source2String destString]
+    -- case 2: the second operand is in the destination register (if operation is ADD or MUL we swap order to avoid overwriting source data and saving a MOV instruction)
+    | source2String == destString && (finalOpCode == ADD || finalOpCode == MUL) =
+        [AssemblyInstruction finalOpCode source1String destString]
+    -- case 3: keep the default behaviour
+    | otherwise = [AssemblyInstruction MOV source1String destString, AssemblyInstruction finalOpCode source2String destString]
     where destString    = getOperand destination registerMap
           source1String = getOperand operand1 registerMap 
           source2String = getOperand operand2 registerMap
