@@ -33,9 +33,17 @@ import Output.Assembly (
 import Input.Instruction (getInstructions)
 -- import Intermediate.InterferenceGraph (is, testColourGraph)
 
--- Public: loops through all our 3-address instructions, translates them one by one and then concats them together into a final assembly object
-generateAssembly :: [Instruction] -> RegisterMap -> Assembly
-generateAssembly instructions registerMap = Assembly (concatMap (\instruction -> generateSingleAsm instruction registerMap) instructions)
+-- Public: loops through all our instructions, translates them, and adds final stores for live variables
+generateAssembly :: [Instruction] -> [String] -> RegisterMap -> Assembly
+generateAssembly instructions liveVars registerMap = 
+    let body = concatMap (\instruction -> generateSingleAsm instruction registerMap) instructions
+        finalStores = generateFinalStores liveVars registerMap
+    in Assembly (body ++ finalStores)
+
+-- Private: Generates MOV instructions for variables that must be stored back to memory at the end
+generateFinalStores :: [String] -> RegisterMap -> [AssemblyInstruction]
+generateFinalStores liveVars registerMap = 
+    map (\var -> AssemblyInstruction MOV (getRegister var registerMap) var) liveVars
 
 -- Private: pattern matches based on the type of instructions given (binary,unary, or assignment) and converts to assembly appropriately
 generateSingleAsm :: Instruction -> RegisterMap -> [AssemblyInstruction]
