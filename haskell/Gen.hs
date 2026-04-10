@@ -19,7 +19,8 @@ import Input.Instruction (
     createInstruction, 
     fromArraysInstructions,
     getAllVariables,
-    getInstructions)
+    getInstructions,
+    getLiveVariables)
 
 import Intermediate.Liveness (
     determineLiveness,
@@ -67,7 +68,7 @@ gen registers = do
     let liveness = determineLiveness instructions
     let graph = buildGraph (getAllVariables instructions) liveness
     let colourings = colourGraph graph registers
-    let assembly = generateAssembly (getInstructions instructions) (getColouring colourings)
+    let assembly = generateAssembly (getInstructions instructions) (getLiveVariables instructions) (getColouring colourings)
     print assembly
 
 main :: IO ()
