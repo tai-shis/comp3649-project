@@ -62,7 +62,7 @@ parseTokens (((Tn _ Live) : tokens) : rest) False =
     if checkLiveTokens tokens
         then (restInstructions, map (\(Tn name _) -> name) tokens)
         else error "Error: Invalid tokens in live line encountered."
-    where (restInstructions, _) = parseTokens rest False
+    where (restInstructions, _) = parseTokens rest True
 
 parseTokens _ _ = error "Error: Invalid instruction format encountered."
 

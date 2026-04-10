@@ -1,22 +1,3 @@
--- ScannerTest.hs
--- Test suite for Input.Scanner (updated Scanner.hs)
---
--- Assumptions about Input.Token (Token.hs was not available at time of writing):
---   - `createToken :: String -> T.TokenType -> Token`   constructs a Token
---   - `getType     :: Token  -> T.TokenType`            returns the token's type tag
---   - `getValue    :: Token  -> String`                 returns the token's raw string value
---   - `tokenListToString :: [Token] -> String`          used in Scanner's own main
---   - TokenType constructors used: T.Live, T.EOF, T.Equals, T.Literal, T.Operator,
---                                  T.Destination, T.Variable, T.LiveSymbol, T.Newline
---   - Token derives (Show, Eq)
---
--- How to build & run (from project root):
---   ghc --make -isrc tests/ScannerTest.hs -o tests/ScannerTest && ./tests/ScannerTest
---
--- Input files are expected at:  tests/inputs/<name>.txt
---
--- Each test prints [PASS] or [FAIL]. Exit code 1 if any test fails.
-
 module Tests.ScannerTest where
 
 import System.IO        (openFile, hClose, IOMode(ReadMode))
@@ -26,10 +7,6 @@ import Control.Exception (evaluate, try, SomeException)
 import Input.Scanner
 import Input.Token      hiding (TokenType(..))
 import qualified Input.Token as T
-
--- ---------------------------------------------------------------------------
--- Minimal test harness
--- ---------------------------------------------------------------------------
 
 type TestResult = (String, Bool)
 
@@ -60,10 +37,7 @@ summarise results = do
             mapM_ (\(d, _) -> putStrLn $ "  * " ++ d) failures
             exitFailure
 
--- ---------------------------------------------------------------------------
 -- Helpers
--- ---------------------------------------------------------------------------
-
 inputsDir :: FilePath
 inputsDir = "Tests/"
 
@@ -84,10 +58,9 @@ tokenValues = map getValue
 tokenTypes :: [Token] -> [T.TokenType]
 tokenTypes = map getType
 
--- ---------------------------------------------------------------------------
--- Tests
--- ---------------------------------------------------------------------------
 
+-- Tests
+--
 -- T01: Empty file → ScanEOF immediately
 testEmptyFileEOF :: IO TestResult
 testEmptyFileEOF = do
