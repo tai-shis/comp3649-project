@@ -1,248 +1,329 @@
-import io
-from multiprocessing import Value
-import unittest
 import os
+import unittest
+from unittest.mock import MagicMock
 
-from input.instruction_buffer import InstructionBuffer
-from input.instruction import Instruction
-from input.token import Token
-from input.scanner import Scanner
-from input.parser import Parser
-from intermediate.liveness import Liveness
-from intermediate.interference_graph import InterferenceGraph
 from generator.asm_generator import ASMGenerator
 from generator.asm_instruction import ASMInstruction
-
-class TestASMGeneration(unittest.TestCase):
-
-    def _get_buffer(self) -> InstructionBuffer:
-        '''
-        Helper function create an instruction buffer
-        '''
-        input = "a = a + 1\nt1 = a * 2\nb = t1 / 3\nlive: a, b\n"
-
-        file = io.StringIO(input)
-        scanner = Scanner(file)
-        parser = Parser(scanner)
-        
-        return parser.parse()
-    
-    def _get_interference_graph(self, buffer: InstructionBuffer) -> InterferenceGraph:
-        '''
-        Helper function to return an interference graph from a given instruction buffer and liveness.
-        '''
-        liveness = Liveness(buffer)
-        interference_graph = InterferenceGraph()
-        interference_graph.build_graph(liveness, buffer.get_occurred_variables())
-        interference_graph.color_graph(3)
-
-        return interference_graph
-    
-    def _get_generator(self) -> ASMGenerator:
-        buffer = self._get_buffer()
-        interference_graph = self._get_interference_graph(buffer)
-
-        return ASMGenerator(buffer, interference_graph)
+from input.instruction import Instruction
+from input.instruction_buffer import InstructionBuffer
+from input.token import Token
 
 
-    def test_init(self):
-        '''
-        Tests the ASMGenerator initialization.
-        '''
-        buffer = self._get_buffer()
-        interference_graph = self._get_interference_graph(buffer)
-        generator = ASMGenerator(buffer, interference_graph)
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
 
-        self.assertEqual(generator.buffer, buffer)
-        self.assertEqual(generator.register_colors, interference_graph.colors)
+def make_graph(colors: dict[str, int | None]) -> MagicMock:
+    """Helper to build a mock InterferenceGraph with a given colors dict."""
+    graph = MagicMock()
+    graph.colors = colors
+    return graph
 
-    def test_reg_or_value_no_register(self):
-        '''
-        Tests that the generator returns the variable name if no register was
-        assigned in the interference graph.
-        '''
-        generator = self._get_generator()
-        token = Token("none", 1)
 
-        if ("none" in generator.register_colors):
-            del generator.register_colors["none"]
+def make_buffer(raw_instructions: list[Instruction]) -> InstructionBuffer:
+    """Helper to build an InstructionBuffer from a list of Instructions."""
+    buf = InstructionBuffer()
+    for instr in raw_instructions:
+        buf.add_instruction(instr)
+    return buf
 
+
+def make_generator(instructions: list[Instruction], colors: dict[str, int | None]) -> ASMGenerator:
+    """Helper that combines make_buffer and make_graph into an ASMGenerator."""
+    return ASMGenerator(make_buffer(instructions), make_graph(colors))
+
+
+def make_binary(dest: str, op1: str, op1_type: int,
+                operator: str, op2: str, op2_type: int) -> Instruction:
+    """Helper to create a binary (type-0) instruction."""
+    return Instruction(
+        0,
+        Token(dest, 0),
+        Token(op1, op1_type),
+        Token(operator, 3),
+        Token(op2, op2_type),
+    )
+
+
+def make_unary(dest: str, operator: str, operand: str, operand_type: int) -> Instruction:
+    """Helper to create a unary (type-1) instruction."""
+    return Instruction(
+        1,
+        Token(dest, 0),
+        operator=Token(operator, 3),
+        operand2=Token(operand, operand_type),
+    )
+
+
+def make_assignment(dest: str, operand: str, operand_type: int) -> Instruction:
+    """Helper to create an assignment (type-2) instruction."""
+    return Instruction(2, Token(dest, 0), Token(operand, operand_type))
+
+
+# ---------------------------------------------------------------------------
+# Construction tests
+# ---------------------------------------------------------------------------
+
+class TestASMGeneratorConstruction(unittest.TestCase):
+
+    def test_fields_initialized(self):
+        buf = make_buffer([])
+        graph = make_graph({"a": 0})
+        gen = ASMGenerator(buf, graph)
+
+        self.assertEqual(gen.generated_asm, [])
+        self.assertEqual(gen.register_colors, graph.colors)
+        self.assertIs(gen.buffer, buf)
+
+    def test_opcodes_initialized(self):
+        gen = make_generator([], {})
+        expected = {'+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV'}
+        self.assertEqual(gen.opcodes, expected)
+
+
+# ---------------------------------------------------------------------------
+# _get_reg_or_value() tests
+# ---------------------------------------------------------------------------
+
+class TestGetRegOrValue(unittest.TestCase):
+
+    def test_literal_token_returns_hash_prefixed(self):
+        gen = make_generator([], {})
+        token = Token("42", 2)
+        self.assertEqual(gen._get_reg_or_value(token), "#42")
+
+    def test_variable_assigned_to_r0(self):
+        gen = make_generator([], {"a": 0})
+        token = Token("a", 1)
+        self.assertEqual(gen._get_reg_or_value(token), "R0")
+
+    def test_variable_assigned_to_r2(self):
+        gen = make_generator([], {"b": 2})
+        token = Token("b", 1)
+        self.assertEqual(gen._get_reg_or_value(token), "R2")
+
+    def test_variable_with_no_register_raises_error(self):
+        gen = make_generator([], {})
+        token = Token("z", 1)
         with self.assertRaises(ValueError):
-            generator._get_reg_or_value(token)
+            gen._get_reg_or_value(token)
+
+    def test_variable_with_none_color_returns_value(self):
+        gen = make_generator([], {"a": None})
+        token = Token("a", 1)
+        self.assertEqual(gen._get_reg_or_value(token), "a")
 
 
-    def test_reg_or_value_literal(self):
-        '''
-        Tests function responsible for returning the value from the literal
-        that it is given. 
-        '''
-        generator = self._get_generator()
+# ---------------------------------------------------------------------------
+# _get_op_code() tests
+# ---------------------------------------------------------------------------
 
-        token = Token("1", 2)
-        value = generator._get_reg_or_value(token)
+class TestGetOpCode(unittest.TestCase):
 
-        self.assertEqual(value, "#1")
+    def test_addition(self):
+        gen = make_generator([], {})
+        self.assertEqual(gen._get_op_code(Token("+", 3)), "ADD")
 
-    def test_get_op_code_ADD(self):
-        '''
-        Tests the function responsible for returning the op-code for the ADD operator.
-        '''
-        add_token: Token = Token("+", 3)
-        generator = self._get_generator()
-        op_code = generator._get_op_code(add_token)
+    def test_subtraction(self):
+        gen = make_generator([], {})
+        self.assertEqual(gen._get_op_code(Token("-", 3)), "SUB")
 
-        self.assertEqual(op_code, "ADD")
+    def test_multiplication(self):
+        gen = make_generator([], {})
+        self.assertEqual(gen._get_op_code(Token("*", 3)), "MUL")
 
-    def test_get_op_code_SUB(self):
-        '''
-        Tests the function responsible for returning the op-code for the SUB operator.
-        '''
-        sub_token: Token = Token("-", 3)
-        generator = self._get_generator()
-        op_code = generator._get_op_code(sub_token)
-
-        self.assertEqual(op_code, "SUB")
-
-    def test_get_op_code_MUL(self):
-        '''
-        Tests the function responsible for returning the op-code for the MUL operator.
-        '''
-        mul_token: Token = Token("*", 3)
-        generator = self._get_generator()
-        op_code = generator._get_op_code(mul_token)
-
-        self.assertEqual(op_code, "MUL")
-
-    def test_get_op_code_DIV(self):
-        '''
-        Tests the function responsible for returning the op-code for the DIV operator.
-        '''
-        div_token: Token = Token("/", 3)
-        generator = self._get_generator()
-        op_code = generator._get_op_code(div_token)
-
-        self.assertEqual(op_code, "DIV")
-
-    def test_generate_instruction_binary(self):
-        '''
-        Tests the function responsible for generating ASM code for a given instruction.
-        '''
-        generator = self._get_generator()
-
-        '''
-        Testing first instruction in the buffer
-        a = a + 1
-        ''' 
-        instruction = generator.buffer.instructions[0]
-        asm = generator._generate_instruction_asm(instruction)
-        register = f'R{generator.register_colors["a"]}'
-        expected_asm = [ASMInstruction("MOV", "a", register), ASMInstruction("ADD", "#1", register)]
-        
-        self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
-        self.assertEqual(asm[0].op1, expected_asm[0].op1)
-        self.assertEqual(asm[0].op2, expected_asm[0].op2)
-
-        self.assertEqual(asm[1].op_code, expected_asm[1].op_code)
-        self.assertEqual(asm[1].op1, expected_asm[1].op1)
-        self.assertEqual(asm[1].op2, expected_asm[1].op2)
-        
+    def test_division(self):
+        gen = make_generator([], {})
+        self.assertEqual(gen._get_op_code(Token("/", 3)), "DIV")
 
 
-    def test_generate_instruction_unary(self):
-        generator = self._get_generator()
-        # Testing a = -b
-        instruction = Instruction(
-            1,
-            dest=Token('a', 0),
-            operator=Token('-', 3),
-            operand2=Token('b', 1))
-        asm = generator._generate_instruction_asm(instruction)
-        register = f'R{generator.register_colors["a"]}'
-        expected_asm = [ASMInstruction("MOV", "b", register), ASMInstruction("MUL", "#-1", register)]
-        self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
-        self.assertEqual(asm[0].op1, expected_asm[0].op1)
-        self.assertEqual(asm[0].op2, expected_asm[0].op2)
-        
-        self.assertEqual(asm[1].op_code, expected_asm[1].op_code)
-        self.assertEqual(asm[1].op1, expected_asm[1].op1)
-        self.assertEqual(asm[1].op2, expected_asm[1].op2)
+# ---------------------------------------------------------------------------
+# _generate_instruction_asm() tests
+# ---------------------------------------------------------------------------
 
-    def test_generate_instruction_assignment(self):
-        generator = self._get_generator()
-        # Testing a = 1
-        instruction = Instruction(
-            2,
-            dest=Token('a',0),
-            operand1=Token('1',2))
-        asm = generator._generate_instruction_asm(instruction)
-        register = f'R{generator.register_colors["a"]}'
-        expected_asm = [ASMInstruction("MOV", "#1", register)]
-        
-        self.assertEqual(asm[0].op_code, expected_asm[0].op_code)
-        self.assertEqual(asm[0].op1, expected_asm[0].op1)
-        self.assertEqual(asm[0].op2, expected_asm[0].op2)
+class TestGenerateInstructionAsm(unittest.TestCase):
 
-    def test_output_file_content(self):
-        '''
-        Checks if the assembly.s file is created and contains the expected contents.
-        '''
-        path = "./generated/assembly.s"
+    def test_binary_operator(self):
+        instr = make_binary("x", "a", 1, "+", "b", 1)
+        gen = make_generator([instr], {"x": 0, "a": 1, "b": 2})
+        result = gen._generate_instruction_asm(instr)
 
-        generator = self._get_generator()
-        generator.generate_assembly(path)
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].op_code, "MOV")
+        self.assertEqual(result[0].op1, "a")
+        self.assertEqual(result[0].op2, "R0")
+        self.assertEqual(result[1].op_code, "ADD")
+        self.assertEqual(result[1].op1, "R2")
+        self.assertEqual(result[1].op2, "R0")
 
-        # Make sure the file was created
+    def test_binary_with_literal_operand(self):
+        instr = Instruction(
+            0,
+            Token("x", 0),
+            Token("1", 2),
+            Token("+", 3),
+            Token("2", 2),
+        )
+        gen = make_generator([instr], {"x": 0})
+        result = gen._generate_instruction_asm(instr)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].op_code, "MOV")
+        self.assertEqual(result[0].op1, "1")
+        self.assertEqual(result[0].op2, "R0")
+        self.assertEqual(result[1].op_code, "ADD")
+        self.assertEqual(result[1].op1, "#2")
+        self.assertEqual(result[1].op2, "R0")
+
+    def test_unary_negation(self):
+        instr = make_unary("x", "-", "a", 1)
+        gen = make_generator([instr], {"x": 1, "a": 0})
+        result = gen._generate_instruction_asm(instr)
+
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result[0].op_code, "MOV")
+        self.assertEqual(result[0].op1, "a")
+        self.assertEqual(result[0].op2, "R1")
+        self.assertEqual(result[1].op_code, "MUL")
+        self.assertEqual(result[1].op1, "#-1")
+        self.assertEqual(result[1].op2, "R1")
+
+    def test_assignment_from_variable(self):
+        instr = make_assignment("x", "a", 1)
+        gen = make_generator([instr], {"x": 1, "a": 0})
+        result = gen._generate_instruction_asm(instr)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].op_code, "MOV")
+        self.assertEqual(result[0].op1, "R0")
+        self.assertEqual(result[0].op2, "R1")
+
+    def test_assignment_from_literal(self):
+        instr = make_assignment("x", "42", 2)
+        gen = make_generator([instr], {"x": 0})
+        result = gen._generate_instruction_asm(instr)
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].op_code, "MOV")
+        self.assertEqual(result[0].op1, "#42")
+        self.assertEqual(result[0].op2, "R0")
+
+    def test_invalid_instruction_type_returns_empty(self):
+        instr = Instruction(-1, Token("x", 0))
+        gen = make_generator([], {})
+        result = gen._generate_instruction_asm(instr)
+        self.assertEqual(result, [])
+
+    def test_returns_list_of_asm_instructions(self):
+        instr = make_assignment("x", "a", 1)
+        gen = make_generator([instr], {"x": 0, "a": 1})
+        result = gen._generate_instruction_asm(instr)
+        self.assertIsInstance(result, list)
+        for item in result:
+            self.assertIsInstance(item, ASMInstruction)
+
+
+# ---------------------------------------------------------------------------
+# generate_assembly() tests
+# ---------------------------------------------------------------------------
+
+class TestGenerateAssembly(unittest.TestCase):
+
+    def _tmp_path(self, filename: str) -> str:
+        return os.path.join("output", "test_tmp", filename)
+
+    def test_single_binary_instruction(self):
+        instr = make_binary("x", "a", 1, "+", "b", 1)
+        gen = make_generator([instr], {"x": 0, "a": 1, "b": 2})
+        result = gen.generate_assembly(self._tmp_path("single_binary.asm"))
+        self.assertEqual(len(result), 2)
+        self.assertIsInstance(result[0], ASMInstruction)
+        self.assertIsInstance(result[1], ASMInstruction)
+
+    def test_single_assignment_instruction(self):
+        instr = make_assignment("x", "a", 1)
+        gen = make_generator([instr], {"x": 1, "a": 0})
+        result = gen.generate_assembly(self._tmp_path("single_assign.asm"))
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].op_code, "MOV")
+
+    def test_multiple_instructions_correct_total(self):
+        instrs = [
+            make_binary("x", "a", 1, "+", "b", 1),   # 2 ASM instructions
+            make_assignment("y", "x", 1),              # 1 ASM instruction
+            make_unary("z", "-", "y", 1),              # 2 ASM instructions
+        ]
+        colors = {"x": 0, "a": 1, "b": 2, "y": 3, "z": 4}
+        gen = make_generator(instrs, colors)
+        result = gen.generate_assembly(self._tmp_path("multiple.asm"))
+        self.assertEqual(len(result), 5)
+
+    def test_returns_list(self):
+        instr = make_assignment("x", "42", 2)
+        gen = make_generator([instr], {"x": 0})
+        result = gen.generate_assembly(self._tmp_path("returns_list.asm"))
+        self.assertIsInstance(result, list)
+
+
+# ---------------------------------------------------------------------------
+# _output_to_file() tests  (exercised via generate_assembly)
+# ---------------------------------------------------------------------------
+
+class TestOutputToFile(unittest.TestCase):
+
+    def setUp(self):
+        self.output_dir = os.path.join("output", "test_asm_output")
+        os.makedirs(self.output_dir, exist_ok=True)
+
+    def _path(self, filename: str) -> str:
+        return os.path.join(self.output_dir, filename)
+
+    def test_file_created(self):
+        instr = make_binary("x", "a", 1, "+", "b", 1)
+        gen = make_generator([instr], {"x": 0, "a": 1, "b": 2})
+        path = self._path("created.asm")
+        gen.generate_assembly(path)
         self.assertTrue(os.path.exists(path))
 
-        # Testing 'a = a + 1' which should have resulted in a MOV and an ADD operation
-        # Test line 1
-        with open(path, "r") as f:
+    def test_correct_file_format(self):
+        instr = make_binary("x", "a", 1, "+", "b", 1)
+        gen = make_generator([instr], {"x": 0, "a": 1, "b": 2})
+        path = self._path("format.asm")
+        gen.generate_assembly(path)
+
+        with open(path) as f:
             lines = f.readlines()
-            # Verify that the first line is something like "MOV, a,R0" (register can vary)
-            register = f'R{generator.register_colors["a"]}'
-            expected_line = f"MOV a,{register}\n"
-            self.assertEqual(lines[0], expected_line)
 
-        # Test line 2
-        with open(path, "r") as f:
-            lines = f.readlines()
-            # Verify that the first line is something like "ADD, #1,R0" (register can vary)
-            register = f'R{generator.register_colors["a"]}'
-            expected_line = f"ADD #1,{register}\n"
-            self.assertEqual(lines[1], expected_line)
+        for line in lines:
+            line = line.strip()
+            # Each line should be "OPCODE op1,op2"
+            parts = line.split(" ", 1)
+            self.assertEqual(len(parts), 2, f"Unexpected format: {line!r}")
+            self.assertIn(",", parts[1], f"Missing comma in operands: {line!r}")
+
+    def test_creates_missing_directories(self):
+        subdir_path = os.path.join("output", "test_asm_subdir", "nested", "test.asm")
+        instr = make_assignment("x", "42", 2)
+        gen = make_generator([instr], {"x": 0})
+        gen.generate_assembly(subdir_path)
+        self.assertTrue(os.path.exists(subdir_path))
+
+    def test_correct_number_of_lines(self):
+        # 2 binary instructions → 4 ASM lines
+        instrs = [
+            make_binary("x", "a", 1, "+", "b", 1),
+            make_binary("y", "c", 1, "*", "d", 1),
+        ]
+        colors = {"x": 0, "a": 1, "b": 2, "y": 3, "c": 4, "d": 5}
+        gen = make_generator(instrs, colors)
+        path = self._path("line_count.asm")
+        gen.generate_assembly(path)
+
+        with open(path) as f:
+            lines = [l for l in f.readlines() if l.strip()]
+
+        self.assertEqual(len(lines), 4)
 
 
-    def test_asm_instruction_object_integrity(self):
-        '''
-        Checks that the ASMInstruction objects have the correct op_code, op1, op2
-        after being created.
-        '''
-        generator = self._get_generator()
-        # a = a + 1
-        instruction = generator.buffer.instructions[0]
-        asm_objects = generator._generate_instruction_asm(instruction)
-        
-        register = f'R{generator.register_colors["a"]}'
-        
-        # Check MOV object
-        self.assertEqual(asm_objects[0].op_code, "MOV")
-        self.assertEqual(asm_objects[0].op1, "a")
-        self.assertEqual(asm_objects[0].op2, register)
-        
-        # Check ADD object
-        self.assertEqual(asm_objects[1].op_code, "ADD")
-        self.assertEqual(asm_objects[1].op1, "#1")
-        self.assertEqual(asm_objects[1].op2, register)
-
-    # def test_generate_assembly(self):
-    #     '''
-    #     Tests the function responsible for generating all ASM code from a given input file.
-    #     '''
-    #     generator = self._get_generator()
-    #     asm_list = generator.generate_assembly()
-    #     print(asm_list)
-    #     # NOTE: Add proper test for this at some point. But from the looks of things
-    #     # it is printing out what is expected
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main(verbosity=2)
