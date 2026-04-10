@@ -1,0 +1,5 @@
+a = b ^ c
+t1 = a % 3
+t2 = b & c
+t3 = a | b
+live: a
