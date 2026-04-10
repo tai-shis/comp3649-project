@@ -1,10 +1,18 @@
+import Input.Scanner (
+    createScanner,
+    scanAll)
+
+import Input.Parser (
+    parse)
+
 import Input.Token (
     TokenType(
         Destination,
         Variable,
         Literal,
         Operator),
-    createToken)
+    createToken,
+    tokenListToString)
 
 import Input.Instruction (
     Instructions,
@@ -49,8 +57,13 @@ ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variabl
 is = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]
 
 -- Private: runs generation process.
-gen :: Int -> Instructions -> IO ()
-gen registers instructions = do
+gen :: Int -> IO ()
+gen registers = do
+    scanner <- createScanner "Tests/Test-Inputs/input1.txt"
+    tokens <- scanAll scanner
+    putStrLn "=== Tokens ==="
+    mapM_ (putStrLn . tokenListToString) tokens
+    let instructions = parse tokens
     let liveness = determineLiveness instructions
     let graph = buildGraph (getAllVariables instructions) liveness
     let colourings = colourGraph graph registers
@@ -58,4 +71,4 @@ gen registers instructions = do
     print assembly
 
 main :: IO ()
-main = gen 5 is
+main = gen 5
