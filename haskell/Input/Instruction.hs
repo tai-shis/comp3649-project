@@ -102,4 +102,4 @@ isVariable token = getType token == Variable
 
 -- Public: Gets all unique variables in the list of instructions
 getAllVariables :: Instructions -> [String]
-getAllVariables (Inst (instructions, _)) = nub $ concatMap (\ins -> getValue (getDestination ins) : map getValue (getVariables ins)) instructions
+getAllVariables (Inst (instructions, _)) = nub $ map (\ins -> getValue (getDestination ins)) instructions

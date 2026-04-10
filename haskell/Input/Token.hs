@@ -1,10 +1,11 @@
 module Input.Token (
     TokenType(..), 
-    Token, 
+    Token(..), 
     getValue, 
     getType,
     createToken,
-    tokenListToString
+    tokenListToString,
+    isLiveSymbol
 ) where
 
 import Lib.Helper (commaSeparatedList)
@@ -42,3 +43,7 @@ getValue (Tn value _) = value
 -- Public: Gets the type of a token
 getType :: Token -> TokenType
 getType (Tn _ tokenType) = tokenType
+
+-- Public: checks if a token is a live symbol
+isLiveSymbol :: Token -> Bool
+isLiveSymbol token = getType token == LiveSymbol

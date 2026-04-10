@@ -1,62 +1,106 @@
-import Input.Token (
-    TokenType(
-        Destination,
-        Variable,
-        Literal,
-        Operator),
-    createToken)
+import System.Environment (getArgs)
+import System.FilePath (takeBaseName)
+import System.Directory (createDirectoryIfMissing)
+import Data.Char (isDigit)
 
-import Input.Instruction (
-    Instructions,
-    createInstruction, 
+import Input.Instruction
+  ( Instructions,
+    createInstruction,
     fromArraysInstructions,
     getAllVariables,
     getInstructions,
-    getLiveVariables)
-
-import Intermediate.Liveness (
-    determineLiveness,
-    livenessInfo,
-    showLivenessStates)
-
-import Intermediate.InterferenceGraph (
-    Variable(..), 
-    Graph(..),
-    createVariable, 
-    getName, 
-    getNeighbors, 
-    createGraph, 
-    getVertices, 
-    addEdge,
-    buildGraph,
+    getLiveVariables,
+  )
+import Input.Parser
+  ( parse,
+  )
+import Input.Scanner
+  ( createScanner,
+    scanAll,
+  )
+import Input.Token
+  ( TokenType
+      ( Destination,
+        Literal,
+        Operator,
+        Variable
+      ),
+    createToken,
+    tokenListToString,
+  )
+import Intermediate.InterferenceGraph
+  ( Graph (..),
     Register,
     RegisterMap,
+    Variable (..),
+    addEdge,
+    buildGraph,
     colourGraph,
-    getColouring)
+    createGraph,
+    createVariable,
+    getColouring,
+    getName,
+    getNeighbors,
+    getVertices,
+  )
+import Intermediate.Liveness
+  ( determineLiveness,
+    livenessInfo,
+    showLivenessStates,
+    isLive,
+    getLivenessName
+  )
 
-import Output.AssemblyGenerator (
-    generateAssembly)
-
-
--- TEST DATA
-ins1 = createInstruction (createToken "a"  Destination, createToken "a"  Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins2 = createInstruction (createToken "t1" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "4"  Literal)
-ins3 = createInstruction (createToken "t2" Destination, createToken "t1" Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins4 = createInstruction (createToken "t3" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "3"  Literal)
-ins5 = createInstruction (createToken "b"  Destination, createToken "t2" Variable, createToken "-"  Operator, createToken "t3" Variable)
-ins6 = createInstruction (createToken "t4" Destination, createToken "b"  Variable, createToken "/"  Operator, createToken "2"  Literal)
-ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variable, createToken "+"  Operator, createToken "t5" Variable)
-
-is = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]
+import Output.Assembly ( Assembly)
+import Output.AssemblyGenerator
+  ( generateAssembly,
+  )
 
 -- Private: runs generation process.
-gen :: Int -> Instructions -> IO ()
-gen registers instructions = do
-    let liveness = determineLiveness instructions
-    let graph = buildGraph (getAllVariables instructions) liveness
-    let colourings = colourGraph graph registers
-    let assembly = generateAssembly (getInstructions instructions) (getLiveVariables instructions) (getColouring colourings)
-    print assembly
+gen :: Int -> String -> IO ()
+gen registers inputFile = do
+  putStrLn "Scanning and parsing through input file..."
+  scanner <- createScanner inputFile
+  tokens <- scanAll scanner
+  -- putStrLn "=== Tokens ==="
+  -- mapM_ (putStrLn . tokenListToString) tokens
+  let instructions = parse tokens
+  -- putStrLn "=== Instructions ==="
+  putStrLn "Generating instructions..."
+  -- print instructions
+  -- putStrLn "=== Liveness ==="
+  putStrLn "Determining liveness..."
+  let liveness = determineLiveness instructions
+  let initialLiveVars = map getLivenessName (filter isLive (head liveness))
+  -- putStrLn (showLivenessStates liveness)
+
+  putStrLn "Building interference graph..."
+  let graph = buildGraph (getAllVariables instructions) liveness
+  putStrLn "Colouring graph..."
+  let colourings = colourGraph graph registers
+  putStrLn "Generating assembly..."
+  let assembly = generateAssembly (getInstructions instructions) initialLiveVars (getLiveVariables instructions) (getColouring colourings)
+  -- putStrLn "=== Assembly ==="
+  writeAssembly assembly inputFile
+
+-- Private: Checks given args and returns the two valid inputs
+getValidArgs :: [String] -> (Int, String)
+getValidArgs [registers, inputFile] = if all isDigit registers
+  then (read registers, inputFile)
+  else error "Usage: gen <registers> <input-file>"
+getValidArgs _ = error "Usage: gen <registers> <input-file>"
+
+-- Private: write assembly to output file derived from input file name.
+writeAssembly :: Assembly -> String -> IO ()
+writeAssembly assembly inputFile = do
+  let outputFile = "./Generated/" ++ takeBaseName inputFile ++ ".s"
+  createDirectoryIfMissing True "./Generated"
+  putStrLn ("Writing assembly to " ++ outputFile)
+  writeFile outputFile (show assembly)
+
 
 main :: IO ()
-main = gen 5 is
+main = do
+  args <- getArgs
+  let (registers, inputFile) = getValidArgs args
+  gen registers inputFile
