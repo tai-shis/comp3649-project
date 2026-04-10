@@ -15,62 +15,62 @@ main = mapM_ putStrLn results
 results :: [String]
 results = 
     [
-        -- testing all the binary operations and permutations
-        check "Parse Binary: Var + Var" 
+        -- checking different math combinations
+        check "add two variables" 
             (getInstructions (parse [[Tn "a" Destination, Tn "=" Equals, Tn "b" Variable, Tn "+" Operator, Tn "c" Variable]]) 
             == [BinaryIns BinaryOperator (Tn "a" Destination) (Tn "b" Variable) (Tn "+" Operator) (Tn "c" Variable)]),
             
-        check "Parse Binary: Var * Lit" 
+        check "multiply variable by literal" 
             (getInstructions (parse [[Tn "t1" Destination, Tn "=" Equals, Tn "x" Variable, Tn "*" Operator, Tn "4" Literal]]) 
             == [BinaryIns BinaryOperator (Tn "t1" Destination) (Tn "x" Variable) (Tn "*" Operator) (Tn "4" Literal)]),
 
-        check "Parse Binary: Lit / Var" 
+        check "divide literal by variable" 
             (getInstructions (parse [[Tn "t2" Destination, Tn "=" Equals, Tn "10" Literal, Tn "/" Operator, Tn "y" Variable]]) 
             == [BinaryIns BinaryOperator (Tn "t2" Destination) (Tn "10" Literal) (Tn "/" Operator) (Tn "y" Variable)]),
 
-        check "Parse Binary: Lit - Lit" 
+        check "subtract two literals" 
             (getInstructions (parse [[Tn "res" Destination, Tn "=" Equals, Tn "100" Literal, Tn "-" Operator, Tn "50" Literal]]) 
             == [BinaryIns BinaryOperator (Tn "res" Destination) (Tn "100" Literal) (Tn "-" Operator) (Tn "50" Literal)]),
 
-        -- unary and assignment stuff
-        check "Parse Unary: Negation Var (-x)" 
+        -- unary and basic assignments
+        check "unary minus on a variable" 
             (getInstructions (parse [[Tn "a" Destination, Tn "=" Equals, Tn "-" Operator, Tn "x" Variable]]) 
             == [UnaryIns UnaryOperator (Tn "a" Destination) (Tn "-" Operator) (Tn "x" Variable)]),
 
-        check "Parse Unary: Negation Lit (-5)" 
+        check "unary minus on a number" 
             (getInstructions (parse [[Tn "b" Destination, Tn "=" Equals, Tn "-" Operator, Tn "5" Literal]]) 
             == [UnaryIns UnaryOperator (Tn "b" Destination) (Tn "-" Operator) (Tn "5" Literal)]),
 
-        check "Parse Assignment: Variable to Destination" 
+        check "assign var to dest" 
             (getInstructions (parse [[Tn "a" Destination, Tn "=" Equals, Tn "b" Variable]]) 
             == [AssignmentIns Assignment (Tn "a" Destination) (Tn "b" Variable)]),
 
-        check "Parse Assignment: Literal to Destination" 
+        check "assign literal to dest" 
             (getInstructions (parse [[Tn "a" Destination, Tn "=" Equals, Tn "100" Literal]]) 
             == [AssignmentIns Assignment (Tn "a" Destination) (Tn "100" Literal)]),
 
-        -- testing the live line extraction (lots of edge cases here)
-        check "Parse Live Variables: Single" 
+        -- live variables (the tricky part)
+        check "single live variable" 
             (getLiveVariables (parse [[Tn "Live" Live, Tn "res" LiveSymbol]]) 
             == ["res"]),
 
-        check "Parse Live Variables: Multiple (2)" 
+        check "two live variables" 
             (getLiveVariables (parse [[Tn "Live" Live, Tn "a" LiveSymbol, Tn "b" LiveSymbol]]) 
             == ["a", "b"]),
 
-        check "Parse Live Variables: Massive List (5)" 
+        check "lots of live variables at once" 
             (getLiveVariables (parse [[Tn "Live" Live, Tn "a" LiveSymbol, Tn "b" LiveSymbol, Tn "c" LiveSymbol, Tn "d" LiveSymbol, Tn "e" LiveSymbol]]) 
             == ["a", "b", "c", "d", "e"]),
 
-        check "Parse Live Variables: Missing Variables (Empty Live Line)" 
+        check "empty live line shouldn't break" 
             (getLiveVariables (parse [[Tn "Live" Live]]) 
             == []),
 
-        -- integration and breaking the parser
-        check "Parse Empty Program (No tokens)" 
+        -- integration and edge cases
+        check "empty program shouldn't crash" 
             (null (getInstructions (parse []))),
 
-        check "Parse Multi-Line Integration (2 Instructions + Live)" 
+        check "multi-line program with live vars" 
             (let ast = parse [
                         [Tn "x" Destination, Tn "=" Equals, Tn "y" Variable, Tn "+" Operator, Tn "z" Variable],
                         [Tn "a" Destination, Tn "=" Equals, Tn "10" Literal],
