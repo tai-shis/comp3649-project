@@ -9,11 +9,7 @@ from input.instruction import Instruction
 from input.instruction_buffer import InstructionBuffer
 from input.token import Token
 
-
-# ---------------------------------------------------------------------------
 # Helpers
-# ---------------------------------------------------------------------------
-
 def make_buffer(instructions: list[Instruction], live_objects: list[str]) -> InstructionBuffer:
     """Helper to build an InstructionBuffer from instructions and live objects."""
     buf = InstructionBuffer()
@@ -78,10 +74,7 @@ def tmp_path(filename: str) -> str:
     return os.path.join("output", "test_gen2", filename)
 
 
-# ---------------------------------------------------------------------------
 # Construction tests
-# ---------------------------------------------------------------------------
-
 class TestASMGeneratorConstruction(unittest.TestCase):
 
     def test_fields_initialized(self):
@@ -99,11 +92,7 @@ class TestASMGeneratorConstruction(unittest.TestCase):
         expected = {'+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV'}
         self.assertEqual(gen.opcodes, expected)
 
-
-# ---------------------------------------------------------------------------
 # _get_reg() tests
-# ---------------------------------------------------------------------------
-
 class TestGetReg(unittest.TestCase):
 
     def test_variable_assigned_to_r0(self):
@@ -125,10 +114,7 @@ class TestGetReg(unittest.TestCase):
             gen._get_reg(Token("a", 1))
 
 
-# ---------------------------------------------------------------------------
 # _get_op_code() tests
-# ---------------------------------------------------------------------------
-
 class TestGetOpCode(unittest.TestCase):
 
     def test_addition(self):
@@ -147,16 +133,12 @@ class TestGetOpCode(unittest.TestCase):
         gen = make_generator([], [], {})
         self.assertEqual(gen._get_op_code(Token("/", 3)), "DIV")
 
-
-# ---------------------------------------------------------------------------
 # _load_variable() tests
-# ---------------------------------------------------------------------------
-
 class TestLoadVariable(unittest.TestCase):
 
     def test_literal_returns_empty_list(self):
         gen = make_generator([], [], {})
-        result = gen._load_variable(Token("42", 2))
+        result = gen._load_variable(Token("17", 2))
         self.assertEqual(result, [])
 
     def test_variable_not_resident_emits_mov(self):
@@ -178,26 +160,18 @@ class TestLoadVariable(unittest.TestCase):
         result = gen._load_variable(Token("a", 1))
         self.assertEqual(result, [])
 
-
-# ---------------------------------------------------------------------------
 # _get_operand_str() tests
-# ---------------------------------------------------------------------------
-
 class TestGetOperandStr(unittest.TestCase):
 
     def test_literal_returns_hash_prefixed(self):
         gen = make_generator([], [], {})
-        self.assertEqual(gen._get_operand_str(Token("42", 2)), "#42")
+        self.assertEqual(gen._get_operand_str(Token("17", 2)), "#17")
 
     def test_variable_returns_register(self):
         gen = make_generator([], [], {"a": 1})
         self.assertEqual(gen._get_operand_str(Token("a", 1)), "R1")
 
-
-# ---------------------------------------------------------------------------
 # _generate_instruction_asm() tests
-# ---------------------------------------------------------------------------
-
 class TestGenerateInstructionAsm(unittest.TestCase):
 
     def _run(self, instr: Instruction, colors: dict, live_objects: list[str] = [],
@@ -296,13 +270,13 @@ class TestGenerateInstructionAsm(unittest.TestCase):
         self.assertEqual(len(reg_to_reg), 0)
 
     def test_assignment_from_literal(self):
-        # a = 42, a in R0
-        instr = make_assignment("a", "42", 2)
+        # a = 17, a in R0
+        instr = make_assignment("a", "17", 2)
         result, _ = self._run(instr, {"a": 0})
-        self.assertTrue(any(i.op_code == "MOV" and i.op1 == "#42" and i.op2 == "R0" for i in result))
+        self.assertTrue(any(i.op_code == "MOV" and i.op1 == "#17" and i.op2 == "R0" for i in result))
 
     def test_assignment_adds_dest_to_in_register(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         _, gen = self._run(instr, {"a": 0})
         self.assertIn("a", gen.in_register)
 
@@ -338,14 +312,11 @@ class TestGenerateInstructionAsm(unittest.TestCase):
         self.assertEqual(len(store_back), 0)
 
 
-# ---------------------------------------------------------------------------
 # _write_live_on_exit() tests
-# ---------------------------------------------------------------------------
-
 class TestWriteLiveOnExit(unittest.TestCase):
 
     def test_single_live_on_exit_variable(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], ["a"], {"a": 0})
         gen._write_live_on_exit()
         self.assertTrue(any(i.op_code == "MOV" and i.op1 == "R0" and i.op2 == "a"
@@ -361,20 +332,16 @@ class TestWriteLiveOnExit(unittest.TestCase):
         self.assertIn("b", stored_vars)
 
     def test_no_live_on_exit_variables(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], [], {"a": 0})
         gen._write_live_on_exit()
         self.assertEqual(gen.generated_asm, [])
 
-
-# ---------------------------------------------------------------------------
 # generate_assembly() integration tests
-# ---------------------------------------------------------------------------
-
 class TestGenerateAssembly(unittest.TestCase):
 
     def test_returns_list_of_asm_instructions(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], ["a"], {"a": 0})
         result = gen.generate_assembly(tmp_path("returns_list.s"))
         self.assertIsInstance(result, list)
@@ -382,14 +349,14 @@ class TestGenerateAssembly(unittest.TestCase):
             self.assertIsInstance(item, ASMInstruction)
 
     def test_file_created(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], ["a"], {"a": 0})
         path = tmp_path("file_created.s")
         gen.generate_assembly(path)
         self.assertTrue(os.path.exists(path))
 
     def test_file_format_correct(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], ["a"], {"a": 0})
         path = tmp_path("file_format.s")
         gen.generate_assembly(path)
@@ -401,20 +368,20 @@ class TestGenerateAssembly(unittest.TestCase):
             self.assertIn(",", parts[1])
 
     def test_creates_missing_directories(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], ["a"], {"a": 0})
         path = tmp_path("subdir/nested/test.s")
         gen.generate_assembly(path)
         self.assertTrue(os.path.exists(path))
 
     def test_single_assignment_literal(self):
-        # a = 42, live: a
-        # Expected: MOV #42,R0 / MOV R0,a
-        instr = make_assignment("a", "42", 2)
+        # a = 17, live: a
+        # Expected: MOV #17,R0 / MOV R0,a
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], ["a"], {"a": 0})
         gen.generate_assembly(tmp_path("single_assign.s"))
         lines = asm_lines(gen)
-        self.assertIn("MOV #42,R0", lines)
+        self.assertIn("MOV #17,R0", lines)
         self.assertIn("MOV R0,a", lines)
 
     def test_single_unary(self):
@@ -483,14 +450,14 @@ class TestGenerateAssembly(unittest.TestCase):
         self.assertIn("MOV #100,R1", lines)
 
     def test_live_on_exit_stored(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], ["a"], {"a": 0})
         gen.generate_assembly(tmp_path("live_exit.s"))
         lines = asm_lines(gen)
         self.assertIn("MOV R0,a", lines)
 
     def test_not_live_on_exit_not_stored(self):
-        instr = make_assignment("a", "42", 2)
+        instr = make_assignment("a", "17", 2)
         gen = make_generator([instr], [], {"a": 0})
         gen.generate_assembly(tmp_path("not_live_exit.s"))
         lines = asm_lines(gen)
