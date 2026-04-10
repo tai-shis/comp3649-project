@@ -12,12 +12,9 @@ OUTPUT_FILE = "./generated/assembly.s"
 
 def main():
     """
-    Generates assembly code from a three-address code input file, given a specified number of registers.
+    Generates assembly code from a three-address code input file.
 
-    :param args: Command-line arguments, where the first argument is the number of registers and the second is the input file path.
-    :type args: list[str]
-    :return: Exit code, where 0 indicates success and -1 indicates an error.
-    :rtype: int
+    Expects two command-line arguments: the number of registers and the input file path.
     """
     args = sys.argv[1:]
     

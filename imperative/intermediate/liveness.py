@@ -20,13 +20,13 @@ class Liveness:
 
     def _mark_liveness(self, variables: list[Token], line_liveness: dict[str, int], carry_vars: list[str]) -> None:
         """
-        Marks the liveness of a set of variables.
-        
-        :param instruction: The instruction to analyze.
-        :type instruction: Instruction
-        :param line_liveness: The current line's liveness dictionary.
+        Marks the liveness state of variables for a single instruction line.
+
+        :param variables: The variable tokens involved in the instruction.
+        :type variables: list[Token]
+        :param line_liveness: The current line's liveness dictionary, updated in place.
         :type line_liveness: dict[str, int]
-        :param carry_vars: The list of carry variables from the previous line.
+        :param carry_vars: Variables that were live after this line; cleared and repopulated.
         :type carry_vars: list[str]
         """
 
@@ -45,11 +45,8 @@ class Liveness:
             case 2:
                 line_liveness[variables[1].value] = self.states["unlive"] if variables[1].value not in carry_vars else self.states["live"]
 
-        # Make sure to clear the carry var array before repopulating
-        # This is done so that unliveness/liveness states are properly applied
+        # Rebuild carry_vars from the updated line so states are applied correctly
         carry_vars.clear()
-
-        # Repopulate carry vars
         for var, state in line_liveness.items():
             if state != self.states["defined"]:
                 carry_vars.append(var)
@@ -67,7 +64,7 @@ class Liveness:
 
         for live in self.instruction_buffer.list_live_objects():
             line_liveness[live] = self.states["live"]
-            carry_vars.append(live) # We carry these forward to the previous line (itll make sense later)
+            carry_vars.append(live)  # propagated backwards as the initial live-in set
 
         self.liveness.appendleft(line_liveness)
 
@@ -78,25 +75,18 @@ class Liveness:
         Determines the liveness state of variables in the instruction buffer.
         """
         
-        # This algorithm is freaky, will try to comment it as best as possible
-        carry_vars: list[str] = [] # Holds variables that were were live and not defined in the last line, 
+        # Variables live after this line that must be propagated to the previous line
+        carry_vars: list[str] = []
 
-        # First, determine liveness for after this code block (found in the live: etc. section)
-        # and also get any carry variables (i.e. variables that are live)
+        # Seed carry_vars from the live: section, then iterate backwards through instructions
         carry_vars = self._determine_initial_liveness()
-        # Here, carry vars are just what is after "live: " in the input stream
 
-        # We iterate backwards, finding the last use of a variable, then marking when it gets defined
         for instruction in reversed(self.instruction_buffer.list_instructions()):
-            line_liveness: dict[str, int] = {} # Holds liveness for the current line
+            line_liveness: dict[str, int] = {}
 
-            # Okay, we now have to grab all the variables in the line
             variables: list[Token] = instruction.get_variables()
-            
-            # Now we can mark liveness
             self._mark_liveness(variables, line_liveness, carry_vars)
-            # Appending left to reverse the order as we go
-            self.liveness.appendleft(line_liveness)
+            self.liveness.appendleft(line_liveness)  # prepend to restore forward order
 
     def get_liveness(self) -> list[dict[str, int]]:
         """
@@ -120,7 +110,7 @@ class Liveness:
             line_string = "["
             for var, state in line_liveness.items():
                 match state:
-                    case 0: # For some reason, the states dict doesn't work here
+                    case 0:
                         state_str = "defined"
                     case 1:
                         state_str = "live"

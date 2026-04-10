@@ -35,20 +35,18 @@ class Scanner:
         return f"index: {self.index}, buffer: {[str(token) for token in self.buffer]}"
 
     def _reset(self):
-        """
-            Reset the scanner's internal state, excluding the input stream
-        """
+        """Resets the scanner's internal state, excluding the input stream."""
         self.index = 0
         self.buffer = []
         self.reading = "instructions"
 
     def _identify(self, symbol: str) -> int:
         """
-            Identifies the given object/string into its tokenized 'type'.
+        Identifies the given symbol into its tokenized type.
 
-            :return: Identified type as an integer.
-            :rtype: int
-            :raises ValueError: If the symbol contains invalid characters.
+        :return: Identified type as an integer.
+        :rtype: int
+        :raises ValueError: If the symbol contains invalid characters.
         """
 
         if symbol == '\n':
@@ -74,7 +72,6 @@ class Scanner:
         if any(char in symbol for char in self.invalid) or any(op in symbol for op in self.operators):
             raise ValueError(f"Invalid character in symbol: {symbol}")
 
-        # If a symbol starting with a number is valid, comment the following check:
         if symbol[0].isdigit():
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
@@ -83,13 +80,12 @@ class Scanner:
 
     def _tokenize(self, symbol: str) -> Token:
         """
-            Tokenizes the given symbol into a Token object if valid.
-    
-            :param symbol: Read in symbol to be tokenized
-            :type symbol: str
-            :return: Identified symbol as a Token, if valid
-            :rtype: Token
+        Tokenizes the given symbol into a Token object if valid.
 
+        :param symbol: Symbol to be tokenized.
+        :type symbol: str
+        :return: Identified symbol as a Token.
+        :rtype: Token
         """
         type: int = self._identify(symbol)
 
@@ -97,12 +93,11 @@ class Scanner:
 
     def _readline(self) -> bool:
         """
-            Tokenizes a line of the input into a list of tokens in the internal buffer.
-            Error checking for valid order of tokens is not done. However, valid characters
-            should be checked when obtaining the type.
+        Tokenizes a line of the input into a list of tokens in the internal buffer.
+        Token order is not validated here; character validity is checked during type identification.
 
-            :return: True if EOF, False otherwise.
-            :rtype: bool
+        :return: True if EOF, False otherwise.
+        :rtype: bool
         """
         
         # Leading whitespace increases time to tokenize, get rid of it
@@ -145,10 +140,10 @@ class Scanner:
 
     def next_token(self) -> Token:
         """
-            Get the next token from the input stream, until all characters are read
- 
-            :return: Next token from the input stream. EOF token when input stream is exhausted.
-            :rtype: Token
+        Returns the next token from the input stream.
+
+        :return: Next token from the input stream, or an EOF token when exhausted.
+        :rtype: Token
         """
         if len(self.buffer) - 1 == self.index or len(self.buffer) == 0:
             if (self._readline()): # EOF reached

@@ -14,6 +14,8 @@ class InterferenceGraph:
 
         :param liveness: The liveness analysis object.
         :type liveness: Liveness
+        :param variables: The set of all variable names to add as nodes.
+        :type variables: set[str]
         """
 
         # First, construct all nodes using the instruction buffer's variables
@@ -68,6 +70,16 @@ class InterferenceGraph:
         return set(range(n)) - used
 
     def _solve_graph_coloring(self, index: int, n: int) -> bool:
+        """
+        Recursively attempts to color the graph using backtracking.
+
+        :param index: Index of the current node to color.
+        :type index: int
+        :param n: Number of colors available.
+        :type n: int
+        :return: True if a valid coloring was found, False otherwise.
+        :rtype: bool
+        """
         if self._is_solved():
             return True
         

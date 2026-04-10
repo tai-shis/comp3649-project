@@ -16,10 +16,7 @@ class Token:
         self.type: int = type
 
     def type_string(self):
-        """
-            Returns the human-readable representation of the
-            token's type.
-        """
+        """Returns the human-readable representation of the token's type."""
 
         return self.types[self.type]
 

@@ -11,8 +11,6 @@ class ASMGenerator:
         self.buffer: InstructionBuffer = instruction_buffer
         self.register_colors: dict[str, int | None] = interference_graph.colors
 
-        # This will be formatted like ["MOV a,R0", "ADD #1,R0"] where each string entry can be separated by a "\n" when being printed
-        # out to the console of output file
         self.generated_asm: list[ASMInstruction] = []
         
         self.opcodes = {
@@ -23,18 +21,16 @@ class ASMGenerator:
         }
 
     def _get_reg_or_value(self, token: Token) -> str:
-        '''
-        Converts a Token into its assembly string representation.
+        """
+        Converts a Token into its assembly operand string.
 
-        If the Token is a literal/constant, it returns the value with '#' prefixed.
-        If the Token is a variable, it finds which register the variable is assigned to
-        and returns that.
+        Literals are prefixed with '#'; variables are resolved to their assigned register.
 
-        :param token: The token to convert
+        :param token: The token to convert.
         :type token: Token
-        :return: The assembly operand string
-        :rtype: str  
-        '''
+        :return: The assembly operand string.
+        :rtype: str
+        """
         if (token.type == 2): # 'literal' Token type
             return f"#{token.value}"
 
@@ -43,34 +39,32 @@ class ASMGenerator:
 
         register = self.register_colors[token.value]
         if register is None:
-            # Just return the value held in the Token as a fail safe
             return str(token.value)
 
-        return f"R{register}" # Return the R{some number} register
+        return f"R{register}"
         
 
     def _get_op_code(self, operator: Token) -> str:
-        '''
-        Gets the op-code for the given operator from a three-address-instruction.
+        """
+        Returns the assembly op-code for the given operator token.
 
-        :param operator: The operator we need to get the op-code for
+        :param operator: The operator token.
         :type operator: Token
-        :return: The string representing the op-code
+        :return: The op-code string (e.g. 'ADD', 'SUB').
         :rtype: str
-        '''
+        """
 
         return self.opcodes[operator.value]
                 
     def _generate_instruction_asm(self, instruction: Instruction) -> list[ASMInstruction]:
-        '''
-        Generates the assembly code for 1 instruction in the instruction buffer.
-        Probably going to be calling this function in some sort of loop.
+        """
+        Generates the assembly instructions for a single three-address instruction.
 
-        :param instruction: The instruction to generate asm code for
+        :param instruction: The instruction to generate assembly for.
         :type instruction: Instruction
-        :return: The list of strings containing assembly code for the instruction
-        :rtype: list[str]
-        '''
+        :return: The list of assembly instructions.
+        :rtype: list[ASMInstruction]
+        """
 
         match instruction.type:
             case 0: # Binary Operator
@@ -95,18 +89,15 @@ class ASMGenerator:
                 op_symbol = instruction.operator.value
 
                 if (op_symbol == '-'):
-                    # Negation
+                    # Negation: MOV source into dest, then multiply by -1
                     operation1 = ASMInstruction("MOV", source, dest)
                     operation2 = ASMInstruction("MUL", "#-1", dest)
 
                     return [operation1, operation2]
-                # Not sure what other cases go here as anything like a += 1 would be treated
-                # as binary operator and I'm not sure if that is even being supported
 
                 return [ASMInstruction("MOV", source, dest)]
                 
             case 2: # Assignment
-                # In this case the operator will always be a MOV
                 dest = self._get_reg_or_value(instruction.dest)
                 source = self._get_reg_or_value(instruction.operand1)
                 return [ASMInstruction("MOV", source, dest)]
@@ -115,10 +106,9 @@ class ASMGenerator:
                 return []
     
     def _output_to_file(self, input_filename: str) -> None:
-        '''
-        Writes the generated assembly instructions to <filename> 
-        in the current directory.
-        '''
+        """
+        Writes the generated assembly instructions to the given file path.
+        """
         output_name = f"{input_filename}"
         
         os.makedirs(os.path.dirname(output_name), exist_ok=True)
@@ -129,12 +119,12 @@ class ASMGenerator:
                 f.write(f"{instruction_str}\n")
 
     def generate_assembly(self, input_filename: str) -> list[ASMInstruction]:
-        '''
-        Generates the assembly for every instruction contained within the instruction buffer.
-        Returns the assembly as a list but also writes the assembly to an output file
-        :return: The list of assembly instructions.
-        :rtype: list[str]
-        '''
+        """
+        Generates assembly for every instruction in the buffer and writes it to a file.
+
+        :return: The list of generated assembly instructions.
+        :rtype: list[ASMInstruction]
+        """
         for instruction in self.buffer.instructions:
             next_instructions: list[ASMInstruction] = self._generate_instruction_asm(instruction)
             self.generated_asm.extend(next_instructions)

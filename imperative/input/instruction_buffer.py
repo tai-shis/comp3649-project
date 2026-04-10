@@ -26,21 +26,21 @@ class InstructionBuffer:
         """
         self.live_objects.append(live_object)
 
-    def list_instructions(self) -> list[Token]:
+    def list_instructions(self) -> list[Instruction]:
         """
-            Lists all instructions in the instruction buffer.
+        Lists all instructions in the instruction buffer.
 
-            :return: A list of string representations of all instructions.
-            :rtype: list[str]
+        :return: A list of all instructions.
+        :rtype: list[Instruction]
         """
         return [node.value for node in self.instructions.iternodes()]
 
     def list_live_objects(self) -> list[str]:
         """
-            Lists all live objects in the instruction buffer.
-            
-            :return: A list of all live objects.
-            :rtype: list[str]
+        Lists all live objects in the instruction buffer.
+
+        :return: A list of all live objects.
+        :rtype: list[str]
         """
 
         return [node.value for node in self.live_objects.iternodes()]
@@ -66,6 +66,7 @@ class InstructionBuffer:
     def set_occurred_variables(self, variables: set[str]) -> None:
         """
         Sets the occurred variables in the instruction buffer.
+
         :param variables: The set of occurred variables.
         :type variables: set[str]
         """
@@ -73,7 +74,8 @@ class InstructionBuffer:
     
     def get_occurred_variables(self) -> set[str]:
         """
-        Gets a set of unique occurred variables in the instruction buffer.
+        Gets the set of unique variables that occurred in the instruction buffer.
+
         :return: A set of occurred variables.
         :rtype: set[str]
         """
