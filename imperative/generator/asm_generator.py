@@ -76,13 +76,31 @@ class ASMGenerator:
             case 0: # Binary Operator
                 
                 dest = self._get_reg_or_value(instruction.dest)
-                op1 = instruction.operand1.value
-                op2 = self._get_reg_or_value(instruction.operand2)
+                return_dest = instruction.dest.value
+
+                # If first instruction is a literal we need to treat op1 and op2 differently
+                # i.e. for something like t2 = 5 * a, we don't want MUL R1,R1 if t2 and a have
+                # R1 assigned to them, because there isn't a collision
+                # We don't want to create a collision in the final output
+                if (instruction.operand1.type == 2):
+                    op1 = self._get_reg_or_value(instruction.operand1)
+                    op2 = instruction.operand2.value
+                else:
+                    # This branch is handling stuff like: a = b + c where we don't want
+                    # something like ADD R1,R0 if a = R0 and c = R1
+                    # Instead we would want ADD c,R0
+                    op1 = instruction.operand1.value
+                    if instruction.operand2.type == 2:
+                        op2 = self._get_reg_or_value(instruction.operand2)
+                    else:
+                        op2 = instruction.operand2.value
+
                 op_code = self._get_op_code(instruction.operator)
-                
+
                 operation1 = ASMInstruction("MOV", op1, dest)
                 operation2 = ASMInstruction(op_code, op2, dest)
-                return [operation1, operation2]
+                operation3 = ASMInstruction("MOV", dest, return_dest)
+                return [operation1, operation2, operation3]
 
             case 1: # Unary Operator
                 # Example: Assume b is already live and stored in R0
@@ -98,18 +116,25 @@ class ASMGenerator:
                     # Negation
                     operation1 = ASMInstruction("MOV", source, dest)
                     operation2 = ASMInstruction("MUL", "#-1", dest)
-
-                    return [operation1, operation2]
+                    operation3 = ASMInstruction("MOV", dest, instruction.dest.value)
+                    return [operation1, operation2, operation3]
                 # Not sure what other cases go here as anything like a += 1 would be treated
                 # as binary operator and I'm not sure if that is even being supported
 
-                return [ASMInstruction("MOV", source, dest)]
+                return [ASMInstruction("MOV", source, dest), ASMInstruction("MOV", dest, instruction.dest.value)]
                 
             case 2: # Assignment
                 # In this case the operator will always be a MOV
                 dest = self._get_reg_or_value(instruction.dest)
                 source = self._get_reg_or_value(instruction.operand1)
-                return [ASMInstruction("MOV", source, dest)]
+                
+                if (instruction.operand1.type == 2):
+                    operation1 = ASMInstruction("MOV", source, dest)
+                else:
+                    operation1 = ASMInstruction("MOV", instruction.operand1.value, dest)
+
+                operation2 = ASMInstruction("MOV", dest, instruction.dest.value)
+                return [operation1, operation2]
             
             case _:
                 return []
