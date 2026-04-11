@@ -10,6 +10,16 @@ class InterferenceGraph:
         self.colors: dict[str, int | None] = {}
 
     def build_graph(self, liveness: Liveness, variables: set[str]) -> None:
+        """
+        Builds interference graph based on liveness and instruction operands.
+        Adds a node for every variable, then for every variable conflicting
+        with another (i.e. live at the same time or appearing in the same
+        instructions), an edge is added.
+        
+        :param liveness: The liveness object containing line-by-line 
+        variable liveness states.
+        :param variables: All variables occurring in the program.
+        """
         for var in variables:
             self.interference_graph.add_node(var)
             self.colors[var] = None

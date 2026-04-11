@@ -10,10 +10,6 @@
 | `build_graph()` — no edge for defined variable | Liveness line: `{"a": 0, "b": 1}` | No edge between `"a"` and `"b"` (`a` is defined, state == 2) | Passed — `has_edge("x", "a")` is `False` |
 | `build_graph()` — no self-edges | Any liveness with a single live variable | No self-edges in graph | Passed — `has_edge(node, node)` is `False` for all nodes |
 | `build_graph()` — no duplicate edges | Same pair of live vars appearing on multiple lines | Only one edge between the pair | Passed — `number_of_edges("a", "b") == 1` |
-| `_is_solved()` — returns False when colors are None | Graph with uncolored nodes | Returns `False` | Passed — returns `False` |
-| `_is_solved()` — returns False when neighbors share color | Two connected nodes with same color | Returns `False` | Passed — returns `False` |
-| `_is_solved()` — returns True when properly colored | All nodes colored, no neighbors share color | Returns `True` | Passed — returns `True` |
-| `_is_solved()` — returns True on empty graph | `InterferenceGraph()` with no nodes | Returns `True` | Passed — returns `True` |
 | `_possible_colors()` — all colors available | Node with no colored neighbors, `n = 3` | Returns `{0, 1, 2}` | Passed — returns `{0, 1, 2}` |
 | `_possible_colors()` — excludes neighbor colors | Node with two colored neighbors (`a=0`, `b=1`), `n = 3` | Returns `{2}` | Passed — returns `{2}` |
 | `_possible_colors()` — no colors available | Node whose neighbors use all `n` colors | Returns `set()` | Passed — returns `set()` |
