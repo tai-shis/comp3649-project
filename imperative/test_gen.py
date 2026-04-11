@@ -1,5 +1,7 @@
+'''
+Run this file for testing.
+'''
 import sys
-from io import StringIO
 from input.scanner import Scanner
 from input.parser import Parser
 from input.instruction_buffer import InstructionBuffer
@@ -39,7 +41,7 @@ def get_generator(input_file: str, num_regs: int) -> ASMGenerator:
 
 def open_file(input_file: str):
     try:
-        file = open("tests/test-input/" + input_file, 'r')
+        file = open("test-input/" + input_file, 'r')
     except FileNotFoundError:
         print(f"File not found: {input_file}")
         sys.exit(1)
@@ -127,9 +129,22 @@ if __name__ == "__main__":
     test_binary_ops() # Want successful ASM output - Success
     test_chained_reuse() # Want successful ASM output - Success
     test_empty_file() # Want empty '.s' file - Success
-    test_invalid_operators() # Looking for error - Error confirmed
-    test_malformed_syntax() # Looking for error - Error confirmed
-    test_missing_operands() # Looking for error - Error confirmed
+    
+    try:
+        test_invalid_operators() # Looking for error - Error confirmed
+    except:
+        print("Error successfully")
+    
+    try:
+        test_malformed_syntax() # Looking for error - Error confirmed    
+    except:
+        print("Error successfully")
+    
+    try:
+        test_missing_operands() # Looking for error - Error confirmed 
+    except ValueError as ve:
+        print("Error successfully")
+
     test_mixed_all_types() # Want successful ASM output - Success
     test_multiple_live_vars() # Want successful ASM output - Success
     test_no_live_declaration() # Want ASM output with no MOV back into memory at the end of the output - Success
@@ -139,4 +154,7 @@ if __name__ == "__main__":
     test_single_unary() # Looking for MOV, MUL #-1, MOV - Success
     test_unary_ops() # Looking for multiple instances similar to last test - Success
     test_undefined_variables() # Looking for two MOV into separate registers, add those registers, then MOV back to memory - Success
-    test_valid_then_invalid_operator() # Looking for an error to be raised in the console - Success
+    try:
+        test_valid_then_invalid_operator() # Looking for an error to be raised in the console - Success
+    except:
+        print("Error successfully")
