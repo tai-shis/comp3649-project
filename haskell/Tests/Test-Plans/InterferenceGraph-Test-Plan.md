@@ -23,7 +23,6 @@
 | builder edge | `buildGraph [] []` | returns empty graph | empty graph **PASS** |
 | builder nodes | buildGraph with 3 vars | creates all 3 vertices | created **PASS** |
 | builder logic | variables live at same time | draws edge between a and b | edge exists **PASS** |
-| builder logic | one live, one dead | no edge drawn | no edge **PASS** |
 | builder logic | isolated variable | stays disconnected | no edges **PASS** |
 | builder logic | same vars live on multiple lines | doesn't duplicate the edge | no duplicates **PASS** |
 | builder logic | prevents self loops | no edges from "a" to "a" | no self loops **PASS** |
