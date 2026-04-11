@@ -5,8 +5,6 @@ import Data.Char (isDigit)
 
 import Input.Instruction
   ( Instructions,
-    createInstruction,
-    fromArraysInstructions,
     getAllVariables,
     getInstructions,
     getLiveVariables,
@@ -18,40 +16,17 @@ import Input.Scanner
   ( createScanner,
     scanAll,
   )
-import Input.Token
-  ( TokenType
-      ( Destination,
-        Literal,
-        Operator,
-        Variable
-      ),
-    createToken,
-    tokenListToString,
-  )
 import Intermediate.InterferenceGraph
-  ( Graph (..),
-    Register,
-    RegisterMap,
-    Variable (..),
-    addEdge,
-    buildGraph,
+  ( buildGraph,
     colourGraph,
-    createGraph,
-    createVariable,
     getColouring,
-    getName,
-    getNeighbors,
-    getVertices,
   )
 import Intermediate.Liveness
   ( determineLiveness,
-    livenessInfo,
-    showLivenessStates,
     isLive,
-    getLivenessName
+    getLivenessName,
   )
-
-import Output.Assembly ( Assembly)
+import Output.Assembly (Assembly)
 import Output.AssemblyGenerator
   ( generateAssembly,
   )

@@ -4,16 +4,16 @@ module Output.AssemblyGenerator (
 ) where
 
 import Input.Token (
-    Token, 
-    TokenType(Literal), 
-    getValue, 
+    Token,
+    TokenType(Literal),
+    getValue,
     getType)
 
 import Input.Instruction (
     Instruction(
-        BinaryIns, 
-        UnaryIns, 
-        AssignmentIns), 
+        BinaryIns,
+        UnaryIns,
+        AssignmentIns),
     InstructionType(..))
 
 import Intermediate.InterferenceGraph (
@@ -21,12 +21,12 @@ import Intermediate.InterferenceGraph (
 
 import Output.Assembly (
     OpCode(
-        ADD, 
-        SUB, 
-        MUL, 
-        DIV, 
-        MOV), 
-    AssemblyInstruction(AssemblyInstruction), 
+        ADD,
+        SUB,
+        MUL,
+        DIV,
+        MOV),
+    AssemblyInstruction(AssemblyInstruction),
     Assembly(Assembly))
 
 -- imports specifically for testing
@@ -35,7 +35,7 @@ import Input.Instruction (getInstructions)
 
 -- Public: loops through all our instructions, translates them, and adds final stores for live variables
 generateAssembly :: [Instruction] -> [String] -> [String] -> RegisterMap -> Assembly
-generateAssembly instructions liveOnEntry liveOnExit registerMap = 
+generateAssembly instructions liveOnEntry liveOnExit registerMap =
     let -- creating MOVs for variables that need to be in registers at the start
         loadLiveOnEntry = [AssemblyInstruction MOV var (getRegister var registerMap) | var <- liveOnEntry, getRegister var registerMap /= var]
         -- translating the math instructions
@@ -55,11 +55,11 @@ generateSingleAsm (BinaryIns _ destination operand1 operator operand2) registerM
     -- case 3: keep the default behaviour
     | otherwise = [AssemblyInstruction MOV source1String destString, AssemblyInstruction finalOpCode source2String destString]
     where destString    = getOperand destination registerMap
-          source1String = getOperand operand1 registerMap 
+          source1String = getOperand operand1 registerMap
           source2String = getOperand operand2 registerMap
           finalOpCode   = getOpCode operator
 
-generateSingleAsm (UnaryIns _ destination operator operand) registerMap = 
+generateSingleAsm (UnaryIns _ destination operator operand) registerMap =
     if getValue operator == "-" then
         if sourceString == destString then
             [AssemblyInstruction MUL "#-1" destString] -- skips the MOV instruction and just negates the register (as the dead variable and the new variable are assigned at the same time)
@@ -73,7 +73,7 @@ generateSingleAsm (UnaryIns _ destination operator operand) registerMap =
     where destString   = getOperand destination registerMap
           sourceString = getOperand operand registerMap
 
-generateSingleAsm (AssignmentIns _ destination operand) registerMap = 
+generateSingleAsm (AssignmentIns _ destination operand) registerMap =
     if sourceString == destString then
         [] -- if the dead variable and the new variable are assigned to the same register at the same time, skip
     else
@@ -92,7 +92,7 @@ getOperand token registerMap =
 -- Private: helper function to loop through our register dictionary to find out which register a variable belongs to
 getRegister :: String -> RegisterMap -> String
 getRegister variableName [] = variableName  -- if the variable isn't in the map, just return it (prevents crashing)
-getRegister variableName ((knownVariable, assignedRegister):remainingMap) = 
+getRegister variableName ((knownVariable, assignedRegister):remainingMap) =
     if variableName == knownVariable then
         "R" ++ show assignedRegister
     else
@@ -107,8 +107,3 @@ getOpCode token
     | operatorString == "/" = DIV
     | otherwise             = ADD
     where operatorString = getValue token
-
-
--- -- Test Data: outputs formated machine code using our test instructions (in Instruction.hs) and first valid graph colouring
--- testAssembly :: Assembly
--- testAssembly = generateAssembly (getInstructions is) (head testColourGraph)

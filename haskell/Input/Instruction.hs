@@ -14,7 +14,7 @@ module Input.Instruction (
     getAllVariables
 ) where
 
-import Input.Token
+import Input.Token (Token, TokenType(Variable), getValue, getType)
 import Lib.Helper (commaSeparatedList)
 import Data.List(nub)
 
