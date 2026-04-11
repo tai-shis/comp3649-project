@@ -1,39 +1,39 @@
-# Token-Test-Plan
+# Token Test Plan
 
 | Category (Reason) | Test (Input) | Expected Output | Actual Output |
 |:------------------|:-------------|:----------------|:--------------|
-| `createToken` — getValue returns correct value | `getValue (createToken "x" Destination)` | `"x"` | `"x"` **PASS** |
-| `createToken` — getType returns correct type | `getType (createToken "x" Destination)` | `Destination` | `Destination` **PASS** |
-| `createToken` — Variable type | `getType (createToken "a" Variable)` | `Variable` | `Variable` **PASS** |
-| `createToken` — Literal type | `getType (createToken "42" Literal)` | `Literal` | `Literal` **PASS** |
-| `createToken` — Operator type | `getType (createToken "+" Operator)` | `Operator` | `Operator` **PASS** |
-| `createToken` — Equals type | `getType (createToken "=" Equals)` | `Equals` | `Equals` **PASS** |
-| `createToken` — Live type | `getType (createToken "live:" Live)` | `Live` | `Live` **PASS** |
-| `createToken` — LiveSymbol type | `getType (createToken "a," LiveSymbol)` | `LiveSymbol` | `LiveSymbol` **PASS** |
-| `createToken` — Newline type | `getType (createToken "\n" Newline)` | `Newline` | `Newline` **PASS** |
-| `createToken` — EOF type | `getType (createToken "" EOF)` | `EOF` | `EOF` **PASS** |
-| `getValue` — variable name | `getValue (createToken "abc" Variable)` | `"abc"` | `"abc"`  **PASS**|
-| `getValue` — empty string | `getValue (createToken "" EOF)` | `""` | `""` **PASS** |
-| `getValue` — operator symbol | `getValue (createToken "+" Operator)` | `"+"` | `"+"` **PASS** |
-| `getType` — Destination | `getType (createToken "x" Destination)` | `Destination` | `Destination` **PASS** |
-| `getType` — Literal | `getType (createToken "99" Literal)` | `Literal` | `Literal` **PASS** |
-| `getType` — EOF | `getType (createToken "" EOF)` | `EOF` | `EOF` **PASS** |
-| `Show` instance for `TokenType` — Destination | `show Destination` | `"Destination"` | `"Destination"` **PASS** |
-| `Show` instance for `TokenType` — Variable | `show Variable` | `"Variable"` | `"Variable"` **PASS** |
-| `Show` instance for `TokenType` — Literal | `show Literal` | `"Literal"` | `"Literal"` **PASS** |
-| `Show` instance for `TokenType` — Operator | `show Operator` | `"Operator"` | `"Operator"` **PASS** |
-| `Show` instance for `TokenType` — Equals | `show Equals` | `"Equals"` | `"Equals"` **PASS** |
-| `Show` instance for `TokenType` — Live | `show Live` | `"Live"` | `"Live"` **PASS** |
-| `Show` instance for `TokenType` — LiveSymbol | `show LiveSymbol` | `"LiveSymbol"` | `"LiveSymbol"` **PASS** |
-| `Show` instance for `TokenType` — Newline | `show Newline` | `"Newline"` | `"Newline"` **PASS** |
-| `Show` instance for `TokenType` — EOF | `show EOF` | `"EOF"` | `"EOF"` **PASS** |
-| `Show` instance for `Token` — variable | `show (createToken "x" Variable)` | `"x : Variable"` | `"x : Variable"` **PASS** |
-| `Show` instance for `Token` — literal | `show (createToken "42" Literal)` | `"42 : Literal"` | `"42 : Literal"` **PASS** |
-| `Show` instance for `Token` — operator | `show (createToken "+" Operator)` | `"+ : Operator"` | `"+ : Operator"` **PASS** |
-| `Show` instance for `Token` — EOF | `show (createToken "" EOF)` | `" : EOF"` | `" : EOF"` **PASS** |
-| `Eq` instance for `Token` — equal tokens | `createToken "x" Variable == createToken "x" Variable` | `True` | `True` **PASS** |
-| `Eq` instance for `Token` — different value | `createToken "x" Variable /= createToken "y" Variable` | `True` | `True` **PASS** |
-| `Eq` instance for `Token` — different type | `createToken "x" Variable /= createToken "x" Literal` | `True` | `True` **PASS** |
-| `Eq` instance for `Token` — both fields differ | `createToken "x" Variable /= createToken "42" Literal` | `True` | `True` **PASS** |
-| `Eq` instance for `TokenType` — equal | `Variable == Variable` | `True` | `True` **PASS** |
-| `Eq` instance for `TokenType` — unequal | `Variable /= Literal` | `True` | `True` **PASS** |
+| getters | `getValue` on variable | `"x"` | `"x"` **PASS** |
+| getters | `getType` on destination | `Destination` | `Destination` **PASS** |
+| creation | make Variable token | `Variable` type | correct **PASS** |
+| creation | make Literal token | `Literal` type | correct **PASS** |
+| creation | make Operator token | `Operator` type | correct **PASS** |
+| creation | make Equals token | `Equals` type | correct **PASS** |
+| creation | make Live token | `Live` type | correct **PASS** |
+| creation | make LiveSymbol token | `LiveSymbol` type | correct **PASS** |
+| creation | make Newline token | `Newline` type | correct **PASS** |
+| creation | make EOF token | `EOF` type | correct **PASS** |
+| extraction | `getValue` on abc | `"abc"` | `"abc"` **PASS** |
+| extraction | `getValue` on EOF | `""` (empty string) | `""` **PASS** |
+| extraction | `getValue` on operator | `"+"` | `"+"` **PASS** |
+| extraction | `getType` on dest | `Destination` | `Destination` **PASS** |
+| extraction | `getType` on literal | `Literal` | `Literal` **PASS** |
+| extraction | `getType` on EOF | `EOF` | `EOF` **PASS** |
+| printing types | `show Destination` | `"Destination"` | prints fine **PASS** |
+| printing types | `show Variable` | `"Variable"` | prints fine **PASS** |
+| printing types | `show Literal` | `"Literal"` | prints fine **PASS** |
+| printing types | `show Operator` | `"Operator"` | prints fine **PASS** |
+| printing types | `show Equals` | `"Equals"` | prints fine **PASS** |
+| printing types | `show Live` | `"Live"` | prints fine **PASS** |
+| printing types | `show LiveSymbol` | `"LiveSymbol"` | prints fine **PASS** |
+| printing types | `show Newline` | `"Newline"` | prints fine **PASS** |
+| printing types | `show EOF` | `"EOF"` | prints fine **PASS** |
+| printing tokens| show variable token | `"x : Variable"` | `"x : Variable"` **PASS** |
+| printing tokens| show literal token | `"42 : Literal"` | `"42 : Literal"` **PASS** |
+| printing tokens| show operator token | `"+ : Operator"` | `"+ : Operator"` **PASS** |
+| printing tokens| show EOF token | `" : EOF"` | `" : EOF"` **PASS** |
+| equality | identical tokens | `True` | `True` **PASS** |
+| inequality | different values | `False` | `False` **PASS** |
+| inequality | different types | `False` | `False` **PASS** |
+| inequality | completely different | `False` | `False` **PASS** |
+| type equality | `Variable == Variable` | `True` | `True` **PASS** |
+| type inequality| `Variable /= Literal` | `False` | `False` **PASS** |
