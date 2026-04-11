@@ -36,12 +36,13 @@ class InterferenceGraph:
 
         liveness_list = liveness.get_liveness()
         instructions = liveness.instruction_buffer.list_instructions()
+        
+        for i, line in enumerate(liveness_list[:-1]): 
 
-        for i, line in enumerate(liveness_list[:-1]):  # skip the final live: section
-            # Add edges between all non-unlive variables as before
             combs = combinations(
                 [var for var, state in line.items() if state == 1], r=2
             )
+
             for var1, var2 in combs:
                 self.interference_graph.add_edge(var1, var2)
 

@@ -71,6 +71,7 @@ gen registers inputFile = do
   -- putStrLn "=== Liveness ==="
   putStrLn "Determining liveness..."
   let liveness = determineLiveness instructions
+  let initialLiveVars = map getLivenessName (filter isLive (head liveness))
   -- putStrLn (showLivenessStates liveness)
 
   putStrLn "Building interference graph..."
@@ -78,7 +79,7 @@ gen registers inputFile = do
   putStrLn "Colouring graph..."
   let colourings = colourGraph graph registers
   putStrLn "Generating assembly..."
-  let assembly = generateAssembly (getInstructions instructions) (getLiveVariables instructions) (getColouring colourings)
+  let assembly = generateAssembly (getInstructions instructions) initialLiveVars (getLiveVariables instructions) (getColouring colourings)
   -- putStrLn "=== Assembly ==="
   writeAssembly assembly inputFile
 
