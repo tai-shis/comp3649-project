@@ -57,21 +57,74 @@
 - Ensure testing is complete and thorough. Update any tests to ensure the most coverage as possible and promptly fix any issues that arise
 
 ### Week 8
-<small>Last Updated: 01/03/2026</small>
+<small>Last Updated: 25/02/2026</small>
 > From here onwards, all reference to code modules is referring to the Haskell implementation unless otherwise stated.
 - Open Git Milestone for Input stage of Haskell solution  
-- Develop Scanner module accompanying Token class
-- Test Scanner
+- Prepare for project check in meeting finalizing the imperative solution as best as possible
+  - Prepare some questions (?) in advance
+- Group meeting to discuss thoughts on Haskell implmentation once guidance comes out
+
+### Week 9
+<small>Last Updated: 04/03/2026</small>
+- Complete as many finishing touches as possible ensure code generation is fully functional
+- Completed project check in meeting and have a group meeting discussing our next goals
+  - Optimizations
+  - Test coverage
+  - Test framework
+
+### Week 10
+<small>Last Updated: 10/03/2026</small>
+- Begin major work on the Haskell solution by starting with the `Token` and `Instruction` modules to represent a sequence of three address instructions and prepare for when the `Parser` and `Scanner` are implemented in the coming weeks
+- Write test plans and implement tests for the `Token` and `Instruction` modules. This should align with the new testing framework established after the suggestions from our check-in meeting. 
+
+### Week 11
+<small>Last Updated: 18/03/2026</small>
+- New testing framework being rolled out post check-in meeting for the imperative solution. So far we feel that we have done a good job at adhering to the testing framework (developing on separate `test` branch, not merging  the `feature` branch to main until the tests are passing). Our main goal now is to fix the lacking test documentation from the imperative solution and continue with the Haskell testing.
+- Begin rewriting Python test modules with test plans and new UnitTest cases for better coverage
+- Develop new modules:
+  - `InterferenceGraph`
+  - `Liveness`
+  - `Assembly`
+- Aim to get the graph colouring algorithm finished with the interference graph module
+
+### Week 12
+<small>Last Updated: 25/03/2026</small>
+- Aim to develop `AssemblyGenerator` module
+  - This will create a sequence of `Assembly` instructions and output to a file
+- Rewrite more Python test modules in adherence to new test framework
+- Write test plans and tests for the new module as it is finished
+
+### Week 13
+<small>Last Updated: 30/03/2026</small>
+- This week will be focused on writing and rewriting tests as well as test design documents
+  - For Python (imperative) implementation, remaining test plans and tests will need to be implemented. 
+- As a group we will do a code review and refactor, remove, and edit as we see fit. This is lower priority than the above point so it may be pushed. 
+
+### Week 14
+<small>Last Updated: 10/04/2026</small>
+- Group plans to catch up on module development this week from the testing updates from last week
+- Develop modules for Assembly ouput (i.e. AssemblyGenerator and main file to run the program through)
+- Develop and finalize `Scanner` and `Parser` modules along with the File IO functionality
+- Perform many test runs, analyze the assembly output and compare to with the expected output
+  - Test runs include creating a test suite (~20 files) that run / fail as expected
+- Clean up the code base:
+  - Remove redundant comments
+  - Add comments where needed
+  - Make code more readable
+  - Ensure `.gitignore` contains all things we don't want on in the repository, but especially for final submission
+- Attempt to get some assembly generation optimizations to remove redundant instructions.
+  - Some instructions are present such as `MOV RegisterX,varX` followed by `MOV varX,RegisterX`. This is not necessary and `varX` can just stay in `RegisterX`
+  - Attempt to create a 'store back' optimization as well that will check if a variable needs to be stored back to memory so another variable can use that register. This will reduce the number of registers the program needs to perform a successful assembly output.  
 
 ## High-level Design Architecture
-<small>Last Updated: 01/03/2026</small>
+<small>Last Updated: 10/04/2026</small>
 
 ### Main Data Structures
 - Token
   - Token contains a value (str) and a type (Int). The ```type``` field is mapped to a dictionary with options such as **variable, literal, operator, equals, etc...**.
 - Instruction
   - A representation of a single three-address-instruction. There are three (3) types not including the ```invalid``` type/classification for error handling. The types are: **binary_operator: 0, unary_operator: 1, assignment: 2**. 
-- Instruction Buffer
+- InstructionBuffer
   - An object that manages the list of valid instructions using a doubly linked list from the Python package [dllist](https://pypi.org/project/dllist/). It also tracks the *occurred variables* and *live objects* that will be used when creating the interference graph and later colouring that graph.
 - ASMInstruction
   - A simple object used by the main assembly code generator to represent a single assembly instruction. It stores strings representing the following: *op_code* (i.e. MOV, ADD, MUL), *op1* (i.e. a, #1, b), and *op2* (i.e. R0).
