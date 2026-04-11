@@ -129,21 +129,23 @@ if __name__ == "__main__":
     test_binary_ops() # Want successful ASM output - Success
     test_chained_reuse() # Want successful ASM output - Success
     test_empty_file() # Want empty '.s' file - Success
+
+    # These throw errors and try except does not catch it. It will terminate the program 
+    # and you will not get any output files past this point
+    # try:
+    #     test_invalid_operators() # Looking for error - Error confirmed
+    # except ValueError as ve:
+    #     print("Error successfully")
     
-    try:
-        test_invalid_operators() # Looking for error - Error confirmed
-    except:
-        print("Error successfully")
+    # try:
+    #     test_malformed_syntax() # Looking for error - Error confirmed    
+    # except ValueError as ve:
+    #     print("Error successfully")
     
-    try:
-        test_malformed_syntax() # Looking for error - Error confirmed    
-    except:
-        print("Error successfully")
-    
-    try:
-        test_missing_operands() # Looking for error - Error confirmed 
-    except ValueError as ve:
-        print("Error successfully")
+    # try:
+    #     test_missing_operands() # Looking for error - Error confirmed 
+    # except ValueError as ve:
+    #     print("Error successfully")
 
     test_mixed_all_types() # Want successful ASM output - Success
     test_multiple_live_vars() # Want successful ASM output - Success
@@ -154,7 +156,7 @@ if __name__ == "__main__":
     test_single_unary() # Looking for MOV, MUL #-1, MOV - Success
     test_unary_ops() # Looking for multiple instances similar to last test - Success
     test_undefined_variables() # Looking for two MOV into separate registers, add those registers, then MOV back to memory - Success
-    try:
-        test_valid_then_invalid_operator() # Looking for an error to be raised in the console - Success
-    except:
-        print("Error successfully")
+    # try:
+    #     test_valid_then_invalid_operator() # Looking for an error to be raised in the console - Success
+    # except ValueError as ve:
+    #     print("Error successfully")

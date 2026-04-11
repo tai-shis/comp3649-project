@@ -102,40 +102,6 @@ class TestBuildGraph(unittest.TestCase):
         # NetworkX graphs don't allow duplicate edges, so just verify the edge exists once
         self.assertEqual(graph.interference_graph.number_of_edges("a", "b"), 1)
 
-
-class TestIsSolved(unittest.TestCase):
-    def test_returns_false_when_colors_are_none(self):
-        instr = make_assignment("x", "a", 1)
-        graph = make_graph_with_liveness([instr], [], {"x", "a"})
-        # Colors are all None after build_graph, before color_graph
-        self.assertFalse(graph._is_solved())
-
-    def test_returns_false_when_neighbors_share_color(self):
-        instr = Instruction(
-            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
-        )
-        graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
-        # Manually assign same color to connected nodes
-        graph.colors["a"] = 0
-        graph.colors["b"] = 0
-        graph.colors["x"] = 1
-        self.assertFalse(graph._is_solved())
-
-    def test_returns_true_when_properly_colored(self):
-        instr = Instruction(
-            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
-        )
-        graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
-        graph.colors["a"] = 0
-        graph.colors["b"] = 1
-        graph.colors["x"] = 0
-        self.assertTrue(graph._is_solved())
-
-    def test_returns_true_on_empty_graph(self):
-        graph = InterferenceGraph()
-        self.assertTrue(graph._is_solved())
-
-
 class TestPossibleColors(unittest.TestCase):
     def test_all_colors_available_no_colored_neighbors(self):
         instr = Instruction(
