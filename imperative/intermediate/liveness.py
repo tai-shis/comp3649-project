@@ -21,9 +21,9 @@ class Liveness:
     def _mark_liveness(self, variables: list[Token], line_liveness: dict[str, int], carry_vars: list[str]) -> None:
         """
         Marks the liveness of a set of variables.
-        
-        :param instruction: The instruction to analyze.
-        :type instruction: Instruction
+
+        :param variables: The variable tokens from the current instruction.
+        :type variables: list[Token]
         :param line_liveness: The current line's liveness dictionary.
         :type line_liveness: dict[str, int]
         :param carry_vars: The list of carry variables from the previous line.
@@ -67,7 +67,7 @@ class Liveness:
 
         for live in self.instruction_buffer.list_live_objects():
             line_liveness[live] = self.states["live"]
-            carry_vars.append(live) # We carry these forward to the previous line (itll make sense later)
+            carry_vars.append(live)  # Carried forward when iterating backwards through instructions
 
         self.liveness.appendleft(line_liveness)
 
@@ -78,8 +78,7 @@ class Liveness:
         Determines the liveness state of variables in the instruction buffer.
         """
         
-        # This algorithm is freaky, will try to comment it as best as possible
-        carry_vars: list[str] = [] # Holds variables that were were live and not defined in the last line, 
+        carry_vars: list[str] = []  # Variables live but not defined in the next line (propagated backwards)
 
         # First, determine liveness for after this code block (found in the live: etc. section)
         # and also get any carry variables (i.e. variables that are live)
@@ -88,9 +87,7 @@ class Liveness:
 
         # We iterate backwards, finding the last use of a variable, then marking when it gets defined
         for instruction in reversed(self.instruction_buffer.list_instructions()):
-            line_liveness: dict[str, int] = {} # Holds liveness for the current line
-
-            # Okay, we now have to grab all the variables in the line
+            line_liveness: dict[str, int] = {}
             variables: list[Token] = instruction.get_variables()
             
             # Now we can mark liveness
@@ -120,7 +117,7 @@ class Liveness:
             line_string = "["
             for var, state in line_liveness.items():
                 match state:
-                    case 0: # For some reason, the states dict doesn't work here
+                    case 0:
                         state_str = "defined"
                     case 1:
                         state_str = "live"

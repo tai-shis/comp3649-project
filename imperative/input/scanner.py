@@ -11,7 +11,7 @@ class Scanner:
         '_', '[', ']', '{', '}', '|', ';', '<', '>', '?'
     ]
 
-    # I know it's duplicated, but its so there are no magic numbers
+    # Duplicated from Parser to avoid magic numbers
     types = {
         'destination': 0,  # ex. 'd', 't3', 'z', destination (variable)
         'variable': 1,     # ex. 'a', 't1', 'b', variables
@@ -27,12 +27,9 @@ class Scanner:
     def __init__(self, file: TextIO):  
         self.file: TextIO = file
 
-        # State on what we are reading
         self.reading: str = "instructions"  # instructions or live
-
-        # Scanner should hold the read line and which token it is passing
-        self.index: int = 0 # to avoid shifting and quicker checks
-        self.buffer: list[Token] = [] # maxmimum length O(1) (max 6)
+        self.index: int = 0  # avoids shifting; O(1) access
+        self.buffer: list[Token] = []  # max 6 tokens per line
 
     def __str__(self):
         return f"index: {self.index}, buffer: {[str(token) for token in self.buffer]}"
@@ -60,7 +57,6 @@ class Scanner:
         if symbol == '=':
             return self.types["equals"]
 
-        # If our symbol is just numbers, its a literal
         if symbol.isdigit():
             return self.types["literal"]
         # If symbol is in the list of operators, it returns true.
@@ -82,12 +78,10 @@ class Scanner:
         if any(char in symbol for char in self.invalid) or any(op in symbol for op in self.operators):
             raise ValueError(f"Invalid character in symbol: {symbol}")
 
-        # If a symbol starting with a number is valid, comment the following check:
         if symbol[0].isdigit():
             raise ValueError(f"Invalid symbol starting with number: {symbol}")
 
-        # Otherwise, it's a valid variable/destination
-        return self.types["destination"] if len(self.buffer) == 0 else self.types["variable"] 
+        return self.types["destination"] if len(self.buffer) == 0 else self.types["variable"]
 
     def _tokenize(self, symbol: str) -> Token:
         """
@@ -138,14 +132,13 @@ class Scanner:
                 # Make sure a symbol is present and tokenize it
                 if symbol != "":
                     self.buffer.append(self._tokenize(symbol))
-                    symbol = "" # Must reset symbol so we can build the next one 
+                    symbol = ""
                 
                 # As long as there are no invalid symbols, space (' '), or commas here, we can tokenize it.
                 if char not in self.invalid and char not in (' ', ','):
                     self.buffer.append(self._tokenize(char))
 
             else:
-                # Symbol has not been fully read yet, so keep going to next char
                 symbol += char
         
         # Make sure to catch anything left over at the end of the line

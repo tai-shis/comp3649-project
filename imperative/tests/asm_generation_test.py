@@ -11,7 +11,6 @@ from input.token import Token
 
 # Helpers
 def make_buffer(instructions: list[Instruction], live_objects: list[str]) -> InstructionBuffer:
-    """Helper to build an InstructionBuffer from instructions and live objects."""
     buf = InstructionBuffer()
     for instr in instructions:
         buf.add_instruction(instr)
@@ -21,7 +20,6 @@ def make_buffer(instructions: list[Instruction], live_objects: list[str]) -> Ins
 
 
 def make_graph(colors: dict[str, int | None]) -> InterferenceGraph:
-    """Helper to build an InterferenceGraph with a pre-set colors dict."""
     graph = InterferenceGraph()
     graph.colors = colors
     return graph
@@ -30,7 +28,6 @@ def make_graph(colors: dict[str, int | None]) -> InterferenceGraph:
 def make_generator(instructions: list[Instruction],
                    live_objects: list[str],
                    colors: dict[str, int | None]) -> ASMGenerator:
-    """Helper that wires together a full ASMGenerator from raw parts."""
     buf = make_buffer(instructions, live_objects)
     graph = make_graph(colors)
     liveness = Liveness(buf)
@@ -39,7 +36,6 @@ def make_generator(instructions: list[Instruction],
 
 def make_binary(dest: str, op1: str, op1_type: int,
                 operator: str, op2: str, op2_type: int) -> Instruction:
-    """Helper to create a binary (type-0) instruction."""
     return Instruction(
         0,
         Token(dest, 0),
@@ -50,7 +46,6 @@ def make_binary(dest: str, op1: str, op1_type: int,
 
 
 def make_unary(dest: str, operator: str, operand: str, operand_type: int) -> Instruction:
-    """Helper to create a unary (type-1) instruction."""
     return Instruction(
         1,
         Token(dest, 0),
@@ -60,17 +55,14 @@ def make_unary(dest: str, operator: str, operand: str, operand_type: int) -> Ins
 
 
 def make_assignment(dest: str, operand: str, operand_type: int) -> Instruction:
-    """Helper to create an assignment (type-2) instruction."""
     return Instruction(2, Token(dest, 0), Token(operand, operand_type))
 
 
 def asm_lines(generator: ASMGenerator) -> list[str]:
-    """Returns generated_asm as a list of 'OPCODE op1,op2' strings for easy comparison."""
     return [f"{i.op_code} {i.op1},{i.op2}" for i in generator.generated_asm]
 
 
 def tmp_path(filename: str) -> str:
-    """Returns a path inside a temporary output directory."""
     return os.path.join("output", "test_gen2", filename)
 
 

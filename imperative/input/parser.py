@@ -81,10 +81,9 @@ class Parser:
             :raises ValueError: If an invalid instruction format is encountered.
         """
         token: Token = self.scanner.next_token()
-        line: list[Token] = [] # Could change into a different implementation
+        line: list[Token] = []
 
-        # for now parse back into lines ig :/
-        while token.type != self.types["EOF"] and token.type != self.types["live"]:  # While not live or EOF
+        while token.type != self.types["EOF"] and token.type != self.types["live"]:
             # Keep track of all tokens in the input
             if token.type == self.types["variable"] or token.type == self.types["destination"]:
                 self.occurred_variables.add(token.value)
@@ -122,9 +121,9 @@ class Parser:
                     case -1:
                         raise ValueError(f'Invalid instruction format. {" ".join([token.value for token in line])}')
 
-                line = [] # reset line after validating
+                line = []
 
-            token = self.scanner.next_token() # get next token
+            token = self.scanner.next_token()
 
         return token.type == self.types["EOF"]
 
@@ -141,7 +140,6 @@ class Parser:
         # Here, "live:" has already been read
         token = self.scanner.next_token()
 
-        # Keep track of objects, dropping duplicates
         seen: set[str] = set()
 
         while token.type != self.types["EOF"]:
@@ -150,8 +148,7 @@ class Parser:
                 token = self.scanner.next_token()
                 continue
 
-            # Make sure all tokens are live symbols!
-            if token.type != self.types["live_symbol"]: 
+            if token.type != self.types["live_symbol"]:
                 raise ValueError(f"Invalid live object format. Expected live symbol, got {token.type_string()}.")
             else:
                 # Make sure live object was somewhere in the instructions

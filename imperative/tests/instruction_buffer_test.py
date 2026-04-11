@@ -6,7 +6,6 @@ from input.instruction_buffer import InstructionBuffer
 
 
 def make_instruction(type: int) -> Instruction:
-    """Helper to create a simple instruction for testing."""
     dest = Token("x", 0)
     operand1 = Token("a", 1)
     operator = Token("+", 3)
@@ -14,7 +13,7 @@ def make_instruction(type: int) -> Instruction:
     return Instruction(type, dest, operand1, operator, operand2)
 
 
-class TestInstruction(unittest.TestCase):
+class TestInstructionBuffer(unittest.TestCase):
 
     def test_instructions_empty_on_construction(self):
         buf = InstructionBuffer()

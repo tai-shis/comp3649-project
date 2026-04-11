@@ -12,7 +12,6 @@ from intermediate.liveness import Liveness
 def make_buffer(
     instructions: list[Instruction], live_objects: list[str]
 ) -> InstructionBuffer:
-    """Helper to build an InstructionBuffer from instructions and live objects."""
     buf = InstructionBuffer()
     for instr in instructions:
         buf.add_instruction(instr)
@@ -22,14 +21,12 @@ def make_buffer(
 
 
 def make_assignment(dest: str, operand: str, operand_type: int) -> Instruction:
-    """Helper to create an assignment instruction."""
     return Instruction(2, Token(dest, 0), Token(operand, operand_type))
 
 
 def make_graph_with_liveness(
     instructions: list[Instruction], live_objects: list[str], variables: set[str]
 ) -> InterferenceGraph:
-    """Helper to build a complete InterferenceGraph from instructions, live objects, and variables."""
     buf = make_buffer(instructions, live_objects)
     liveness = Liveness(buf)
     graph = InterferenceGraph()

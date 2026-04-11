@@ -106,19 +106,19 @@ class ASMGenerator:
                 if dest_reg != op1_str:
                     if dest_reg == op2_str and op_code in ('ADD', 'MUL'):
                         # Case: a = b + a, swap since ADD and MUL commute
-                        asm.extend(self._load_variable(instruction.operand2)) # NOTE: JUST ADDED THIS: RETEST. Remove if does not work
+                        asm.extend(self._load_variable(instruction.operand2))
                         op1_str, op2_str = op2_str, op1_str
                     elif dest_reg == op2_str and op_code in ('SUB', 'DIV'):
                         # Case: a = 1 - a, does not commute so store 'a' to memory
-                        asm.extend(self._load_variable(instruction.operand2)) # NOTE: Just added
+                        asm.extend(self._load_variable(instruction.operand2))
                         asm.append(ASMInstruction("MOV", dest_reg, instruction.operand2.value))
                         asm.append(ASMInstruction("MOV", op1_str, dest_reg))
                         op2_str = instruction.operand2.value
                     else:
                         asm.append(ASMInstruction("MOV", op1_str, dest_reg))
-                        asm.extend(self._load_variable(instruction.operand2)) # NOTE: Just added
+                        asm.extend(self._load_variable(instruction.operand2))
                 else:
-                    asm.extend(self._load_variable(instruction.operand2)) # NOTE: Just added
+                    asm.extend(self._load_variable(instruction.operand2))
 
                 asm.append(ASMInstruction(op_code, op2_str, dest_reg))
                 self.in_register.add(instruction.dest.value)

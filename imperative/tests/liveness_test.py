@@ -6,7 +6,6 @@ from intermediate.liveness import Liveness
 
 
 def make_buffer(instructions: list[Instruction], live_objects: list[str]) -> InstructionBuffer:
-    """Helper to build an InstructionBuffer from instructions and live objects."""
     buf = InstructionBuffer()
     for instr in instructions:
         buf.add_instruction(instr)
@@ -16,12 +15,10 @@ def make_buffer(instructions: list[Instruction], live_objects: list[str]) -> Ins
 
 
 def make_assignment(dest: str, operand: str, operand_type: int) -> Instruction:
-    """Helper to create an assignment instruction."""
     return Instruction(2, Token(dest, 0), Token(operand, operand_type))
 
 
 def make_binary(dest: str, op1: str, op1_type: int, operator: str, op2: str, op2_type: int) -> Instruction:
-    """Helper to create a binary instruction."""
     return Instruction(0, Token(dest, 0), Token(op1, op1_type), Token(operator, 3), Token(op2, op2_type))
 
 
@@ -59,10 +56,7 @@ class TestLiveness(unittest.TestCase):
         result = liveness.get_liveness()
         self.assertEqual(result[-1], {"a": 1, "b": 1})
 
-    """
-    _mark_liveness() is private so we test it indirectly through
-    get_liveness() on a Liveness object with a known buffer.
-    """
+    # _mark_liveness() is private, tested indirectly via get_liveness()
     def test_assignment_no_carry_vars(self):
         # x = 42 (literal, no carry vars) — x defined, operand is literal so not in variables
         instr = make_assignment("x", "42", 2)

@@ -10,14 +10,8 @@ from generator.asm_generator import ASMGenerator
 OUTPUT_PATH = "./generated/"
 
 if __name__ == "__main__":
-    """
-    Generates assembly code from a three-address code input file, given a specified number of registers.
-
-    :param args: Command-line arguments, where the first argument is the number of registers and the second is the input file path.
-    :type args: list[str]
-    :return: Exit code, where 0 indicates success and -1 indicates an error.
-    :rtype: int
-    """
+    # Generates assembly code from a three-address code input file.
+    # Usage: gen <num_regs> <input_file>
     args = sys.argv[1:]
     
     if len(args) != 2:
@@ -48,15 +42,12 @@ if __name__ == "__main__":
 
     print("Successfully parsed input. Now performing liveness analysis and graph coloring...")
 
-    # Get the information for the graph
     liveness = Liveness(instruction_buffer)
     variables = instruction_buffer.get_occurred_variables()
 
-    # Now build the graph
     interference_graph = InterferenceGraph()
     interference_graph.build_graph(liveness, variables)
 
-    # And then, we can color it
     try:
         interference_graph.color_graph(int(num_regs))
     except ValueError as ve:
