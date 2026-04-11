@@ -92,7 +92,7 @@ scanChars isLive isDestination (char:chars) tokens symbol
             currentlyLive = isLive || (symbol ++ [char]) == "live:" -- If we see the live: token, we are now in live mode
 
             -- Handle the current char if current char is an operator/singleton tokenizable, 
-            finalTokens = if elem char ['+', '-', '*', '/', '=', '\n', ':', ','] -- If char is an operator or equals, tokenize it as well
+            finalTokens = if elem char ['+', '-', '*', '/', '=', '\n', ':'] -- If char is an operator or equals, tokenize it as well
                 then 
                     if char == ':' then tokens ++ [tokenize currentlyLive isDestination (symbol ++ [char])]
                     else tokensWithSym ++ [tokenize currentlyLive isDestination [char]]
