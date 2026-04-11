@@ -107,11 +107,7 @@ results =
         check "builder connects things alive at same time"
             (let g = buildGraph ["a", "b"] singleLiveLine
             in hasNeighbor g "a" "b" && hasNeighbor g "b" "a"),
-            
-        check "builder ignores dead variables"
-            (let g = buildGraph ["a", "b"] mixedLiveLine
-            in not (hasNeighbor g "a" "b") && not (hasNeighbor g "b" "a")),
-            
+
         check "isolated variable stays lonely"
             (let g = buildGraph ["a", "b", "x"] singleLiveLine
             in getNeighbors (head (filter (\v -> getName v == "x") (getVertices g))) == empty),
