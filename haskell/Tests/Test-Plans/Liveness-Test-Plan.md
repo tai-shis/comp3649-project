@@ -1,39 +1,32 @@
-# Liveness-Test-Plan
+# Liveness Test Plan
 
 | Category (Reason) | Test (Input) | Expected Output | Actual Output |
 |:------------------|:-------------|:----------------|:--------------|
-| `Show LivenessState` — Defined | `show (Defined "x")` | `"x: defined"` | `"x: defined"` **PASS** |
-| `Show LivenessState` — Live | `show (Live "x")` | `"x: live"` | `"x: live"` **PASS** |
-| `Show LivenessState` — Unlive | `show (Unlive "x")` | `"x: unlive"` | `"x: unlive"` **PASS** |
-| `Eq LivenessState` — Defined == Defined, same name | `Defined "x" == Defined "x"` | `True` | `True` **PASS** |
-| `Eq LivenessState` — Live == Live, same name | `Live "x" == Live "x"` | `True` | `True` **PASS** |
-| `Eq LivenessState` — Unlive == Unlive, same name | `Unlive "x" == Unlive "x"` | `True` | `True` **PASS** |
-| `Eq LivenessState` — Defined == Live, same name | `Defined "x" == Live "x"` | `True` | `True` **PASS** |
-| `Eq LivenessState` — Live == Defined, same name | `Live "x" == Defined "x"` | `True` | `True` **PASS** |
-| `Eq LivenessState` — Defined == Unlive, same name | `Defined "x" == Unlive "x"` | `True` | `True` **PASS** |
-| `Eq LivenessState` — Live == Unlive, same name | `Live "x" == Unlive "x"` | `True` | `True` **PASS** |
-| `Eq LivenessState` — different names | `Defined "x" == Defined "y"` | `False` | `False` **PASS** |
-| `getLivenessName` — Defined | `getLivenessName (Defined "x")` | `"x"` | `"x"` **PASS** |
-| `getLivenessName` — Live | `getLivenessName (Live "x")` | `"x"` | `"x"` **PASS** |
-| `getLivenessName` — Unlive | `getLivenessName (Unlive "x")` | `"x"` | `"x"` **PASS** |
-| `namesFromLiveness` — empty list | `namesFromLiveness []` | `[]` | `[]` **PASS** |
-| `namesFromLiveness` — mixed states | `namesFromLiveness [Defined "x", Live "a", Unlive "b"]` | `["x", "a", "b"]` | `["x", "a", "b"]`**PASS** |
-| `isLive` — Live state | `isLive (Live "x")` | `True` | `True` **PASS** |
-| `isLive` — Defined state | `isLive (Defined "x")` | `False` | `False` **PASS** |
-| `isLive` — Unlive state | `isLive (Unlive "x")` | `False` | `False` **PASS** |
-| `isDefined` — Defined state | `isDefined (Defined "x")` | `True` | `True` **PASS** |
-| `isDefined` — Live state | `isDefined (Live "x")` | `False` | `False` **PASS** |
-| `isDefined` — Unlive state | `isDefined (Unlive "x")` | `False` | `False` **PASS** |
-| `isUnlive` — Unlive state | `isUnlive (Unlive "x")` | `True` | `True` **PASS** |
-| `isUnlive` — Live state | `isUnlive (Live "x")` | `False` | `False` **PASS** |
-| `isUnlive` — Defined state | `isUnlive (Defined "x")` | `False` | `False` **PASS** |
-| `showLivenessStates` — empty list | `showLivenessStates []` | `""` | `""` **PASS** |
-| `showLivenessStates` — single line | `showLivenessStates [[Defined "x", Live "a"]]` | `"x: defined, a: live\n"` | `"x: defined, a: live\n"` **PASS** |
-| `showLivenessStates` — multiple lines | `showLivenessStates [[Defined "x"], [Live "a"]]` | `"x: defined\na: live\n"` | "x: defined\na: live\n"` **PASS** |
-| `determineLiveness` — empty instructions | `determineLiveness emptyInstructions` | `[[]]` (one empty liveness state for the live section) | `[[]]` (one empty liveness state for the live section) **PASS** |
-| `determineLiveness` — single assignment, operand live | `determineLiveness` on `"x = a"` with `live: a` | Instruction line: `[Defined "x", Live "a"]`, live section: `[Live "a"]` | Instruction line: `[Defined "x", Live "a"]`, live section: `[Live "a"]` **PASS** |
-| `determineLiveness` — single assignment, no live vars | `determineLiveness` on `"x = a"` with no live vars | Instruction line: `x` defined, `a` unlive | Instruction line: `x` defined, `a` unlive **PASS** |
-| `determineLiveness` — single binary instruction | `determineLiveness` on `"x = a + b"` with `live: a, b` | Instruction line: `x` defined, `a` and `b` live | Instruction line: `x` defined, `a` and `b` live **PASS**|
-| `determineLiveness` — variable defined then used | `determineLiveness` on `"x = a\ny = x"` with `live: x` | `x` defined on line 0, live on line 1 | `x` defined on line 0, live on line 1 **PASS** |
-| `determineLiveness` — variable unlive after last use | `determineLiveness` on `"x = a\ny = b"` with `live: b` | `a` is unlive on line 0 as it is not used again | `a` is unlive on line 0 as it is not used again **PASS** |
-| `determineLiveness` — result length | `determineLiveness` on 3 instructions | Returns list of length 4 (3 instructions + live section) | Returns list of length 4 (3 instructions + live section) **PASS** |
+| print states | `show (Defined "x")` | `"x: defined"` | `"x: defined"` **PASS** |
+| print states | `show (Live "x")` | `"x: live"` | `"x: live"` **PASS** |
+| print states | `show (Unlive "x")` | `"x: unlive"` | `"x: unlive"` **PASS** |
+| equality | `Defined "x" == Defined "x"` | `True` | `True` **PASS** |
+| equality | `Live "x" == Live "x"` | `True` | `True` **PASS** |
+| equality | `Unlive "x" == Unlive "x"` | `True` | `True` **PASS** |
+| inequality | `Defined "x" == Live "x"` | `False` | `False` **PASS** |
+| inequality | `Defined "x" == Unlive "x"` | `False` | `False` **PASS** |
+| inequality | `Live "x" == Unlive "x"` | `False` | `False` **PASS** |
+| inequality | different variable names | `False` | `False` **PASS** |
+| getters | `getLivenessName` on Defined | `"x"` | `"x"` **PASS** |
+| getters | `getLivenessName` on Live | `"x"` | `"x"` **PASS** |
+| getters | `getLivenessName` on Unlive | `"x"` | `"x"` **PASS** |
+| extraction | `namesFromLiveness []` | `[]` | `[]` **PASS** |
+| extraction | mixed list of states | extracts all variable names | `["x", "a", "b"]` **PASS** |
+| boolean flags | `isLive` on live state | `True` (False for others) | works correctly **PASS** |
+| boolean flags | `isDefined` on defined state | `True` (False for others) | works correctly **PASS** |
+| boolean flags | `isUnlive` on unlive state | `True` (False for others) | works correctly **PASS** |
+| print blocks | `showLivenessStates []` | `""` | `""` **PASS** |
+| print blocks | single line array | `"x: defined, a: live\n"` | matches expected **PASS** |
+| print blocks | multi line array | prints with newlines | matches expected **PASS** |
+| logic | empty instructions | `[[]]` (one empty state block) | matches **PASS** |
+| logic | single assign (operand live) | x defined, a live | states are correct **PASS** |
+| logic | single assign (no live vars) | x defined, a unlive | states are correct **PASS** |
+| logic | binary instruction | x defined, a and b live | states are correct **PASS**|
+| logic | var defined then used | x defined on 0, live on 1 | states are correct **PASS** |
+| logic | var unlive after last use | a unlive immediately | marked unlive **PASS** |
+| logic | array length check | 3 instructions -> length 4 | length is 4 **PASS** |
