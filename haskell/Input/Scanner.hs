@@ -10,8 +10,8 @@ module Input.Scanner(
 import System.IO (Handle,
                   hIsEOF,
                   hGetLine,
-                  hClose, 
-                  openFile, 
+                  hClose,
+                  openFile,
                   IOMode(..))
 
 import Input.Token hiding (TokenType(..))
@@ -39,7 +39,7 @@ operators = ['+', '-', '*', '/']
 
 -- Invalid characters
 invalidChars :: [Char]
-invalidChars = ['$', '`', '"', '\'', '\\', '&', '^', '%', '#', '@', '!', '~', 
+invalidChars = ['$', '`', '"', '\'', '\\', '&', '^', '%', '#', '@', '!', '~',
                 '_', '[', ']', '{', '}', '|', ';', '<', '>', '?']
 
 -- Delimiters that can be seen
@@ -65,6 +65,7 @@ scanNextLine scanner = do
 
 -- Private: gets the scanning state based on the token types given {Helper for updateScanner}
 getState :: [Token] -> ScanningState
+getState [] = Instructions
 getState (token:_) =
     let tokenType = getType token
     in if tokenType /= T.Live && tokenType /= T.EOF
@@ -74,15 +75,15 @@ getState (token:_) =
 -- Private: Recursively scans characters and tokenizes them {Helper for tokenizeLine}
 scanChars :: Bool -> Bool -> [Char] -> [Token] -> String -> ([Token],[Char])
 -- Base Case: No more characters in the line
-scanChars isLive isDestination [] tokens symbol = 
+scanChars isLive isDestination [] tokens symbol =
     if null symbol
         then (tokens, []) -- Finished tokenizing, return final [Token]
         else (tokens ++ [tokenize isLive isDestination symbol], []) -- symbol had leftover contents, tokenize and return
 -- Recursive Step: Processing next character
 scanChars isLive isDestination (char:chars) tokens symbol
     | elem char invalidChars = error $ "Invalid character '" ++ [char] ++ "' found in input."
-    | isLive && char == ',' = error "Unexpected ',' found in input. Commans should only be found in live variable declarations."
-    | elem char delimiters || elem char operators = 
+    | not (isLive) && char == ',' = error "Unexpected ',' found in input. Commas should only be found in live variable declarations."
+    | elem char delimiters || elem char operators =
         let
             -- Make sure symbol is present and tokenize it
             tokensWithSym = if not (null symbol) && symbol /= "live" -- If symbol is not empty and not possibly the live: token, tokenize it
@@ -91,9 +92,9 @@ scanChars isLive isDestination (char:chars) tokens symbol
 
             currentlyLive = isLive || (symbol ++ [char]) == "live:" -- If we see the live: token, we are now in live mode
 
-            -- Handle the current char if current char is an operator/singleton tokenizable, 
+            -- Handle the current char if current char is an operator/singleton tokenizable,
             finalTokens = if elem char ['+', '-', '*', '/', '=', '\n', ':'] -- If char is an operator or equals, tokenize it as well
-                then 
+                then
                     if char == ':' then tokens ++ [tokenize currentlyLive isDestination (symbol ++ [char])]
                     else tokensWithSym ++ [tokenize currentlyLive isDestination [char]]
                 else tokensWithSym -- If char is a delimiter, just tokenize the symbol and move on
@@ -104,9 +105,9 @@ scanChars isLive isDestination (char:chars) tokens symbol
 
 -- Private: Tokenizes entire line {Helper for updateScanner}
 tokenizeLine :: Bool -> [Char] -> [Token]
-tokenizeLine isLive line = 
+tokenizeLine isLive line =
     let tokens = fst (scanChars isLive True line [] "")
-    in tokens 
+    in tokens
 
 -- Private: Updates the scanner state {called by scanNextLine}
 updateScanner :: Scanner -> String -> Scanner
@@ -128,7 +129,7 @@ tokenize isLive isDestination str
     | elem ':' str = error $ "Unexpected ':' found in token: '" ++ str ++ "'."
     -- now it has to be some sort of variable?
     | isValidVariable str = if isLive then createToken str T.LiveSymbol
-                        else if isDestination then createToken str T.Destination 
+                        else if isDestination then createToken str T.Destination
                         else createToken str T.Variable
     | otherwise = error $ "Invalid token: '" ++ str ++ "'."
 

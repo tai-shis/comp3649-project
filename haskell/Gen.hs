@@ -1,3 +1,5 @@
+module Gen (gen) where
+
 import System.Environment (getArgs)
 import System.FilePath (takeBaseName)
 import System.Directory (createDirectoryIfMissing)

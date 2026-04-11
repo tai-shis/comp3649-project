@@ -66,17 +66,9 @@ tests =
             sc <- scanString "live: x = 1"
             return $ scanningState sc == Live,
 
-        check "normal instruction stays normal" $ do
-            sc <- scanString "add x, y"
-            return $ scanningState sc == Instructions,
-
         -- splitting and delimiters
         check "spaces split tokens" $ do
             sc <- scanString "x y"
-            return $ getVals sc == ["x","y"],
-
-        check "commas also split" $ do
-            sc <- scanString "x,y"
             return $ getVals sc == ["x","y"],
 
         check "= shows up as its own token" $ do

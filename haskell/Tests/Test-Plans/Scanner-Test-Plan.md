@@ -4,9 +4,7 @@
 |:------------------|:-------------|:----------------|:--------------|
 | file io | empty file | `scanningState == ScanEOF` | matches expected **PASS** |
 | state machine | live keyword seen | `scanningState == Live` | state flipped **PASS** |
-| state machine | normal instruction | `scanningState == Instructions` | matches **PASS** |
 | delimiters | `"x y"` (spaces) | skips space, gets `["x", "y"]` | ignored space **PASS** |
-| delimiters | `"x,y"` (commas) | skips comma, gets `["x", "y"]` | ignored comma **PASS** |
 | delimiters | `"x = 1"` | gets equals sign as own token | extracted equals **PASS** |
 | delimiters | colon suffix | consumes colon into `"live:"` | colon absorbed **PASS** |
 | bad input | `"x: y"` (bare colon) | throws unexpected token error | crashes safely **PASS** |
