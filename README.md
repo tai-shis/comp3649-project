@@ -102,18 +102,18 @@
 - [x] Begin planning Haskell solution
 
 ### Week 8
-<small>Last Updated: 06/04/2026</small> <br>
+<small>Last Updated: 25/02/2026</small> <br>
 **From here onwards, all reference to code modules is referring to the Haskell implementation unless otherwise stated.**
 - [x] Prepare for project check-in meeting
 - [x] Discuss next steps for imperative solution as Haskell solution begins
 
 ### Week 9
-<small>Last Updated: 06/04/2026</small>
+<small>Last Updated: 04/03/2026</small>
 - [x] Complete finishing touches and ensure code generation is fully functional one last time before project check in
 - [x] Project Check In
 
 ### Week 10
-<small>Last Updated: 06/04/2026</small>
+<small>Last Updated: 10/03/2026</small>
 - [x] Develop representations for main data structures as well as supporting functions for the modules
   - `Token` - **Complete**
   - `Instruction` (Three-address instruction) - **Complete**
@@ -122,7 +122,7 @@
   - **Modules Tested**: `Token`, `Instruction` 
 
 ### Week 11
-<small>Last Updated: 06/04/2026</small>
+<small>Last Updated: 18/03/2026</small>
 - [x] Develop modules:
   - `InterferenceGraph` - **Complete**
   - `Liveness` - **Complete**
@@ -131,27 +131,29 @@
 - [x] Write test plans and implement full-coverage tests for modules
 
 ### Week 12
-<small>Last Updated: 06/04/2026</small>
+<small>Last Updated: 25/03/2026</small>
 - [x] Develop modules:
   - `AssemblyGenerator` module responsible for creating a sequence of `Assembly` language instructions - **Complete**
   - ~~`Assembly output` module that writes `AssemblyGenerator` result to output file~~
 - ~~[] Write test plans and test the `AssemblyGenerator` module~~
 
 ### Week 13
-<small>Last Updated: 06/04/2026</small>
+<small>Last Updated: 30/03/2026</small>
 - Continue writing tests and refining modules for readability
-- Write proper test plans for Python modules; rewrite tests as needed & add tests for better coverage
+- Continue writing proper test plans for Python modules; rewrite tests as needed & add tests for better coverage
 - Complete a code review of Python (imperative) solution:
   - Find typos (in comments, function definitions, code, etc...)
   - Refactor for readability / efficiency
   - Remove redundant comments
 
 ### Week 14
-<small>Last Updated: 06/04/2026</small>
-- Develop modules:
-  - `Assembly output` module that writes `AssemblyGenerator` result to output file
-  - `Scanner` to read file input
-  - `Parser` to parse file input into `Token` types
+<small>Last Updated: 10/04/2026</small>
+- [x] Develop modules:
+  - `Assembly output` module that writes `AssemblyGenerator` result to output file - **Complete**
+  - `Scanner` to read file input - **Complete**
+  - `Parser` to parse file input into `Token` types - **Complete**
+- [x] Verify final test runs to ensure full program functionality
+- [x] Clean up codebase before final submission
 
 ## Developing and Contributing
 ### Pull Requests
