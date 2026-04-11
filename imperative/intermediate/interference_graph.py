@@ -9,26 +9,6 @@ class InterferenceGraph:
         self.interference_graph = Graph()
         self.colors: dict[str, int | None] = {}
 
-    # def build_graph(self, liveness: Liveness, variables: set[str]) -> None:
-    #     """
-    #     Builds the interference graph based on the provided liveness analysis.
-
-    #     :param liveness: The liveness analysis object.
-    #     :type liveness: Liveness
-    #     """
-
-    #     # First, construct all nodes using the instruction buffer's variables
-    #     for var in variables:
-    #         self.interference_graph.add_node(var)
-    #         self.colors[var] = None
-
-    #     # Then we add our edges
-    #     for line in liveness.get_liveness():
-    #         # Now check all combinations of live variables on this line
-    #         combs = combinations([var for var, state in line.items() if state != 2], r=2)
-    #         for var1, var2 in combs:
-    #             self.interference_graph.add_edge(var1, var2)
-
     def build_graph(self, liveness: Liveness, variables: set[str]) -> None:
         for var in variables:
             self.interference_graph.add_node(var)
@@ -61,27 +41,6 @@ class InterferenceGraph:
                 if var1 in variables and var2 in variables:
                     self.interference_graph.add_edge(var1, var2)
 
-    # def _is_solved(self) -> bool:
-    #     """
-    #     Checks if the interference graph has been successfully colored.
-
-    #     :return: True if the graph is properly coloured, false otherwise
-    #     :rtype: bool
-    #     """
-
-    #     for node in self.interference_graph.nodes():
-    #         color = self.colors[node]
-
-    #         if color is None:
-    #             return False
-
-    #         # Make sure no neighbors have the same color
-    #         for neighbor in self.interference_graph.neighbors(node):
-    #             if color == self.colors[neighbor]:
-    #                 return False
-
-    #     return True
-
     def _possible_colors(self, node: str, n: int) -> set[int]:
         """
         Returns a set of possible colors for a given node.
@@ -99,21 +58,6 @@ class InterferenceGraph:
                 used.add(self.colors[neighbor])
 
         return set(range(n)) - used
-
-    # def _solve_graph_coloring(self, index: int, n: int) -> bool:
-    #     if self._is_solved():
-    #         return True
-
-    #     node = list(self.interference_graph.nodes())[index]
-    #     for color in self._possible_colors(node, n):
-    #         self.colors[node] = color
-
-    #         if self._solve_graph_coloring(index + 1, n):
-    #             return True
-
-    #         self.colors[node] = None
-
-    #     return False
 
     def _solve_graph_coloring(self, index: int, n: int) -> bool:
         nodes = list(self.interference_graph.nodes())
