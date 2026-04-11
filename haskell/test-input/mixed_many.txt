@@ -1,0 +1,10 @@
+a = b + c
+a = b - c
+a = b * c
+a = b / c
+t1 = c + 3
+t2 = -t1
+t4 = 1
+d = d * d
+c = 3 * t1
+live: a,b,c,t2,d

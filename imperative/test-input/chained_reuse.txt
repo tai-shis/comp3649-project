@@ -1,0 +1,6 @@
+a = 1
+a = a + 1
+a = a + 1
+a = a * 2
+b = a
+live: b

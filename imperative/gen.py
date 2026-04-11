@@ -1,4 +1,3 @@
-
 import sys
 from io import StringIO
 from input.scanner import Scanner
@@ -8,9 +7,9 @@ from intermediate.liveness import Liveness
 from intermediate.interference_graph import InterferenceGraph
 from generator.asm_generator import ASMGenerator
 
-OUTPUT_FILE = "./generated/assembly.s"
+OUTPUT_PATH = "./generated/"
 
-def main():
+if __name__ == "__main__":
     """
     Generates assembly code from a three-address code input file, given a specified number of registers.
 
@@ -69,12 +68,10 @@ def main():
     interference_graph.print_variable_interference_table()
     interference_graph.print_register_colouring_table(int(num_regs))
 
-    generator = ASMGenerator(instruction_buffer, interference_graph)
-    
-    generator.generate_assembly(OUTPUT_FILE)
+    generator = ASMGenerator(instruction_buffer, interference_graph, liveness)
 
-    print(f"Assembly code generated successfully to {OUTPUT_FILE}")
+    output_file = OUTPUT_PATH + input_file.split('/')[-1].strip(".txt") + ".s"
+    generator.generate_assembly(output_file)
 
-
-main()
+    print(f"Assembly code generated successfully to {output_file}")
 

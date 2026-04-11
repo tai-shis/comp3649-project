@@ -1,9 +1,9 @@
-# ASMGenerator2-Test-Plan
+# ASMGenerator-Test-Plan
 
 | Category (Reason) | Test (Input) | Expected Output | Actual Output |
 |:------------------|:-------------|:----------------|:--------------|
-| Construction — fields initialized | `ASMGenerator2(buffer, graph, liveness)` | `generated_asm == []`, `in_register == set()`, `register_colors == graph.colors` | `generated_asm == []`, `in_register == set()`, `register_colors == graph.colors` **PASS** |
-| Construction — opcodes initialized | `ASMGenerator2(buffer, graph, liveness)` | `opcodes == {'+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV'}` | `opcodes == {'+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV'}` **PASS** |
+| Construction — fields initialized | `ASMGenerator(buffer, graph, liveness)` | `generated_asm == []`, `in_register == set()`, `register_colors == graph.colors` | `generated_asm == []`, `in_register == set()`, `register_colors == graph.colors` **PASS** |
+| Construction — opcodes initialized | `ASMGenerator(buffer, graph, liveness)` | `opcodes == {'+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV'}` | `opcodes == {'+': 'ADD', '-': 'SUB', '*': 'MUL', '/': 'DIV'}` **PASS** |
 | `_get_reg()` — variable assigned to R0 | `Token("a", 1)`, `register_colors = {"a": 0}` | Returns `"R0"` | Returns `"R0"` **PASS**|
 | `_get_reg()` — variable assigned to R2 | `Token("b", 1)`, `register_colors = {"b": 2}` | Returns `"R2"` | Returns `"R2"` **PASS** |
 | `_get_reg()` — variable not in colors raises error | `Token("z", 1)`, `register_colors = {}` | Raises `ValueError` | Raises `ValueError` **PASS** |

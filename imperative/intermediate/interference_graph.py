@@ -44,7 +44,13 @@ class InterferenceGraph:
             )
 
             for var1, var2 in combs:
-                self.interference_graph.add_edge(var1, var2)
+                if var1 in variables and var2 in variables:
+                    # Ensure both are in colors dict (they should be, but guard anyway)
+                    if var1 not in self.colors:
+                        self.colors[var1] = None
+                    if var2 not in self.colors:
+                        self.colors[var2] = None
+                    self.interference_graph.add_edge(var1, var2)
 
             # Also add edges between operands used on the same line
             # even if both are unlive — they must be in registers simultaneously
@@ -55,26 +61,26 @@ class InterferenceGraph:
                 if var1 in variables and var2 in variables:
                     self.interference_graph.add_edge(var1, var2)
 
-    def _is_solved(self) -> bool:
-        """
-        Checks if the interference graph has been successfully colored.
+    # def _is_solved(self) -> bool:
+    #     """
+    #     Checks if the interference graph has been successfully colored.
 
-        :return: True if the graph is properly coloured, false otherwise
-        :rtype: bool
-        """
+    #     :return: True if the graph is properly coloured, false otherwise
+    #     :rtype: bool
+    #     """
 
-        for node in self.interference_graph.nodes():
-            color = self.colors[node]
+    #     for node in self.interference_graph.nodes():
+    #         color = self.colors[node]
 
-            if color is None:
-                return False
+    #         if color is None:
+    #             return False
 
-            # Make sure no neighbors have the same color
-            for neighbor in self.interference_graph.neighbors(node):
-                if color == self.colors[neighbor]:
-                    return False
+    #         # Make sure no neighbors have the same color
+    #         for neighbor in self.interference_graph.neighbors(node):
+    #             if color == self.colors[neighbor]:
+    #                 return False
 
-        return True
+    #     return True
 
     def _possible_colors(self, node: str, n: int) -> set[int]:
         """
@@ -94,11 +100,34 @@ class InterferenceGraph:
 
         return set(range(n)) - used
 
+    # def _solve_graph_coloring(self, index: int, n: int) -> bool:
+    #     if self._is_solved():
+    #         return True
+
+    #     node = list(self.interference_graph.nodes())[index]
+    #     for color in self._possible_colors(node, n):
+    #         self.colors[node] = color
+
+    #         if self._solve_graph_coloring(index + 1, n):
+    #             return True
+
+    #         self.colors[node] = None
+
+    #     return False
+
     def _solve_graph_coloring(self, index: int, n: int) -> bool:
-        if self._is_solved():
+        nodes = list(self.interference_graph.nodes())
+
+        # Base case: we've colored all nodes successfully
+        if index >= len(nodes):
             return True
 
-        node = list(self.interference_graph.nodes())[index]
+        node = nodes[index]
+
+        # Skip if already colored (shouldn't normally happen, but safe guard)
+        if self.colors[node] is not None:
+            return self._solve_graph_coloring(index + 1, n)
+
         for color in self._possible_colors(node, n):
             self.colors[node] = color
 
