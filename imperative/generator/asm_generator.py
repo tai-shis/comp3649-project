@@ -77,6 +77,94 @@ class ASMGenerator:
             return f"#{token.value}"
         return self._get_reg(token)
 
+    def _emit_binary(self, instruction: Instruction) -> list[ASMInstruction]:
+        '''Emits ASM for a binary instruction: x = a <op> b'''
+        asm: list[ASMInstruction] = []
+        asm.extend(self._load_variable(instruction.operand1))
+
+        dest_reg = self._get_reg(instruction.dest)
+        op1_str  = self._get_operand_str(instruction.operand1)
+        op2_str  = self._get_operand_str(instruction.operand2)
+        op_code  = self._get_op_code(instruction.operator)
+
+        if dest_reg != op1_str:
+            if dest_reg == op2_str and op_code in ('ADD', 'MUL'):
+                # Case: a = b + a — swap since ADD/MUL commute
+                asm.extend(self._load_variable(instruction.operand2))
+                op1_str, op2_str = op2_str, op1_str
+            elif dest_reg == op2_str and op_code in ('SUB', 'DIV'):
+                # Case: a = 1 - a — does not commute, store 'a' back to memory first
+                asm.extend(self._load_variable(instruction.operand2))
+                asm.append(ASMInstruction("MOV", dest_reg, instruction.operand2.value))
+                asm.append(ASMInstruction("MOV", op1_str, dest_reg))
+                op2_str = instruction.operand2.value
+            else:
+                asm.append(ASMInstruction("MOV", op1_str, dest_reg))
+                asm.extend(self._load_variable(instruction.operand2))
+        else:
+            asm.extend(self._load_variable(instruction.operand2))
+
+        asm.append(ASMInstruction(op_code, op2_str, dest_reg))
+        self.in_register.add(instruction.dest.value)
+        return asm
+
+    def _emit_unary(self, instruction: Instruction) -> list[ASMInstruction]:
+        '''Emits ASM for a unary instruction: x = -a'''
+        asm: list[ASMInstruction] = []
+        asm.extend(self._load_variable(instruction.operand2))
+
+        dest_reg   = self._get_reg(instruction.dest)
+        source_str = self._get_operand_str(instruction.operand2)
+
+        if dest_reg != source_str:
+            asm.append(ASMInstruction("MOV", source_str, dest_reg))
+        if instruction.operator.value == '-':
+            asm.append(ASMInstruction("MUL", "#-1", dest_reg))
+
+        self.in_register.add(instruction.dest.value)
+        return asm
+
+    def _emit_assign(self, instruction: Instruction) -> list[ASMInstruction]:
+        '''Emits ASM for a simple assignment: x = a'''
+        asm: list[ASMInstruction] = []
+        asm.extend(self._load_variable(instruction.operand1))
+
+        dest_reg   = self._get_reg(instruction.dest)
+        source_str = self._get_operand_str(instruction.operand1)
+
+        if dest_reg != source_str:
+            asm.append(ASMInstruction("MOV", source_str, dest_reg))
+
+        self.in_register.add(instruction.dest.value)
+        return asm
+
+    def _emit_store_backs(self,
+                          instruction: Instruction,
+                          line_liveness: dict[str, int],
+                          next_liveness: dict[str, int]) -> list[ASMInstruction]:
+        '''
+        Spills any operand whose register is about to be reused by another live
+        variable before that variable's next use.
+        '''
+        operand_map = {0: [instruction.operand1, instruction.operand2],
+                       1: [instruction.operand2],
+                       2: [instruction.operand1]}
+        operands = operand_map.get(instruction.type, [])
+
+        asm: list[ASMInstruction] = []
+        for operand in operands:
+            if operand is None or operand.type == 2:  # skip literals
+                continue
+            operand_var       = operand.value
+            operand_reg_color = self.register_colors.get(operand_var)
+            for var, color in self.register_colors.items():
+                if color == operand_reg_color and var != operand_var and next_liveness.get(var, 2) != 2:
+                    if operand_var in self.in_register and line_liveness.get(operand_var, 2) == 1:
+                        asm.append(ASMInstruction("MOV", f"R{operand_reg_color}", operand_var))
+                        self.in_register.discard(operand_var)
+                        break
+        return asm
+
     def _generate_instruction_asm(self,
                                   instruction: Instruction,
                                   line_liveness: dict[str, int],
@@ -86,104 +174,21 @@ class ASMGenerator:
 
         :param instruction: The instruction to generate asm code for
         :type instruction: Instruction
-        :return: The list of strings containing assembly code for the instruction
-        :rtype: list[str]
+        :return: The list of ASMInstructions for the instruction
+        :rtype: list[ASMInstruction]
         '''
+        emitters = {
+            0: self._emit_binary,   # x = a <op> b
+            1: self._emit_unary,    # x = -a
+            2: self._emit_assign,   # x = a
+        }
 
-        asm: list[ASMInstruction] = []
+        emitter = emitters.get(instruction.type)
+        if emitter is None:  # TODO: Should we raise an error here?
+            return []
 
-        match instruction.type:
-            case 0: # Binary Instruction: x = a + 2 
-                
-                asm.extend(self._load_variable(instruction.operand1))
-
-                dest_reg = self._get_reg(instruction.dest)
-                op1_str = self._get_operand_str(instruction.operand1)
-                op2_str = self._get_operand_str(instruction.operand2)
-                op_code = self._get_op_code(instruction.operator)
-
-                # If dest and operand1 are equal (i.e. a = a + 1)
-                if dest_reg != op1_str:
-                    if dest_reg == op2_str and op_code in ('ADD', 'MUL'):
-                        # Case: a = b + a, swap since ADD and MUL commute
-                        asm.extend(self._load_variable(instruction.operand2))
-                        op1_str, op2_str = op2_str, op1_str
-                    elif dest_reg == op2_str and op_code in ('SUB', 'DIV'):
-                        # Case: a = 1 - a, does not commute so store 'a' to memory
-                        asm.extend(self._load_variable(instruction.operand2))
-                        asm.append(ASMInstruction("MOV", dest_reg, instruction.operand2.value))
-                        asm.append(ASMInstruction("MOV", op1_str, dest_reg))
-                        op2_str = instruction.operand2.value
-                    else:
-                        asm.append(ASMInstruction("MOV", op1_str, dest_reg))
-                        asm.extend(self._load_variable(instruction.operand2))
-                else:
-                    asm.extend(self._load_variable(instruction.operand2))
-
-                asm.append(ASMInstruction(op_code, op2_str, dest_reg))
-                self.in_register.add(instruction.dest.value)
-
-            case 1: # Unary Instruction: x = -a
-                asm.extend(self._load_variable(instruction.operand2))
-
-                dest_reg = self._get_reg(instruction.dest)
-                source_str = self._get_operand_str(instruction.operand2)
-                op_symbol = instruction.operator.value
-
-                if op_symbol == '-':
-                    if  dest_reg != source_str:
-                        asm.append(ASMInstruction("MOV", source_str, dest_reg))
-                    asm.append(ASMInstruction("MUL", "#-1", dest_reg))
-                else:
-                    if dest_reg != source_str:
-                        asm.append(ASMInstruction("MOV", source_str, dest_reg))
-
-                self.in_register.add(instruction.dest.value)
-                
-            case 2: # Assignment: x = a
-                # First we need to ensure 'a' is loaded into its register. If not, we will get 'MOV a,Ra' from this.
-                asm.extend(self._load_variable(instruction.operand1))
-
-                dest_reg = self._get_reg(instruction.dest)
-                source_str = self._get_operand_str(instruction.operand1) # This could be a register (RX) or a literal (#<num>). Can't know for sure
-
-                # Must make sure the source variable is not assigned the same register as the destination. 
-                # If not we can complete the move right here.
-                if dest_reg != source_str:
-                    asm.extend([ASMInstruction("MOV", source_str, dest_reg)])
-                
-                self.in_register.add(instruction.dest.value)
-
-            case _: # Instruction somehow made it this far while being invalid. TODO: Should we raise error here?
-                return []
-            
-        # --- Store-back functionality --- 
-        dest_var = instruction.dest.value
-        dest_reg = self._get_reg(instruction.dest)
-
-        # Check all operands to see if any sharing variable is about to use their register
-        if instruction.type == 0:
-            operands = [instruction.operand1, instruction.operand2]
-        elif instruction.type == 1:
-            operands = [instruction.operand2]
-        elif instruction.type == 2:
-            operands = [instruction.operand1]
-        else:
-            operands = []
-
-        for operand in operands:
-            if operand is None or operand.type == 2:  # skip literals
-                continue
-            operand_var = operand.value
-            operand_reg_color = self.register_colors.get(operand_var)
-            for var, color in self.register_colors.items():
-                if color == operand_reg_color and var != operand_var and next_liveness.get(var, 2) != 2:
-                    if operand_var in self.in_register and line_liveness.get(operand_var, 2) == 1:
-                
-                        asm.extend([ASMInstruction("MOV", f"R{operand_reg_color}", operand_var)])
-                        self.in_register.discard(operand_var)
-                        break
-
+        asm = emitter(instruction)
+        asm.extend(self._emit_store_backs(instruction, line_liveness, next_liveness))
         return asm
 
     def _write_live_on_exit(self):
@@ -216,11 +221,9 @@ class ASMGenerator:
         Generates assembly instructions for every instruction contained win the instruction buffer.
         Output: generated/<input_file>.s
         '''
-
         liveness_list = self.liveness.get_liveness()
 
         for i, instruction in enumerate(self.buffer.instructions):
-            
             if i < len(liveness_list):
                 line_liveness = liveness_list[i]
             else:
@@ -230,12 +233,10 @@ class ASMGenerator:
                 next_liveness = liveness_list[i + 1]
             else:
                 next_liveness = {}
-            
-            new_asm_instruction: list[ASMInstruction] = self._generate_instruction_asm(instruction, line_liveness, next_liveness)
-            self.generated_asm.extend(new_asm_instruction)
+
+            new_asm = self._generate_instruction_asm(instruction, line_liveness, next_liveness)
+            self.generated_asm.extend(new_asm)
 
         self._write_live_on_exit()
-        
         self._output_to_file(input_file)
-
         return self.generated_asm
