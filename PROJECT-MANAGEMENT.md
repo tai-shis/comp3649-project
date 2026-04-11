@@ -98,7 +98,7 @@
 
 
 ## High-level Testing Framework
-<small>Last Updated: 02/03/2026</small>
+<small>Last Updated: 06/04/2026</small>
 
 ~~With the current state of the project, our testing framework is to develop test cases as we go.~~
 
@@ -111,9 +111,11 @@ Resulting test branch: *test/scanner-tests*
 - Merge test branches into the feature branch, and then the feature branch can be dealt with afterwards. We are treating the test branches as sub-branches to the feature branch, not an extension of main. **Note:** Special exception to this rule is if more test coverage is being added after the feature branch was merged. If no new features are added to the module then the test branch can be merged into main.
 - It is ideal for another member of the group to review and accept the PR that was opened on the test branch. However, if timeline becomes an issue and no member has merged the PR, the test branch developer may accept it themselves provided the group is informed beforehand. 
 
-
 A future implementation possibility could be module-based unit testing and using Git Issues to assign debugging/fix jobs to certain members. This alongside our current approach of opening pull requests that are *not* approved by the same person who opened it. This will ensure consistent testing/code quality assessment throughout the project's timeline.
 
+**NOTE:** Post project check-in, it is *required* that the developer of a test module create a test plan before coding any tests. The test plan must follow the naming convention `<ModuleToTest>-Test-Plan.md`. See `haskell/Tests/Test-Plans/Test-Plan-Template.md` for plan layout. This *must* be followed for the Python test plans that must be written as well.
+
+**Python Implementation**<br>
 When running test cases:
 1. Ensure you are in ```comp3649-project/imperative``` directory
 2. Run the following to test your code
@@ -125,3 +127,19 @@ python -m unittest -v tests.<test_module>
 python -m unittest -v tests.scanner-test
 ```
 The ```-v``` flag will print the ```unittest``` results in *verbose* form so you can see exactly which test cases passed and failed.
+
+**Haskell Implementation**<br>
+These steps are **ONLY** applicable once the Test Plan document has been completed and ideally reviewed by other group members.<br>
+1. Add your test module to the makefile rules with the following rule-naming convention: `test-<module>`<br>
+i.e. Test Module `InstructionTest.hs` will have the following rule within the makefile:
+``` sh
+# Example
+test-instruction:
+  $(GHCI) $(FLAGS) Tests/InstructionTest.hs
+```
+2. Add a new entry to the `test-all` rule to include your new test module.
+3. Navigate to the `/comp3649-project/haskell` directory.
+4. Run `make test-<module>` where `<module>` refers to the module name as it is written in the `makefile` and **not** the name of the `.hs` file in `/Tests`.
+5. Once modules have been loaded successfully and you are in the `GHCI` prompt, run `main` and hit `Enter` to view the output.
+
+**Alternatively** you can run `make test-all` and every test under the `test-all` rule will be compiled and ran automatically.

@@ -1,14 +1,17 @@
 import unittest
 from io import StringIO
 from unittest.mock import patch
+
+from input.instruction import Instruction
+from input.instruction_buffer import InstructionBuffer
+from input.token import Token
 from intermediate.interference_graph import InterferenceGraph
 from intermediate.liveness import Liveness
-from input.instruction_buffer import InstructionBuffer
-from input.instruction import Instruction
-from input.token import Token
 
 
-def make_buffer(instructions: list[Instruction], live_objects: list[str]) -> InstructionBuffer:
+def make_buffer(
+    instructions: list[Instruction], live_objects: list[str]
+) -> InstructionBuffer:
     """Helper to build an InstructionBuffer from instructions and live objects."""
     buf = InstructionBuffer()
     for instr in instructions:
@@ -23,7 +26,9 @@ def make_assignment(dest: str, operand: str, operand_type: int) -> Instruction:
     return Instruction(2, Token(dest, 0), Token(operand, operand_type))
 
 
-def make_graph_with_liveness(instructions: list[Instruction], live_objects: list[str], variables: set[str]) -> InterferenceGraph:
+def make_graph_with_liveness(
+    instructions: list[Instruction], live_objects: list[str], variables: set[str]
+) -> InterferenceGraph:
     """Helper to build a complete InterferenceGraph from instructions, live objects, and variables."""
     buf = make_buffer(instructions, live_objects)
     liveness = Liveness(buf)
@@ -33,7 +38,6 @@ def make_graph_with_liveness(instructions: list[Instruction], live_objects: list
 
 
 class TestInterferenceGraphConstruction(unittest.TestCase):
-
     def test_empty_graph_has_no_nodes(self):
         graph = InterferenceGraph()
         self.assertEqual(len(graph.interference_graph.nodes()), 0)
@@ -48,7 +52,6 @@ class TestInterferenceGraphConstruction(unittest.TestCase):
 
 
 class TestBuildGraph(unittest.TestCase):
-
     def test_nodes_added_for_all_variables(self):
         instr = make_assignment("x", "a", 1)
         graph = make_graph_with_liveness([instr], ["a"], {"x", "a", "b"})
@@ -64,7 +67,9 @@ class TestBuildGraph(unittest.TestCase):
 
     def test_edge_added_between_two_live_vars(self):
         # x = a + b, live: a, b — a and b are both live so should interfere
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
+        instr = Instruction(
+            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
+        )
         graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
         self.assertTrue(graph.interference_graph.has_edge("a", "b"))
 
@@ -88,15 +93,20 @@ class TestBuildGraph(unittest.TestCase):
 
     def test_no_duplicate_edges(self):
         # Two instructions where a and b are both live — should still only have one edge
-        instr1 = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
-        instr2 = Instruction(0, Token("y", 0), Token("a", 1), Token("+", 3), Token("b", 1))
-        graph = make_graph_with_liveness([instr1, instr2], ["a", "b"], {"x", "y", "a", "b"})
+        instr1 = Instruction(
+            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
+        )
+        instr2 = Instruction(
+            0, Token("y", 0), Token("a", 1), Token("+", 3), Token("b", 1)
+        )
+        graph = make_graph_with_liveness(
+            [instr1, instr2], ["a", "b"], {"x", "y", "a", "b"}
+        )
         # NetworkX graphs don't allow duplicate edges, so just verify the edge exists once
         self.assertEqual(graph.interference_graph.number_of_edges("a", "b"), 1)
 
 
 class TestIsSolved(unittest.TestCase):
-
     def test_returns_false_when_colors_are_none(self):
         instr = make_assignment("x", "a", 1)
         graph = make_graph_with_liveness([instr], [], {"x", "a"})
@@ -104,7 +114,9 @@ class TestIsSolved(unittest.TestCase):
         self.assertFalse(graph._is_solved())
 
     def test_returns_false_when_neighbors_share_color(self):
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
+        instr = Instruction(
+            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
+        )
         graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
         # Manually assign same color to connected nodes
         graph.colors["a"] = 0
@@ -113,7 +125,9 @@ class TestIsSolved(unittest.TestCase):
         self.assertFalse(graph._is_solved())
 
     def test_returns_true_when_properly_colored(self):
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
+        instr = Instruction(
+            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
+        )
         graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
         graph.colors["a"] = 0
         graph.colors["b"] = 1
@@ -126,34 +140,46 @@ class TestIsSolved(unittest.TestCase):
 
 
 class TestPossibleColors(unittest.TestCase):
-
     def test_all_colors_available_no_colored_neighbors(self):
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
+        instr = Instruction(
+            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
+        )
         graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
         # All neighbors of x are uncolored
         result = graph._possible_colors("x", 3)
         self.assertEqual(result, {0, 1, 2})
 
     def test_excludes_neighbor_colors(self):
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
-        graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
+        graph = InterferenceGraph()
+        for var in ["x", "a", "b"]:
+            graph.interference_graph.add_node(var)
+            graph.colors[var] = None
+        graph.interference_graph.add_edge("x", "a")
+        graph.interference_graph.add_edge("x", "b")
         graph.colors["a"] = 0
         graph.colors["b"] = 1
         result = graph._possible_colors("x", 3)
         self.assertEqual(result, {2})
 
     def test_no_colors_available(self):
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
-        graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
+        graph = InterferenceGraph()
+        for var in ["x", "a", "b"]:
+            graph.interference_graph.add_node(var)
+            graph.colors[var] = None
+        graph.interference_graph.add_edge("x", "a")
+        graph.interference_graph.add_edge("x", "b")
         graph.colors["a"] = 0
         graph.colors["b"] = 1
-        # Only 2 colors available but both used by neighbors
         result = graph._possible_colors("x", 2)
         self.assertEqual(result, set())
 
     def test_ignores_uncolored_neighbors(self):
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
-        graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
+        graph = InterferenceGraph()
+        for var in ["x", "a", "b"]:
+            graph.interference_graph.add_node(var)
+            graph.colors[var] = None
+        graph.interference_graph.add_edge("x", "a")
+        graph.interference_graph.add_edge("x", "b")
         graph.colors["a"] = 0
         # b is uncolored (None), should not be excluded
         result = graph._possible_colors("x", 2)
@@ -161,9 +187,10 @@ class TestPossibleColors(unittest.TestCase):
 
 
 class TestColorGraph(unittest.TestCase):
-
     def test_two_colorable_graph(self):
-        instr = Instruction(0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1))
+        instr = Instruction(
+            0, Token("x", 0), Token("a", 1), Token("+", 3), Token("b", 1)
+        )
         graph = make_graph_with_liveness([instr], ["a", "b"], {"x", "a", "b"})
         graph.color_graph(3)
         # Verify no two connected nodes share a color
@@ -205,7 +232,6 @@ class TestColorGraph(unittest.TestCase):
 
 
 class TestPrintVariableInterferenceTable(unittest.TestCase):
-
     def test_correct_format(self):
         graph = InterferenceGraph()
         for var in ["a", "b"]:
@@ -235,13 +261,14 @@ class TestPrintVariableInterferenceTable(unittest.TestCase):
         with patch("sys.stdout", new_callable=StringIO) as mock_out:
             graph.print_variable_interference_table()
             output = mock_out.getvalue()
-        lines = [l for l in output.strip().split("\n") if l and not l.startswith("Variable")]
+        lines = [
+            l for l in output.strip().split("\n") if l and not l.startswith("Variable")
+        ]
         node_names = [l.split(":")[0] for l in lines]
         self.assertEqual(node_names, sorted(node_names))
 
 
 class TestPrintRegisterColouringTable(unittest.TestCase):
-
     def test_correct_format(self):
         graph = InterferenceGraph()
         graph.interference_graph.add_node("a")
@@ -272,7 +299,6 @@ class TestPrintRegisterColouringTable(unittest.TestCase):
 
 
 class TestStr(unittest.TestCase):
-
     def test_contains_nodes(self):
         graph = InterferenceGraph()
         for var in ["a", "b"]:
