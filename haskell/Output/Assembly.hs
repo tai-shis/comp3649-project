@@ -1,4 +1,8 @@
-module Output.Assembly (OpCode (..), AssemblyInstruction (..), Assembly (..)) where
+module Output.Assembly (
+  OpCode (..),
+  AssemblyInstruction (..),
+  Assembly (..)
+) where
 
 data OpCode
   = ADD

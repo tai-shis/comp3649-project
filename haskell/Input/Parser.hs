@@ -31,6 +31,9 @@ parseTokens :: [[Token]] -> Bool -> ([Instruction], [String])
 parseTokens [] _ = ([], [])
 parseTokens _ True = error "Error: Unexpected tokens found after live line."
 
+-- Skip blank lines (empty token lists)
+parseTokens ([] : rest) isLive = parseTokens rest isLive
+
 -- Binary instruction: dest = op1 operator op2
 parseTokens ((dest@(Tn _ Destination) : (Tn _ Equals) : op1 : operator@(Tn _ Operator) : op2 : []) : rest) False
     | (Tn _ Variable) <- op1, (Tn _ Variable) <- op2 = binary op1 op2
@@ -62,7 +65,7 @@ parseTokens (((Tn _ Live) : tokens) : rest) False =
     if checkLiveTokens tokens
         then (restInstructions, map (\(Tn name _) -> name) tokens)
         else error "Error: Invalid tokens in live line encountered."
-    where (restInstructions, _) = parseTokens rest False
+    where (restInstructions, _) = parseTokens rest True
 
 parseTokens _ _ = error "Error: Invalid instruction format encountered."
 

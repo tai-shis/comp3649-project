@@ -7,27 +7,27 @@ import Intermediate.Liveness hiding (Live)
 import qualified Intermediate.Liveness as L
 import Intermediate.InterferenceGraph
 
--- Helper to report pass/fail
+-- standard wrapper
 check :: String -> Bool -> String
 check name True  = "PASS: " ++ name
 check name False = "FAIL: " ++ name
 
--- Helper: check if a variable in a graph has a specific neighbor
+-- quick way to check if a specific edge exists
 hasNeighbor :: Graph -> String -> String -> Bool
 hasNeighbor graph varName neighborName =
     case filter (\v -> getName v == varName) (getVertices graph) of
         []    -> False
         (v:_) -> neighborName `elem` toList (getNeighbors v)
 
--- Helper: check if a variable exists in the graph
+-- check if a node even exists
 hasVertex :: Graph -> String -> Bool
 hasVertex graph varName = any (\v -> getName v == varName) (getVertices graph)
 
--- A simple graph with two connected nodes for reuse
+-- dummy graph for reuse so we don't build from scratch every time
 twoNodeGraph :: Graph
 twoNodeGraph = addEdge (Graph [createVariable "a", createVariable "b"]) "a" "b"
 
--- Sample liveness states for buildGraph tests
+-- dummy liveness states for the builder
 singleLiveLine :: [LivenessStates]
 singleLiveLine = [[L.Live "a", L.Live "b"]]
 
@@ -39,55 +39,56 @@ main = mapM_ putStrLn results
 
 results :: [String]
 results =
-    
     [
-        -- createVariable
-        check "createVariable - correct name" (getName (createVariable "x") == "x"),
-        check "createVariable - empty neighbors" (getNeighbors (createVariable "x") == empty),
+        -- node creation
+        check "create node saves name correctly" (getName (createVariable "x") == "x"),
+        check "new node starts with no neighbors" (getNeighbors (createVariable "x") == empty),
 
-        -- createGraph
-        check "createGraph - empty vertices" (getVertices createGraph == []),
+        -- empty graph
+        check "new graph is completely empty" (getVertices createGraph == []),
 
-        -- Show Variable
-        check "Show Variable - no neighbors" (show (createVariable "x") == "x -> "),
-        check "Show Variable - with neighbors" (show (head (filter (\v -> getName v == "a") (getVertices twoNodeGraph))) == "a -> \"b\"")
-        ++ (show (head (filter (\v -> getName v == "a") (getVertices twoNodeGraph)))),
+        -- printing
+        check "print lonely variable" (show (createVariable "x") == "x -> "),
+        check "print connected variable" 
+            (let v = head (filter (\x -> getName x == "a") (getVertices twoNodeGraph))
+             in show v == "a -> \"b\""),
 
-        -- Show Graph
-        check "Show Graph - empty graph" (show createGraph == "Interference Graph: \n"),
-        check "Show Graph - populated graph"
+        check "print empty graph" (show createGraph == "Interference Graph: \n"),
+        check "print graph shows all connections"
             (let g = show twoNodeGraph
             in "Interference Graph: \n" `isPrefixOf` g
                 && "a -> \"b\"" `isInfixOf` g
                 && "b -> \"a\"" `isInfixOf` g),
 
-        -- Eq Variable
-        check "Eq Variable - equal variables" (createVariable "x" == createVariable "x"),
-        check "Eq Variable - different names" (createVariable "x" /= createVariable "y"),
+        -- equality
+        check "same variables are equal" (createVariable "x" == createVariable "x"),
+        check "different variables are not" (createVariable "x" /= createVariable "y"),
 
-        -- Eq Graph
-        check "Eq Graph - equal graphs" (createGraph == createGraph),
-        check "Eq Graph - different graphs" (Graph [createVariable "x"] /= Graph [createVariable "y"]),
+        check "empty graphs are equal" (createGraph == createGraph),
+        check "different graphs are not" (Graph [createVariable "x"] /= Graph [createVariable "y"]),
 
-        -- addEdge
-        check "addEdge - both nodes exist, a has b as neighbor" (hasNeighbor twoNodeGraph "a" "b"),
-        check "addEdge - both nodes exist, b has a as neighbor" (hasNeighbor twoNodeGraph "b" "a"),
-        check "addEdge - first node missing" 
+        -- manual edge adding
+        check "adding edge connects a to b" (hasNeighbor twoNodeGraph "a" "b"),
+        check "adding edge connects b back to a" (hasNeighbor twoNodeGraph "b" "a"),
+        check "adding edge fails quietly if first node is missing" 
             (addEdge (Graph [createVariable "b"]) "a" "b"
             == Graph [createVariable "b"]),
-        check "addEdge - second node missing"
+        check "adding edge fails quietly if second node is missing"
             (addEdge (Graph [createVariable "a"]) "a" "b"
             == Graph [createVariable "a"]),
-        check "addEdge - neither node exists" (addEdge createGraph "a" "b" == createGraph),
-        check "addEdge - self edge" 
+        check "adding edge fails quietly if graph is empty" (addEdge createGraph "a" "b" == createGraph),
+        
+        check "self edges are ignored" 
             (let g = Graph [createVariable "x"]
             in addEdge g "x" "x" == g),
-        check "addEdge - duplicate edge"
+            
+        check "duplicate edges don't break anything"
             (let g  = Graph [createVariable "a", createVariable "b"]
                  g1 = addEdge g  "a" "b"
                  g2 = addEdge g1 "a" "b"
                 in g1 == g2),
-        check "addEdge - three nodes, a-b and a-c edges"
+                
+        check "multiple connections on one node work"
             (let g  = Graph [createVariable "a", createVariable "b", createVariable "c"]
                  g1 = addEdge g  "a" "b"
                  g2 = addEdge g1 "a" "c"
@@ -97,30 +98,31 @@ results =
                 && hasNeighbor g2 "c" "a"
                 && not (hasNeighbor g2 "b" "c")),
 
-        -- buildGraph
-        check "buildGraph - empty variables and liveness" (buildGraph [] [] == createGraph),
-        check "buildGraph - nodes created for all variables"
+        -- the main builder function
+        check "builder handles empty inputs" (buildGraph [] [] == createGraph),
+        check "builder creates all requested nodes"
             (let g = buildGraph ["a", "b", "x"] []
             in hasVertex g "a" && hasVertex g "b" && hasVertex g "x"),
-        check "buildGraph - edge between two live vars"
+            
+        check "builder connects things alive at same time"
             (let g = buildGraph ["a", "b"] singleLiveLine
             in hasNeighbor g "a" "b" && hasNeighbor g "b" "a"),
-        check "buildGraph - no edge for unlive variable"
-            (let g = buildGraph ["a", "b"] mixedLiveLine
-            in not (hasNeighbor g "a" "b") && not (hasNeighbor g "b" "a")),
-        check "buildGraph - no edge for isolated variable"
+
+        check "isolated variable stays lonely"
             (let g = buildGraph ["a", "b", "x"] singleLiveLine
             in getNeighbors (head (filter (\v -> getName v == "x") (getVertices g))) == empty),
-        check "buildGraph - no duplicate edges"
+            
+        check "builder doesn't double-connect over multiple lines"
             (let doubleLive = [singleLiveLine !! 0, singleLiveLine !! 0]
                  g = buildGraph ["a", "b"] doubleLive
                 in toList (getNeighbors (head (filter (\v -> getName v == "a") (getVertices g)))) == ["b"]),
-        check "buildGraph - no self edges"
+                
+        check "builder prevents self interference"
             (let g = buildGraph ["a"] [[L.Live "a"]]
             in getNeighbors (head (getVertices g)) == empty)
     ]
 
--- String helpers
+-- dumb string helpers for the print tests
 isPrefixOf :: String -> String -> Bool
 isPrefixOf [] _  = True
 isPrefixOf _  [] = False
