@@ -1,6 +1,6 @@
 module Intermediate.InterferenceGraph (
-    Variable, 
-    Graph, 
+    Variable(..), 
+    Graph(..), 
     createVariable, 
     getName, 
     getNeighbors, 
@@ -8,12 +8,17 @@ module Intermediate.InterferenceGraph (
     getVertices, 
     addEdge,
     buildGraph,
-    testBuildGraph,
-    liveness
+    -- testBuildGraph,
+    -- liveness,
+    Register,
+    RegisterMap,
+    colourGraph,
+    -- testColourGraph,
+    getColouring
 ) where
 
 import Lib.Helper (
-    commaSperatedList, 
+    commaSeparatedList, 
     pairTrue)
 
 import Data.Set (
@@ -64,7 +69,7 @@ data Variable = Var (String, Neighbors)
     deriving (Eq)
 
 instance Show Variable where
-    show (Var (name, neighbors)) = name ++ " -> " ++ commaSperatedList (toList neighbors)
+    show (Var (name, neighbors)) = name ++ " -> " ++ commaSeparatedList (toList neighbors)
 
 data Graph = Graph [Variable]
     deriving (Eq)
@@ -119,7 +124,7 @@ addEdge graph name1 name2 | pairTrue (edgeExists (getVertices graph) name1 name2
 buildGraph :: [String] -> [LivenessStates] -> Graph
 buildGraph variables liveness = foldl (\g (v1, v2) -> addEdge g v1 v2) emptyGraph allPairs
     where emptyGraph = Graph (map createVariable variables)
-          activePerLine = map (\line -> map getLivenessName (filter (not . isUnlive) line)) liveness
+          activePerLine = map namesFromLiveness liveness
           allPairs = concatMap getPairs activePerLine
 
 -- Private: Helper function to generate all unique pairs from a list of strings
@@ -127,21 +132,35 @@ getPairs :: [String] -> [(String, String)]
 getPairs [] = []
 getPairs (x:xs) = map (\y -> (x, y)) xs ++ getPairs xs
 
+-- Type alias for better readability and understanding
+type Register = Int
+-- RegisterMap is the "history" of all the registers that have already been coloured
+type RegisterMap = [(String, Register)] 
 
+-- Public: Colours the graph using recursive backtracking
+colourGraph :: Graph -> Int -> [RegisterMap]
+colourGraph (Graph vars) numColours = solve vars []
+    where
+        solve :: [Variable] -> RegisterMap -> [RegisterMap]
+        solve [] assigned = [assigned]
+        solve (v:vs) assigned = 
+            -- picks an available register, verifies it doesn't conflict with neighbour, then adds it to finishedMap and keeps going
+            [ finishedMap 
+            | colour <- [0 .. numColours - 1]
+            , isSafe colour v assigned
+            , finishedMap <- solve vs ((getName v, colour) : assigned) 
+            ]
 
--- TEST DATA
-ins1 = createInstruction (createToken "a"  Destination, createToken "a"  Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins2 = createInstruction (createToken "t1" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "4"  Literal)
-ins3 = createInstruction (createToken "t2" Destination, createToken "t1" Variable, createToken "+"  Operator, createToken "1"  Literal)
-ins4 = createInstruction (createToken "t3" Destination, createToken "a"  Variable, createToken "*"   Operator, createToken "3"  Literal)
-ins5 = createInstruction (createToken "b"  Destination, createToken "t2" Variable, createToken "-"  Operator, createToken "t3" Variable)
-ins6 = createInstruction (createToken "t4" Destination, createToken "b"  Variable, createToken "/"  Operator, createToken "2"  Literal)
-ins7 = createInstruction (createToken "d"  Destination, createToken "c"  Variable, createToken "+"  Operator, createToken "t5" Variable)
+-- Private: Helper function to check if a register (colour) is safe and does not conflict with neighbours
+isSafe :: Register -> Variable -> RegisterMap -> Bool
+isSafe colour var assigned = not (any hasConflict assigned)
+    where 
+        -- list of neighbours that interfere with the variable
+        enemies = toList (getNeighbors var)
+        -- hasConflict occurs when a previous assigned variable has the same colour and is a neighbour
+        hasConflict (enemyName, enemyColour) = (enemyColour == colour) && (elem enemyName enemies)
 
-is = fromArraysInstructions [ins1, ins2, ins3, ins4, ins5, ins6, ins7] ["d"]
-liveness = determineLiveness is
-linfo = livenessInfo liveness
-
--- Test variable for buildGraph
-testBuildGraph = buildGraph ["a", "b", "c", "d", "t1", "t2", "t3", "t4", "t5"] liveness
-
+-- Public: Checks if graph was coloured successfully on runtime, returns the first valid colouring if so.
+getColouring :: [RegisterMap] -> RegisterMap
+getColouring colourings | length colourings == 0 = error "Graph could not be coloured with the given number of registers" 
+                        | otherwise = colourings !! 0

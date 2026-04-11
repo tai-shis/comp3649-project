@@ -84,13 +84,13 @@ class InstructionBuffer:
     def __str__(self):
         string = ""
 
-        for node in self.list_instructions():
-            string += str(node.value) + "\n"
+        for instruction in self.list_instructions():
+            string += str(instruction) + "\n"
 
 
         string += "live: "
 
-        for node in self.list_live_objects():
-            string += node + ", "
+        for live_object in self.list_live_objects():
+            string += live_object + ", "
 
         return string

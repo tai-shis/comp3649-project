@@ -1,6 +1,7 @@
 module Input.Instruction (
     Instructable(createInstruction),
-    Instruction,
+    Instruction(..),
+    InstructionType(..),
     Instructions,
     getVariables,
     getDestination,
@@ -9,11 +10,13 @@ module Input.Instruction (
     showInstructions,
     showLiveVars,
     emptyInstructions,
-    fromArraysInstructions
+    fromArraysInstructions,
+    getAllVariables
 ) where
 
 import Input.Token
-import Lib.Helper (commaSperatedList)
+import Lib.Helper (commaSeparatedList)
+import Data.List(nub)
 
 type Dest = Token
 type Operand = Token
@@ -71,7 +74,7 @@ showInstructions instructions = "Instructions: \n" ++ concatMap (\x -> show x ++
 
 -- Public: Prints all live variables
 showLiveVars :: [LiveVariable] -> String
-showLiveVars liveVars =  "Live: " ++ commaSperatedList liveVars
+showLiveVars liveVars =  "Live: " ++ commaSeparatedList liveVars
 
 -- Public: Retrieves all live variables stored in the given Instructions object
 getLiveVariables :: Instructions -> [LiveVariable]
@@ -96,3 +99,7 @@ getDestination (AssignmentIns _ dest _) = dest
 -- Private: Helper that checks if Token is a variable
 isVariable :: Token -> Bool
 isVariable token = getType token == Variable
+
+-- Public: Gets all unique variables in the list of instructions
+getAllVariables :: Instructions -> [String]
+getAllVariables (Inst (instructions, _)) = nub $ map (\ins -> getValue (getDestination ins)) instructions

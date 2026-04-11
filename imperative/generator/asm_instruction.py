@@ -9,3 +9,6 @@ class ASMInstruction:
         self.op_code = op_code
         self.op1 = op1
         self.op2 = op2
+
+    def __str__(self):
+        return f"{self.op_code} {self.op1},{self.op2}"

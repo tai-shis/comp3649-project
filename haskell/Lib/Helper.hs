@@ -1,5 +1,5 @@
 module Lib.Helper (
-    commaSperatedList,
+    commaSeparatedList,
     addList,
     addUnique,
     pairTrue
@@ -7,15 +7,15 @@ module Lib.Helper (
 
 -- Utility functions for displaying various data structures in a readable format
 
--- Private: Helper function for commaSperatedList to recursively build the string with commas in front
-commaSeperatedRest :: Show a => [a] -> String
-commaSeperatedRest (x:xs) = ", " ++ show x ++ commaSeperatedRest xs
-commaSeperatedRest [] = ""
+-- Private: Helper function for commaSeperatedList to recursively build the string with commas in front
+commaSeparatedRest :: Show a => [a] -> String
+commaSeparatedRest (x:xs) = ", " ++ show x ++ commaSeparatedRest xs
+commaSeparatedRest [] = ""
 
 -- Public: Converts a list of showable items into a comma-separated string
-commaSperatedList :: Show a => [a] -> String
-commaSperatedList (x:xs) = show x ++ commaSeperatedRest xs
-commaSperatedList [] = ""
+commaSeparatedList :: Show a => [a] -> String
+commaSeparatedList (x:xs) = show x ++ commaSeparatedRest xs
+commaSeparatedList [] = ""
 
 -- Public: Adds all elements of the first list to the second list if they are not already present
 addList :: (Eq a) => [a] -> [a] -> [a]

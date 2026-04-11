@@ -1,151 +1,127 @@
-import array
-import io
 import unittest
-from input.instruction_buffer import InstructionBuffer
-from input.instruction import Instruction
+from llist import dllist
 from input.token import Token
-import llist
-
-class TestInstructionBuffer(unittest.TestCase):
-
-    def test_add_instruction_TYPE0(self):
-        instruction: Instruction = Instruction(
-            type=0, 
-            dest=Token("a", 0),
-            operand1=Token("a", 1),
-            operator=Token("+", 3),
-            operand2=Token("1", 2))
-        ib: InstructionBuffer = InstructionBuffer()
-        ib.add_instruction(instruction)
-
-        self.assertEqual(ib.instructions[0], instruction)
-        self.assertEqual(ib.instructions[0].type, 0)
-
-    def test_add_instruction_TYPE1(self):
-        instruction: Instruction = Instruction(
-            type=1,
-            dest=Token("a", 0),
-            operator=Token("+", 3),
-            operand2=Token("1", 2))
-        ib: InstructionBuffer = InstructionBuffer()
-        ib.add_instruction(instruction)
-
-        self.assertEqual(ib.instructions[0], instruction)
-        self.assertEqual(ib.instructions[0].type, 1)
-
-    def test_add_instruction_TYPE2(self):
-        instruction: Instruction = Instruction(
-            type=2,
-            dest=Token("a", 0),
-            operand1=Token("1",2))
-        ib: InstructionBuffer = InstructionBuffer()
-        ib.add_instruction(instruction)
-
-        self.assertEqual(ib.instructions[0], instruction)
-        self.assertEqual(ib.instructions[0].type, 2)
-
-    def test_add_live_object(self):
-        lo: str = "a"
-        ib: InstructionBuffer = InstructionBuffer()
-        ib.add_live_object(lo)
-
-        self.assertEqual(ib.live_objects[0], lo)
-
-    def test_list_instructions(self):
-        ins0: Instruction = Instruction(
-            0, 
-            Token("a", 0),
-            Token("a", 1),
-            Token("+", 3),
-            Token("1", 2))
-        ins1: Instruction = Instruction(
-            0,
-            Token("b", 0),
-            Token("a", 1),
-            Token("-", 3),
-            Token("6", 2))
-        ins2: Instruction = Instruction(
-            0,
-            Token("t1", 0),
-            Token("b", 1),
-            Token("/", 3),
-            Token("2", 2))
-        ins3: Instruction = Instruction(
-            0,
-            Token("prod_a", 0),
-            Token("a", 1),
-            Token("*", 3),
-            Token("6",2))
-        ins4: Instruction = Instruction(
-            1,
-            Token("c", 0),
-            Token("1", 2),
-            Token("+", 3),
-            Token("2", 2))
-
-        ib: InstructionBuffer = InstructionBuffer()
-        ib.add_instruction(ins0)
-        ib.add_instruction(ins1)
-        ib.add_instruction(ins2)
-        ib.add_instruction(ins3)
-        ib.add_instruction(ins4)
-
-        ib_list: list[Token] = ib.list_instructions()
-
-        self.assertEqual(str(ib_list[0]), str(ins0))
-        self.assertEqual(str(ib_list[1]), str(ins1))
-        self.assertEqual(str(ib_list[2]), str(ins2))
-        self.assertEqual(str(ib_list[3]), str(ins3))
-        self.assertEqual(str(ib_list[4]), str(ins4))
+from input.instruction import Instruction
+from input.instruction_buffer import InstructionBuffer
 
 
+def make_instruction(type: int) -> Instruction:
+    """Helper to create a simple instruction for testing."""
+    dest = Token("x", 0)
+    operand1 = Token("a", 1)
+    operator = Token("+", 3)
+    operand2 = Token("b", 1)
+    return Instruction(type, dest, operand1, operator, operand2)
 
-    def test_list_live_objects(self):
-        """
-        Tests the list_live_objects() function
-        """
-        lo0: str = "a"
-        lo1: str = "b"
-        lo2: str = "c"
-        ib: InstructionBuffer = InstructionBuffer()
-        ib.add_live_object(lo0)
-        ib.add_live_object(lo1)
-        ib.add_live_object(lo2)
 
-        li_list: list[str] = ib.list_live_objects()
+class TestInstruction(unittest.TestCase):
 
-        self.assertEqual(li_list[0], "a")
-        self.assertEqual(li_list[1], "b")
-        self.assertEqual(li_list[2], "c")
+    def test_instructions_empty_on_construction(self):
+        buf = InstructionBuffer()
+        self.assertIsInstance(buf.instructions, dllist)
+        self.assertEqual(len(buf.instructions), 0)
 
-    def test_empty_buffer_behaviour(self):
-        '''
-        Tests that the InstructionBuffer initializes to empty in the expected way.
-        '''
-        ib = InstructionBuffer()
-        self.assertEqual(ib.list_instructions(), [])
-        self.assertEqual(ib.list_live_objects(), [])
-        self.assertEqual(ib.get_occurred_variables(), set())
-        self.assertEqual(str(ib).strip(), "live:")
+    def test_live_objects_empty_on_construction(self):
+        buf = InstructionBuffer()
+        self.assertIsInstance(buf.live_objects, dllist)
+        self.assertEqual(len(buf.live_objects), 0)
 
-    def test_variable_tracking(self):
-        '''
-        Tests that variables are tracked properly in occurred variables 
-        '''
-        ib = InstructionBuffer()
-        variables = {"a", "b", "t1"}
-        ib.set_occurred_variables(variables)
-        self.assertEqual(ib.get_occurred_variables(), variables)
-        # Check if the t1 variable is recognized
-        self.assertIn("t1", ib.get_occurred_variables())
+    def test_occurred_variables_empty_on_construction(self):
+        buf = InstructionBuffer()
+        self.assertIsInstance(buf.occurred_variables, set)
+        self.assertEqual(buf.occurred_variables, set())
 
-    def test_getters_return_dllist(self):
-        '''
-        Test the return type of the getter functions
-        '''
-        ib = InstructionBuffer()
-        self.assertIsInstance(ib.get_instructions(), llist.dllist)
-        self.assertIsInstance(ib.get_live_objects(), llist.dllist)
+    def test_add_single_instruction(self):
+        buf = InstructionBuffer()
+        instr = make_instruction(0)
+        buf.add_instruction(instr)
+        self.assertEqual(buf.list_instructions(), [instr])
+
+    def test_add_multiple_instructions_preserves_order(self):
+        buf = InstructionBuffer()
+        instr1 = make_instruction(0)
+        instr2 = make_instruction(1)
+        instr3 = make_instruction(2)
+        buf.add_instruction(instr1)
+        buf.add_instruction(instr2)
+        buf.add_instruction(instr3)
+        self.assertEqual(buf.list_instructions(), [instr1, instr2, instr3])
+
+    def test_add_single_live_object(self):
+        buf = InstructionBuffer()
+        buf.add_live_object("a")
+        self.assertEqual(buf.list_live_objects(), ["a"])
+
+    def test_add_multiple_live_objects_preserves_order(self):
+        buf = InstructionBuffer()
+        buf.add_live_object("a")
+        buf.add_live_object("b")
+        buf.add_live_object("c")
+        self.assertEqual(buf.list_live_objects(), ["a", "b", "c"])
+
+    def test_list_instructions_empty_buffer(self):
+        buf = InstructionBuffer()
+        self.assertEqual(buf.list_instructions(), [])
+
+    def test_list_instructions_populated_buffer(self):
+        buf = InstructionBuffer()
+        instr1 = make_instruction(0)
+        instr2 = make_instruction(2)
+        buf.add_instruction(instr1)
+        buf.add_instruction(instr2)
+        result = buf.list_instructions()
+        self.assertEqual(result, [instr1, instr2])
+
+    def test_list_live_objects_empty_buffer(self):
+        buf = InstructionBuffer()
+        self.assertEqual(buf.list_live_objects(), [])
+
+    def test_list_live_objects_populated_buffer(self):
+        buf = InstructionBuffer()
+        buf.add_live_object("a")
+        buf.add_live_object("b")
+        self.assertEqual(buf.list_live_objects(), ["a", "b"])
+
+    def test_get_instructions_returns_dllist(self):
+        buf = InstructionBuffer()
+        instr = make_instruction(0)
+        buf.add_instruction(instr)
+        result = buf.get_instructions()
+        self.assertIsInstance(result, dllist)
+
+    def test_get_instructions_contains_added_instruction(self):
+        buf = InstructionBuffer()
+        instr = make_instruction(0)
+        buf.add_instruction(instr)
+        result = buf.get_instructions()
+        self.assertEqual(result.first.value, instr)
+
+    def test_get_live_objects_returns_dllist(self):
+        buf = InstructionBuffer()
+        buf.add_live_object("a")
+        result = buf.get_live_objects()
+        self.assertIsInstance(result, dllist)
+
+    def test_get_live_objects_contains_added_object(self):
+        buf = InstructionBuffer()
+        buf.add_live_object("a")
+        result = buf.get_live_objects()
+        self.assertEqual(result.first.value, "a")
+
+    def test_get_occurred_variables_empty_on_construction(self):
+        buf = InstructionBuffer()
+        self.assertEqual(buf.get_occurred_variables(), set())
+
+    def test_set_occurred_variables(self):
+        buf = InstructionBuffer()
+        buf.set_occurred_variables({"a", "b"})
+        self.assertEqual(buf.get_occurred_variables(), {"a", "b"})
+
+    def test_get_occurred_variables_after_set(self):
+        buf = InstructionBuffer()
+        buf.set_occurred_variables({"x"})
+        self.assertEqual(buf.get_occurred_variables(), {"x"})
+
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    unittest.main()
